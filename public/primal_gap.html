@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=744, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    width: 700px;
+    padding: 40px 36px;
+    background: #FFFFFF;
+  }
+
+  .title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #D4A843;
+    margin-bottom: 32px;
+  }
+
+  .gap-visual {
+    position: relative;
+    height: 200px;
+    margin-bottom: 24px;
+  }
+
+  /* The track */
+  .track {
+    position: absolute;
+    top: 90px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #E8E5DF;
+    border-radius: 2px;
+  }
+
+  /* The gap fill - from score position to right end */
+  .gap-fill {
+    position: absolute;
+    top: 88px;
+    height: 8px;
+    background: linear-gradient(90deg, rgba(212, 168, 67, 0.3), rgba(212, 168, 67, 0.05));
+    border-radius: 4px;
+  }
+
+  /* Score marker */
+  .score-marker {
+    position: absolute;
+    top: 62px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #1A1A2E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 16px rgba(26, 26, 46, 0.3);
+  }
+
+  .score-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #D4A843;
+  }
+
+  /* Pole labels */
+  .pole-left {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    width: 180px;
+  }
+
+  .pole-right {
+    position: absolute;
+    top: 120px;
+    right: 0;
+    width: 180px;
+    text-align: right;
+  }
+
+  .pole-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #1A1A2E;
+    margin-bottom: 4px;
+  }
+
+  .pole-desc {
+    font-size: 9px;
+    color: #7A756D;
+    line-height: 1.4;
+  }
+
+  /* Scale numbers */
+  .scale-numbers {
+    position: absolute;
+    top: 42px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2px;
+  }
+
+  .scale-num {
+    font-size: 9px;
+    color: #B5B0A8;
+    font-weight: 500;
+    width: 20px;
+    text-align: center;
+  }
+
+  .scale-num.active {
+    color: #1A1A2E;
+    font-weight: 700;
+    font-size: 10px;
+  }
+
+  /* Gap label */
+  .gap-label {
+    position: absolute;
+    top: 12px;
+    text-align: center;
+    transform: translateX(-50%);
+  }
+
+  .gap-label-text {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #D4A843;
+    background: #FFFFFF;
+    padding: 2px 8px;
+  }
+
+  .gap-bracket {
+    position: absolute;
+    top: 30px;
+    height: 52px;
+    border-left: 1px dashed rgba(212, 168, 67, 0.4);
+    border-right: 1px dashed rgba(212, 168, 67, 0.4);
+    border-top: 1px dashed rgba(212, 168, 67, 0.4);
+    border-radius: 4px 4px 0 0;
+  }
+
+  /* Bottom info */
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-top: 16px;
+    border-top: 1px solid #E8E5DF;
+  }
+
+  .info-item {
+    text-align: center;
+    flex: 1;
+  }
+
+  .info-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #7A756D;
+    margin-bottom: 4px;
+  }
+
+  .info-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1A1A2E;
+  }
+
+  .info-value.accent {
+    color: #D4A843;
+  }
+
+  .info-divider {
+    width: 1px;
+    height: 40px;
+    background: #E8E5DF;
+    margin: 0 16px;
+    align-self: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="title">The Primal Gap</div>
+  <div class="gap-visual" id="gapVisual">
+    <div class="scale-numbers" id="scaleNumbers"></div>
+    <div class="track"></div>
+    <div class="gap-fill" id="gapFill"></div>
+    <div class="score-marker" id="scoreMarker">
+      <div class="score-value" id="scoreValue"></div>
+    </div>
+    <div class="pole-left">
+      <div class="pole-label">Wide Gap</div>
+      <div class="pole-desc">Almost none of it reaches the surface</div>
+    </div>
+    <div class="pole-right">
+      <div class="pole-label">Aligned</div>
+      <div class="pole-desc">What I know and what I do are the same thing</div>
+    </div>
+  </div>
+  <div class="info-row">
+    <div class="info-item">
+      <div class="info-label">Your Score</div>
+      <div class="info-value" id="displayScore"></div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <div class="info-label">Gap Reading</div>
+      <div class="info-value accent" id="displayGap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const score = parseInt(params.get('score') || '5');
+  const gapType = params.get('gap_type') || 'CONSISTENT_HIGH';
+
+  // Position score marker (1=left, 10=right)
+  const trackPadding = 30; // px from edges
+  const trackWidth = 700 - 72 - (trackPadding * 2); // wrapper width - padding - track padding
+  const position = trackPadding + ((score - 1) / 9) * trackWidth;
+
+  const marker = document.getElementById('scoreMarker');
+  marker.style.left = position + 'px';
+
+  // Gap fill - from score position to right edge
+  const gapFill = document.getElementById('gapFill');
+  gapFill.style.left = (position + 30) + 'px';
+  gapFill.style.right = trackPadding + 'px';
+
+  // If score is high (8+), gap fill is very small or hidden
+  if (score >= 9) {
+    gapFill.style.display = 'none';
+  }
+
+  // Score display
+  document.getElementById('scoreValue').textContent = score;
+  document.getElementById('displayScore').textContent = score + ' / 10';
+
+  // Gap type display
+  const gapLabels = {
+    'CONSISTENT_LOW': 'Consistent',
+    'CONSISTENT_HIGH': 'Consistent',
+    'CONTRADICTION_DRIVEN': 'Contradiction',
+    'CONTRADICTION_INTERNAL': 'Internal'
+  };
+  document.getElementById('displayGap').textContent = gapLabels[gapType] || 'Reading';
+
+  // Scale numbers
+  const scaleContainer = document.getElementById('scaleNumbers');
+  for (let i = 1; i <= 10; i++) {
+    const num = document.createElement('div');
+    num.className = `scale-num ${i === score ? 'active' : ''}`;
+    num.textContent = i;
+    scaleContainer.appendChild(num);
+  }
+</script>
+</body>
+</html>

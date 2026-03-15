@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=744, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    width: 700px;
+    padding: 40px 36px;
+    background: #FFFFFF;
+  }
+
+  .title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #D4A843;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 10px;
+    color: #7A756D;
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .levels {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 24px;
+  }
+
+  .level-row {
+    display: flex;
+    align-items: stretch;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .level-num {
+    width: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .level-content {
+    flex: 1;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .level-name {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .level-label {
+    font-size: 9px;
+    letter-spacing: 0.3px;
+  }
+
+  .level-state {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  /* Inactive levels */
+  .level-row.inactive {
+    background: #F5F3EF;
+    border: 1px solid #E8E5DF;
+  }
+  .level-row.inactive .level-num { background: #E8E5DF; color: #A09B93; }
+  .level-row.inactive .level-name { color: #7A756D; }
+  .level-row.inactive .level-label { color: #A09B93; }
+  .level-row.inactive .level-state { color: #B5B0A8; }
+
+  /* Active level (Level 1) */
+  .level-row.active {
+    background: #1A1A2E;
+    border: 1px solid #1A1A2E;
+    box-shadow: 0 2px 16px rgba(26, 26, 46, 0.2);
+  }
+  .level-row.active .level-num { background: #D4A843; color: #1A1A2E; }
+  .level-row.active .level-name { color: #D4A843; }
+  .level-row.active .level-label { color: rgba(255, 255, 255, 0.6); }
+  .level-row.active .level-state { color: rgba(255, 255, 255, 0.45); }
+
+  /* Foundation level (Level 0) — slightly emphasised */
+  .level-row.foundation {
+    background: #EDE8DF;
+    border: 1px solid #DDD8CE;
+  }
+  .level-row.foundation .level-num { background: #D8D0C4; color: #7A756D; }
+  .level-row.foundation .level-name { color: #4A4A5A; }
+  .level-row.foundation .level-label { color: #7A756D; }
+  .level-row.foundation .level-state { color: #9E9890; }
+
+  /* Connector arrow */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+  }
+
+  .connector-arrow {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .connector-arrow svg {
+    width: 12px;
+    height: 12px;
+    opacity: 0.25;
+  }
+
+  /* Active connector */
+  .connector.active-conn .connector-arrow svg {
+    opacity: 0.7;
+  }
+
+  /* Reading indicator */
+  .reading-badge {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+
+  .level-row.active .reading-badge {
+    background: rgba(212, 168, 67, 0.2);
+    color: #D4A843;
+  }
+
+  .level-row { position: relative; }
+
+  /* Bottom info */
+  .info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #E8E5DF;
+  }
+
+  .info-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #D4A843;
+    flex-shrink: 0;
+  }
+
+  .info-text {
+    font-size: 10px;
+    color: #7A756D;
+    line-height: 1.4;
+  }
+
+  .info-text strong {
+    color: #1A1A2E;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="title">The Fractal Architecture of Coherence</div>
+  <div class="subtitle">The same pattern operates at every level of scale. This Snapshot reads Level 1.</div>
+
+  <div class="levels">
+    <!-- Level 5 -->
+    <div class="level-row inactive">
+      <div class="level-num">L5</div>
+      <div class="level-content">
+        <div class="level-name">Global Coherence</div>
+        <div class="level-label">The Legacy — congruence with broader systems</div>
+        <div class="level-state">Coherent State: Healthy Action</div>
+      </div>
+    </div>
+
+    <!-- Level 4 -->
+    <div class="level-row inactive">
+      <div class="level-num">L4</div>
+      <div class="level-content">
+        <div class="level-name">Market Coherence</div>
+        <div class="level-label">The Product — congruence with the customer's lived reality</div>
+        <div class="level-state">Coherent State: Resonance</div>
+      </div>
+    </div>
+
+    <!-- Level 3 -->
+    <div class="level-row inactive">
+      <div class="level-num">L3</div>
+      <div class="level-content">
+        <div class="level-name">Organisational Coherence</div>
+        <div class="level-label">The System — the Systemic Gap, design vs purpose</div>
+        <div class="level-state">Coherent State: Flow</div>
+      </div>
+    </div>
+
+    <!-- Level 2 -->
+    <div class="level-row inactive">
+      <div class="level-num">L2</div>
+      <div class="level-content">
+        <div class="level-name">Relational Coherence</div>
+        <div class="level-label">The Dyad — psychological safety vs compensation dynamics</div>
+        <div class="level-state">Coherent State: Psychological Safety</div>
+      </div>
+    </div>
+
+    <!-- Level 1 — ACTIVE -->
+    <div class="level-row active">
+      <div class="level-num">L1</div>
+      <div class="level-content">
+        <div class="level-name">Individual Coherence</div>
+        <div class="level-label">The Core — the Primal Gap, felt truth vs daily action</div>
+        <div class="level-state">Coherent State: Integrity</div>
+      </div>
+      <div class="reading-badge">This Reading</div>
+    </div>
+
+    <!-- Level 0 — Foundation -->
+    <div class="level-row foundation">
+      <div class="level-num">L0</div>
+      <div class="level-content">
+        <div class="level-name">Existential Coherence</div>
+        <div class="level-label">The Ground — congruence with profound meaning</div>
+        <div class="level-state">Coherent State: Purpose</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <div class="info-dot"></div>
+    <div class="info-text">
+      Your individual state at <strong>Level 1</strong> is the origin condition that projects into every other level.
+      The same framework reads all six.
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=744, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    width: 700px;
+    padding: 40px 36px;
+    background: #FFFFFF;
+  }
+
+  .title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #D4A843;
+    margin-bottom: 28px;
+  }
+
+  .spectrum {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+
+  .state-card {
+    flex: 1;
+    border-radius: 8px;
+    padding: 20px 14px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .state-card.inactive {
+    background: #F5F3EF;
+    border: 1px solid #E8E5DF;
+  }
+
+  .state-card.inactive .state-name {
+    color: #A09B93;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .state-card.inactive .state-desc {
+    color: #B5B0A8;
+    font-size: 9px;
+    line-height: 1.4;
+    margin-top: 8px;
+  }
+
+  .state-card.active {
+    background: #1A1A2E;
+    border: 1px solid #1A1A2E;
+    box-shadow: 0 4px 20px rgba(26, 26, 46, 0.25);
+    transform: scale(1.02);
+  }
+
+  .state-card.active .state-name {
+    color: #D4A843;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+
+  .state-card.active .state-desc {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 9.5px;
+    line-height: 1.4;
+    margin-top: 8px;
+  }
+
+  .state-card.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #D4A843;
+  }
+
+  .indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #E8E5DF;
+  }
+
+  .indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #D4A843;
+    flex-shrink: 0;
+  }
+
+  .indicator-text {
+    font-size: 10px;
+    color: #7A756D;
+    line-height: 1.4;
+  }
+
+  .indicator-text strong {
+    color: #1A1A2E;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="title">Your Coherence State</div>
+  <div class="spectrum" id="spectrum"></div>
+  <div class="indicator">
+    <div class="indicator-dot"></div>
+    <div class="indicator-text">
+      Your current reading: <strong id="state-label"></strong>. 
+      This is a signal of current conditions — not a permanent definition.
+    </div>
+  </div>
+</div>
+
+<script>
+  const states = [
+    { id: 'FRACTURED', name: 'Fractured', desc: 'Comprehensive load. System under maximum strain.' },
+    { id: 'DRIFTING', name: 'Drifting', desc: 'Diffuse friction. The primary signal has faded.' },
+    { id: 'STRAINED', name: 'Strained', desc: 'Real load with real awareness. Effort vs design.' },
+    { id: 'DRIVEN', name: 'Driven', desc: 'High performance. Invisible cost accumulating.' },
+    { id: 'COHERENT', name: 'Coherent', desc: 'System in alignment. Friction navigated, not avoided.' }
+  ];
+
+  // Read state from URL params
+  const params = new URLSearchParams(window.location.search);
+  let activeState = (params.get('state') || 'STRAINED').toUpperCase();
+
+  // Handle QUALIFIED as a special case - highlight none, show label
+  const isQualified = activeState === 'QUALIFIED';
+
+  const spectrum = document.getElementById('spectrum');
+  const stateLabel = document.getElementById('state-label');
+
+  states.forEach(s => {
+    const card = document.createElement('div');
+    const isActive = !isQualified && s.id === activeState;
+    card.className = `state-card ${isActive ? 'active' : 'inactive'}`;
+    card.innerHTML = `
+      <div class="state-name">${s.name}</div>
+      <div class="state-desc">${s.desc}</div>
+    `;
+    spectrum.appendChild(card);
+  });
+
+  if (isQualified) {
+    stateLabel.textContent = 'Qualified Read';
+  } else {
+    const found = states.find(s => s.id === activeState);
+    stateLabel.textContent = found ? found.name : activeState;
+  }
+</script>
+</body>
+</html>

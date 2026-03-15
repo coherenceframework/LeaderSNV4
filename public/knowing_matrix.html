@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=744, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    width: 700px;
+    padding: 40px 36px;
+    background: #FFFFFF;
+  }
+
+  .title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #D4A843;
+    margin-bottom: 32px;
+  }
+
+  .matrix-container {
+    position: relative;
+    width: 560px;
+    height: 560px;
+    margin: 0 auto 28px auto;
+  }
+
+  /* Axis labels */
+  .axis-label {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #B5B0A8;
+  }
+
+  .axis-top { top: -20px; left: 50%; transform: translateX(-50%); }
+  .axis-bottom { bottom: -20px; left: 50%; transform: translateX(-50%); }
+  .axis-left { left: -10px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+  .axis-right { right: -10px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+  /* Quadrant grid */
+  .quadrant-grid {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .quadrant {
+    border-radius: 8px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  /* Q1: Known Knowns — top right (conscious + known) */
+  .q1 { grid-column: 2; grid-row: 1; }
+  /* Q2: Known Unknowns — top left (conscious + unknown) */
+  .q2 { grid-column: 1; grid-row: 1; }
+  /* Q3: Unknown Knowns — bottom right (unconscious + known) */
+  .q3 { grid-column: 2; grid-row: 2; }
+  /* Q4: Unknown Unknowns — bottom left (unconscious + unknown) */
+  .q4 { grid-column: 1; grid-row: 2; }
+
+  /* Inactive quadrant */
+  .quadrant.inactive {
+    background: #F5F3EF;
+    border: 1px solid #E8E5DF;
+  }
+  .quadrant.inactive .q-tag { color: #CCC8C0; }
+  .quadrant.inactive .q-name { color: #A09B93; }
+  .quadrant.inactive .q-desc { color: #B5B0A8; }
+
+  /* Active quadrant */
+  .quadrant.active {
+    background: #1A1A2E;
+    border: 1px solid #1A1A2E;
+    box-shadow: 0 4px 24px rgba(26, 26, 46, 0.25);
+  }
+  .quadrant.active .q-tag { color: rgba(212, 168, 67, 0.6); }
+  .quadrant.active .q-name { color: #D4A843; }
+  .quadrant.active .q-desc { color: rgba(255, 255, 255, 0.65); }
+
+  /* Semi-active quadrant (secondary attention) */
+  .quadrant.semi {
+    background: #E8E5DF;
+    border: 1px solid #D8D5CF;
+  }
+  .quadrant.semi .q-tag { color: #9E9890; }
+  .quadrant.semi .q-name { color: #4A4A5A; }
+  .quadrant.semi .q-desc { color: #7A756D; }
+
+  .q-tag {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .q-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .q-desc {
+    font-size: 9.5px;
+    line-height: 1.5;
+  }
+
+  /* Centre circle — Systemic Avoidance */
+  .centre-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border-radius: 60px;
+    background: #D4A843;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 4px 20px rgba(212, 168, 67, 0.35);
+    border-radius: 60px;
+  }
+
+  .centre-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #1A1A2E;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Dividing lines */
+  .h-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #D0CEC8;
+    transform: translateY(-50%);
+    z-index: 5;
+  }
+  .v-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #D0CEC8;
+    transform: translateX(-50%);
+    z-index: 5;
+  }
+
+  /* Bottom indicator */
+  .indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #E8E5DF;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #D4A843;
+    flex-shrink: 0;
+  }
+
+  .indicator-text {
+    font-size: 10px;
+    color: #7A756D;
+    line-height: 1.4;
+  }
+
+  .indicator-text strong {
+    color: #1A1A2E;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="title">The Knowing / Unknowing Matrix</div>
+
+  <div class="matrix-container">
+    <div class="axis-label axis-top">Conscious</div>
+    <div class="axis-label axis-bottom">Unconscious</div>
+    <div class="axis-label axis-left">Unknown</div>
+    <div class="axis-label axis-right">Known</div>
+
+    <div class="quadrant-grid">
+      <div class="quadrant q2" id="q2">
+        <div class="q-tag">Q2: Known Unknowns</div>
+        <div class="q-name">The Inquiry</div>
+        <div class="q-desc">What you are aware of and actively trying to solve.</div>
+      </div>
+      <div class="quadrant q1" id="q1">
+        <div class="q-tag">Q1: Known Knowns</div>
+        <div class="q-name">The Shared Reality</div>
+        <div class="q-desc">The conscious, visible operating conditions.</div>
+      </div>
+      <div class="quadrant q4" id="q4">
+        <div class="q-tag">Q4: Unknown Unknowns</div>
+        <div class="q-name">The Blind Spot</div>
+        <div class="q-desc">What you cannot see from where you are standing.</div>
+      </div>
+      <div class="quadrant q3" id="q3">
+        <div class="q-tag">Q3: Unknown Knowns</div>
+        <div class="q-name">The Felt Truth</div>
+        <div class="q-desc">The signal you carry but have not yet spoken.</div>
+      </div>
+    </div>
+
+    <div class="h-line"></div>
+    <div class="v-line"></div>
+
+    <div class="centre-circle">
+      <div class="centre-label">Systemic<br>Avoidance</div>
+    </div>
+  </div>
+
+  <div class="indicator">
+    <div class="indicator-dot"></div>
+    <div class="indicator-text" id="indicatorText">
+      Your attention currently lives in <strong id="attentionLabel"></strong>.
+    </div>
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const pattern = (params.get('pattern') || 'MIXED').toUpperCase();
+
+  const q1 = document.getElementById('q1');
+  const q2 = document.getElementById('q2');
+  const q3 = document.getElementById('q3');
+  const q4 = document.getElementById('q4');
+  const attentionLabel = document.getElementById('attentionLabel');
+
+  // Default all to inactive
+  [q1, q2, q3, q4].forEach(q => q.classList.add('inactive'));
+
+  if (pattern === 'A_DOMINANT') {
+    // A = Observable = Q1 (Shared Reality) + Q2 (Inquiry) territory
+    q1.classList.remove('inactive');
+    q1.classList.add('active');
+    q2.classList.remove('inactive');
+    q2.classList.add('semi');
+    attentionLabel.textContent = 'the Shared Reality & Inquiry — the conscious, known territory';
+  }
+  else if (pattern === 'B_DOMINANT') {
+    // B = Felt = Q3 (Felt Truth) territory
+    q3.classList.remove('inactive');
+    q3.classList.add('active');
+    attentionLabel.textContent = 'the Felt Truth — sensing what is happening before it becomes visible';
+  }
+  else if (pattern === 'C_DOMINANT') {
+    // C = Cost = Systemic Avoidance territory — between Q3 and Q4
+    q3.classList.remove('inactive');
+    q3.classList.add('semi');
+    q4.classList.remove('inactive');
+    q4.classList.add('semi');
+    attentionLabel.textContent = 'the cost register — the energy spent maintaining conditions you have not yet fully identified';
+  }
+  else {
+    // MIXED — multiple quadrants lit
+    q1.classList.remove('inactive');
+    q1.classList.add('semi');
+    q3.classList.remove('inactive');
+    q3.classList.add('semi');
+    attentionLabel.textContent = 'multiple territories — some friction visible, some felt, some registered only through cost';
+  }
+</script>
+</body>
+</html>

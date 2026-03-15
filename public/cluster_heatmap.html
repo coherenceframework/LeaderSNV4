@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=744, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    width: 700px;
+    padding: 40px 36px;
+    background: #FFFFFF;
+  }
+
+  .title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #D4A843;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 10px;
+    color: #7A756D;
+    margin-bottom: 28px;
+  }
+
+  .heatmap {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+
+  .cluster-cell {
+    border-radius: 6px;
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+  }
+
+  /* Intensity levels */
+  .cluster-cell.level-0 {
+    background: #F5F3EF;
+    border: 1px solid #E8E5DF;
+  }
+  .cluster-cell.level-0 .cell-name { color: #B5B0A8; }
+  .cluster-cell.level-0 .cell-label { color: #CCC8C0; }
+  .cluster-cell.level-0 .cell-indicator { background: #E0DDD7; }
+
+  .cluster-cell.level-1 {
+    background: #EDE8DF;
+    border: 1px solid #DDD8CE;
+  }
+  .cluster-cell.level-1 .cell-name { color: #7A756D; }
+  .cluster-cell.level-1 .cell-label { color: #9E9890; }
+  .cluster-cell.level-1 .cell-indicator { background: #D4A843; opacity: 0.4; }
+
+  .cluster-cell.level-2 {
+    background: #D8CFBF;
+    border: 1px solid #C8BFAF;
+  }
+  .cluster-cell.level-2 .cell-name { color: #4A4A5A; }
+  .cluster-cell.level-2 .cell-label { color: #6A6560; }
+  .cluster-cell.level-2 .cell-indicator { background: #D4A843; opacity: 0.6; }
+
+  .cluster-cell.level-3 {
+    background: #3A3A50;
+    border: 1px solid #2A2A3E;
+  }
+  .cluster-cell.level-3 .cell-name { color: #D4A843; }
+  .cluster-cell.level-3 .cell-label { color: rgba(255,255,255,0.5); }
+  .cluster-cell.level-3 .cell-indicator { background: #D4A843; }
+
+  .cluster-cell.level-4 {
+    background: #1A1A2E;
+    border: 1px solid #0E0E1E;
+    box-shadow: 0 2px 12px rgba(26, 26, 46, 0.3);
+  }
+  .cluster-cell.level-4 .cell-name { color: #D4A843; font-weight: 700; }
+  .cluster-cell.level-4 .cell-label { color: rgba(255,255,255,0.6); }
+  .cluster-cell.level-4 .cell-indicator { background: #D4A843; }
+
+  .cell-number {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.5;
+  }
+
+  .cell-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .cell-label {
+    font-size: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Indicator dots showing selections */
+  .cell-indicators {
+    display: flex;
+    gap: 4px;
+    margin-top: 10px;
+  }
+
+  .cell-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .cell-indicator.empty {
+    background: transparent;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #E8E5DF;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+  }
+
+  .legend-text {
+    font-size: 9px;
+    color: #7A756D;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="title">Cluster Profile</div>
+  <div class="subtitle">Friction load across eight operational domains</div>
+  <div class="heatmap" id="heatmap"></div>
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#F5F3EF;border:1px solid #E8E5DF;"></div>
+      <div class="legend-text">Clear</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#EDE8DF;border:1px solid #DDD8CE;"></div>
+      <div class="legend-text">Manageable</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#D8CFBF;border:1px solid #C8BFAF;"></div>
+      <div class="legend-text">Active</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#3A3A50;"></div>
+      <div class="legend-text">Draining</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#1A1A2E;"></div>
+      <div class="legend-text">Defining</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const clusters = [
+    { num: '01', name: 'Inception', label: 'Signal & Source' },
+    { num: '02', name: 'Construction', label: 'Structure & Authority' },
+    { num: '03', name: 'Interaction', label: 'Motion & Choice' },
+    { num: '04', name: 'Internalisation', label: 'Energy & Rhythm' },
+    { num: '05', name: 'Turning Point', label: 'The Threshold' },
+    { num: '06', name: 'The Crisis', label: 'Entrapment & Collapse' },
+    { num: '07', name: 'Emergence', label: 'Perception & Truth' },
+    { num: '08', name: 'Completion', label: 'Integration' }
+  ];
+
+  const params = new URLSearchParams(window.location.search);
+
+  // Read parameters: c01=count, a01=amplitude for each cluster
+  // Count: 0-3 (number of A/B/C selections)
+  // Amplitude: 0=none, 1=manageable, 2=draining, 3=defining
+  
+  const heatmap = document.getElementById('heatmap');
+
+  clusters.forEach(cl => {
+    const count = parseInt(params.get('c' + cl.num) || '0');
+    const amp = parseInt(params.get('a' + cl.num) || '0');
+
+    // Calculate intensity level (0-4)
+    let level = 0;
+    if (count === 0) {
+      level = 0;
+    } else if (count === 1 && amp <= 1) {
+      level = 1;
+    } else if (count <= 2 && amp <= 2) {
+      level = 2;
+    } else if (amp === 3 || count === 3) {
+      level = 4;
+    } else {
+      level = 3;
+    }
+
+    const cell = document.createElement('div');
+    cell.className = `cluster-cell level-${level}`;
+
+    // Build indicator dots
+    let dots = '';
+    for (let i = 0; i < 3; i++) {
+      if (i < count) {
+        dots += '<div class="cell-indicator"></div>';
+      } else {
+        dots += '<div class="cell-indicator empty"></div>';
+      }
+    }
+
+    cell.innerHTML = `
+      <div class="cell-number">${cl.num}</div>
+      <div class="cell-name">${cl.name}</div>
+      <div class="cell-label">${cl.label}</div>
+      <div class="cell-indicators">${dots}</div>
+    `;
+
+    heatmap.appendChild(cell);
+  });
+</script>
+</body>
+</html>
