@@ -265,14 +265,16 @@
   document.getElementById('displayScore').textContent = score + ' / 10';
 
   // Gap type display
+// Updated dictionary with meaningful leader-facing labels
   const gapLabels = {
-    'CONSISTENT_LOW': 'Consistent',
-    'CONSISTENT_HIGH': 'Consistent',
-    'CONTRADICTION_DRIVEN': 'Contradiction',
-    'CONTRADICTION_INTERNAL': 'Internal'
+    'CONSISTENT_LOW': 'Aligned',
+    'CONSISTENT_HIGH': 'Honest Distance',
+    'CONTRADICTION_DRIVEN': 'Hidden Gap',
+    'CONTRADICTION_INTERNAL': 'Internal Origin'
   };
+  
+  // Keep the fallback, just in case!
   document.getElementById('displayGap').textContent = gapLabels[gapType] || 'Reading';
-
   // Scale numbers
   const scaleContainer = document.getElementById('scaleNumbers');
   for (let i = 1; i <= 10; i++) {
