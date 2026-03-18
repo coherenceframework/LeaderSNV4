@@ -15,17 +15,9 @@
     min-height: 100vh;
   }
   .wrapper {
-    width: 700px;
-    padding: 36px 32px 28px;
+    width: 744px;
+    padding: 24px 20px 20px;
     background: #FFFFFF;
-  }
-  .title {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: #D4A843;
-    margin-bottom: 24px;
   }
   .top-row {
     display: flex;
@@ -37,8 +29,8 @@
   /* Portrait */
   .portrait-box {
     position: relative;
-    width: 290px;
-    height: 290px;
+    width: 320px;
+    height: 320px;
     flex-shrink: 0;
   }
   .ring {
@@ -75,7 +67,7 @@
   }
   .gap-arrow-svg {
     position: absolute; top: 0; left: 0;
-    width: 290px; height: 290px; z-index: 12; pointer-events: none;
+    width: 320px; height: 320px; z-index: 12; pointer-events: none;
   }
 
   /* ─── GAP PANEL ─── */
@@ -192,11 +184,10 @@
 </head>
 <body>
 <div class="wrapper">
-  <div class="title">The Primal Gap</div>
 
   <div class="top-row">
     <div class="portrait-box" id="portrait">
-      <svg class="gap-arrow-svg" id="arrowSvg" viewBox="0 0 290 290" xmlns="http://www.w3.org/2000/svg"></svg>
+      <svg class="gap-arrow-svg" id="arrowSvg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg"></svg>
       <div class="ring ring-outer" id="ringOuter"></div>
       <div class="ring" id="ringCreating"></div>
       <div class="ring" id="ringRelating"></div>
@@ -319,7 +310,7 @@
     'Fractured': { ring:'rgba(168,40,40,0.25)',    border:'rgba(168,40,40,0.55)',   solid:'#A82828', bg:'rgba(168,40,40,0.08)' }
   };
 
-  const cx=145, cy=145, coreR=26, minT=16, maxT=42;
+  const cx=160, cy=160, coreR=26, minT=16, maxT=44;
   function ringT(sel,mx) { return minT+(sel/mx)*(maxT-minT); }
 
   const bT=ringT(beingSel,9), relT=ringT(relatingSel,9), creT=ringT(creatingSel,6);
