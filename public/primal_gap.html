@@ -29,8 +29,8 @@
   /* Portrait */
   .portrait-box {
     position: relative;
-    width: 320px;
-    height: 320px;
+    width: 380px;
+    height: 380px;
     flex-shrink: 0;
   }
   .ring {
@@ -41,7 +41,7 @@
   }
   .ring-outer { border: 2px solid #7A756D; background: transparent; }
   .ring-core {
-    width: 52px; height: 52px;
+    width: 60px; height: 60px;
     background: radial-gradient(circle at 40% 38%, #2A6B6A 0%, #1A4A4A 60%, #1A1A2E 100%);
     box-shadow: 0 0 14px rgba(42,107,106,0.25), 0 0 28px rgba(42,107,106,0.1);
     z-index: 10;
@@ -67,16 +67,16 @@
   }
   .gap-arrow-svg {
     position: absolute; top: 0; left: 0;
-    width: 320px; height: 320px; z-index: 12; pointer-events: none;
+    width: 380px; height: 380px; z-index: 12; pointer-events: none;
   }
 
   /* ─── GAP PANEL ─── */
   .gap-panel {
     flex: 1;
-    padding: 0 0 0 24px;
+    padding: 4px 0 0 16px;
     display: flex;
     flex-direction: column;
-    min-width: 260px;
+    min-width: 220px;
   }
 
   /* Arrow + gap size */
@@ -187,7 +187,7 @@
 
   <div class="top-row">
     <div class="portrait-box" id="portrait">
-      <svg class="gap-arrow-svg" id="arrowSvg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg"></svg>
+      <svg class="gap-arrow-svg" id="arrowSvg" viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg"></svg>
       <div class="ring ring-outer" id="ringOuter"></div>
       <div class="ring" id="ringCreating"></div>
       <div class="ring" id="ringRelating"></div>
@@ -310,7 +310,7 @@
     'Fractured': { ring:'rgba(168,40,40,0.25)',    border:'rgba(168,40,40,0.55)',   solid:'#A82828', bg:'rgba(168,40,40,0.08)' }
   };
 
-  const cx=160, cy=160, coreR=26, minT=16, maxT=44;
+  const cx=190, cy=190, coreR=30, minT=18, maxT=52;
   function ringT(sel,mx) { return minT+(sel/mx)*(maxT-minT); }
 
   const bT=ringT(beingSel,9), relT=ringT(relatingSel,9), creT=ringT(creatingSel,6);
