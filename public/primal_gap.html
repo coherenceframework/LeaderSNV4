@@ -11,419 +11,319 @@
     background: #FFFFFF;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
   }
   .wrapper {
     width: 744px;
-    padding: 24px 14px 20px;
+    padding: 24px 16px 20px;
     background: #FFFFFF;
   }
-  .top-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-    margin-bottom: 26px;
+  .gap-section {
+    padding: 28px 36px;
+    border-bottom: 1px solid #E8E5DF;
   }
-
-  /* Portrait */
-  .portrait-box {
-    position: relative;
-    width: 380px;
-    height: 380px;
-    flex-shrink: 0;
+  .gap-header {
+    font-size: 12px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: #D4A843; margin-bottom: 8px;
   }
-  .ring {
-    position: absolute;
-    border-radius: 50%;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
+  .gap-description {
+    font-size: 14px; color: #5A5650; line-height: 1.65; margin-bottom: 28px;
   }
-  .ring-outer { border: 2px solid #7A756D; background: transparent; }
-  .ring-core {
-    width: 60px; height: 60px;
-    background: radial-gradient(circle at 40% 38%, #2A6B6A 0%, #1A4A4A 60%, #1A1A2E 100%);
-    box-shadow: 0 0 14px rgba(42,107,106,0.25), 0 0 28px rgba(42,107,106,0.1);
-    z-index: 10;
+  .portrait-section {
+    text-align: center;
+    padding: 12px 0 0;
+    border-bottom: 1px solid #E8E5DF;
+    overflow: hidden;
   }
-  .core-label {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; color: rgba(255,255,255,0.9);
-    text-align: center; line-height: 1.3; z-index: 11;
+  .territories-header {
+    padding: 16px 36px 0;
+    font-size: 12px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: #7A756D;
   }
-  .outer-label {
-    position: absolute; z-index: 15;
-    font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
-    text-transform: uppercase; color: #7A756D; text-align: center;
-  }
-  .circle-label {
-    position: absolute; z-index: 15;
-    width: 28px; height: 28px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700;
-    background: #FFFFFF; border-width: 2px; border-style: solid;
-  }
-  .gap-arrow-svg {
-    position: absolute; top: 0; left: 0;
-    width: 380px; height: 380px; z-index: 12; pointer-events: none;
-  }
-
-  /* ─── GAP PANEL ─── */
-  .gap-panel {
-    flex: 1;
-    padding: 4px 0 0 20px;
-    display: flex;
-    flex-direction: column;
-    min-width: 220px;
-  }
-
-  /* Arrow + gap size */
-  .gap-hero {
-    display: flex;
-    align-items: stretch;
-    gap: 16px;
-    margin-bottom: 18px;
-  }
-  .gap-arrow-side {
-    position: relative;
-    width: 3px;
-    background: #D4A843;
-    flex-shrink: 0;
-    border-radius: 2px;
-  }
-  .gap-arrow-side .ah-up {
-    position: absolute; top: -7px; left: -4px;
-    width: 0; height: 0;
-    border-left: 5.5px solid transparent;
-    border-right: 5.5px solid transparent;
-    border-bottom: 8px solid #D4A843;
-  }
-  .gap-arrow-side .ah-down {
-    position: absolute; bottom: -7px; left: -4px;
-    width: 0; height: 0;
-    border-left: 5.5px solid transparent;
-    border-right: 5.5px solid transparent;
-    border-top: 8px solid #D4A843;
-  }
-  .gap-hero-text { flex: 1; }
-  .gap-hero-label {
-    font-size: 13px; font-weight: 600; letter-spacing: 2px;
-    text-transform: uppercase; color: #D4A843; margin-bottom: 3px;
-  }
-  .gap-hero-subtitle {
-    font-size: 14px; color: #7A756D; line-height: 1.4; margin-bottom: 12px;
-  }
-  .gap-hero-pct {
-    font-size: 56px; font-weight: 700; color: #1A1A2E; line-height: 1;
-  }
-  .gap-hero-pct .unit { font-size: 24px; font-weight: 500; color: #7A756D; }
-  .gap-hero-desc {
-    font-size: 14px; color: #7A756D; line-height: 1.45; margin-top: 10px;
-  }
-
-  /* Comparison + reading */
-  .gap-comparison {
-    border-top: 1px solid #E8E5DF;
-    padding-top: 16px;
-  }
-  .comparison-line {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
-  .comp-felt {
-    font-size: 15px; font-weight: 700; color: #1A1A2E;
-  }
-  .comp-sep {
-    font-size: 14px; color: #B5B0A8;
-  }
-  .comp-diag {
-    font-size: 15px; font-weight: 700; color: #D4A843;
-  }
-  .reading-name {
-    font-size: 18px; font-weight: 700; color: #1A1A2E;
-    margin-bottom: 5px;
-  }
-  .reading-desc {
-    font-size: 14px; color: #7A756D; line-height: 1.5;
-  }
-
-  /* Ring note */
-  .ring-note {
-    font-size: 12px; color: #B5B0A8; line-height: 1.45;
-    margin-top: 16px; padding-top: 12px;
-    border-top: 1px solid #E8E5DF;
-  }
-
-  /* Territories */
-  .territories {
-    display: flex; gap: 8px;
-    border-top: 1px solid #E8E5DF;
-    padding-top: 20px;
-  }
-  .territory {
-    flex: 1; padding: 16px;
-    border-radius: 6px;
-  }
-  .t-header {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
-  }
+  .territories-row { display: flex; }
+  .territory { flex: 1; padding: 16px 22px 20px; }
+  .territory:not(:last-child) { border-right: 1px solid #E8E5DF; }
+  .t-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
   .t-circle {
-    width: 34px; height: 34px; border-radius: 50%;
+    width: 30px; height: 30px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 700; color: #FFFFFF; flex-shrink: 0;
+    font-size: 14px; font-weight: 700; color: #FFFFFF; flex-shrink: 0;
   }
   .t-name { font-size: 18px; font-weight: 700; color: #1A1A2E; }
   .t-desc { font-size: 13px; color: #7A756D; line-height: 1.4; margin-bottom: 8px; }
-  .t-state { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+  .t-state { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
+  .reading-card {
+    background: #F8F7F5; border-radius: 8px; padding: 20px 22px;
+  }
+  .reading-name { font-size: 18px; font-weight: 700; color: #1A1A2E; margin-bottom: 8px; }
+  .reading-desc { font-size: 14px; color: #5A5650; line-height: 1.65; }
 </style>
 </head>
 <body>
 <div class="wrapper">
 
-  <div class="top-row">
-    <div class="portrait-box" id="portrait">
-      <svg class="gap-arrow-svg" id="arrowSvg" viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg"></svg>
-      <div class="ring ring-outer" id="ringOuter"></div>
-      <div class="ring" id="ringCreating"></div>
-      <div class="ring" id="ringRelating"></div>
-      <div class="ring" id="ringBeing"></div>
-      <div class="ring ring-core">
-        <div class="core-label">Coherent<br>Core</div>
-      </div>
-    </div>
+  <!-- ═══ GAP + SPECTRUM ═══ -->
+  <div class="gap-section">
+    <div class="gap-header">Your gap</div>
+    <div class="gap-description">Your coherent core is always transmitting. What varies is how long its signal takes to reach you. At zero resistance, you respond in the moment — aligned without effort. As resistance increases, the signal takes longer to arrive. Minutes. Days. Months. In some cases, a lifetime. The three rings below represent the territories of your whole operating self — Being, Relating, and Creating. The thickness of each ring reflects how much resistance the diagnostic found in that territory.</div>
+    <svg viewBox="0 0 672 124" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="specGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#2A6B6A"/>
+          <stop offset="25%" stop-color="#4A6FA5"/>
+          <stop offset="50%" stop-color="#D4A843"/>
+          <stop offset="75%" stop-color="#7B2D8E"/>
+          <stop offset="100%" stop-color="#A82828"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="62" width="672" height="11" rx="5.5" fill="#E8E5DF"/>
+      <rect x="0" y="62" width="672" height="11" rx="5.5" fill="url(#specGrad)" opacity="0.12"/>
+      <rect x="0" y="62" id="specFill" width="87" height="11" rx="5.5" fill="#2A6B6A"/>
+      <line x1="134" y1="60" x2="134" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+      <line x1="269" y1="60" x2="269" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+      <line x1="403" y1="60" x2="403" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+      <line x1="538" y1="60" x2="538" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+      <line id="needleLine" x1="87" y1="54" x2="87" y2="80" stroke="#1A1A2E" stroke-width="2.5"/>
+      <circle id="needleDot" cx="87" cy="67.5" r="5" fill="#1A1A2E"/>
+      <text id="nL1" x="87" y="12" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">RESISTANCE TO</text>
+      <text id="nL2" x="87" y="24" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">COHERENT CORE</text>
+      <text id="nPct" x="87" y="48" text-anchor="middle" font-size="26" font-weight="700" fill="#1A1A2E" font-family="DM Sans, sans-serif">13<tspan font-size="15" fill="#7A756D">%</tspan></text>
+      <text x="67" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#2A6B6A" font-family="DM Sans, sans-serif">Coherent</text>
+      <text x="201" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#4A6FA5" font-family="DM Sans, sans-serif">Driven</text>
+      <text x="336" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#D4A843" font-family="DM Sans, sans-serif">Strained</text>
+      <text x="470" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#7B2D8E" font-family="DM Sans, sans-serif">Drifting</text>
+      <text x="605" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#A82828" font-family="DM Sans, sans-serif">Fractured</text>
+      <text x="0" y="118" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal arrives in the moment</text>
+      <text x="672" y="118" text-anchor="end" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal may never arrive</text>
+    </svg>
+  </div>
 
-    <div class="gap-panel">
-      <div class="gap-hero">
-        <div class="gap-arrow-side" id="sideArrow">
-          <div class="ah-up"></div>
-          <div class="ah-down"></div>
-        </div>
-        <div class="gap-hero-text">
-          <div class="gap-hero-label">Your Gap</div>
-          <div class="gap-hero-subtitle">Between your coherent core and your operating surface</div>
-          <div class="gap-hero-pct" id="gapPct">—<span class="unit">%</span></div>
-          <div class="gap-hero-desc" id="gapDesc">—</div>
-        </div>
-      </div>
+  <!-- ═══ PORTRAIT ═══ -->
+  <div class="portrait-section">
+    <svg id="portSvg" width="520" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
 
-      <div class="gap-comparison">
-        <div class="comparison-line">
-          <span class="comp-felt" id="compFelt">You felt: —%</span>
-          <span class="comp-sep">·</span>
-          <span class="comp-diag" id="compDiag">Diagnostic found: —%</span>
-        </div>
-        <div class="reading-name" id="readingName">—</div>
-        <div class="reading-desc" id="readingDesc">—</div>
+  <!-- ═══ TERRITORIES ═══ -->
+  <div>
+    <div class="territories-header">Your three territories of a whole operating self</div>
+    <div class="territories-row">
+      <div class="territory" id="terB">
+        <div class="t-header"><div class="t-circle" id="circB">B</div><div class="t-name">Being</div></div>
+        <div class="t-desc">Your ground and internal integrity</div>
+        <div class="t-state" id="stB">—</div>
       </div>
-
-      <div class="ring-note">
-        Ring thickness reflects friction selected in each territory. More friction produces a wider distance between your coherent core and your operating surface.
+      <div class="territory" id="terR">
+        <div class="t-header"><div class="t-circle" id="circR">R</div><div class="t-name">Relating</div></div>
+        <div class="t-desc">The field between you and others</div>
+        <div class="t-state" id="stR">—</div>
+      </div>
+      <div class="territory" id="terC">
+        <div class="t-header"><div class="t-circle" id="circC">C</div><div class="t-name">Creating</div></div>
+        <div class="t-desc">What you are building in the world</div>
+        <div class="t-state" id="stC">—</div>
       </div>
     </div>
   </div>
 
-  <div class="territories">
-    <div class="territory" id="terB">
-      <div class="t-header">
-        <div class="t-circle" id="circB">B</div>
-        <div class="t-name">Being</div>
-      </div>
-      <div class="t-desc">Your ground and internal integrity</div>
-      <div class="t-state" id="stB">—</div>
-    </div>
-    <div class="territory" id="terR">
-      <div class="t-header">
-        <div class="t-circle" id="circR">R</div>
-        <div class="t-name">Relating</div>
-      </div>
-      <div class="t-desc">The field between you and others</div>
-      <div class="t-state" id="stR">—</div>
-    </div>
-    <div class="territory" id="terC">
-      <div class="t-header">
-        <div class="t-circle" id="circC">C</div>
-        <div class="t-name">Creating</div>
-      </div>
-      <div class="t-desc">What you are building in the world</div>
-      <div class="t-state" id="stC">—</div>
+  <!-- ═══ READING ═══ -->
+  <div style="padding: 20px 36px; border-top: 1px solid #E8E5DF;">
+    <div class="reading-card">
+      <div class="reading-name" id="readingName">—</div>
+      <div class="reading-desc" id="readingDesc">—</div>
     </div>
   </div>
+
 </div>
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const score = parseInt(params.get('score') || '9');
-  const gapType = params.get('gap_type') || 'CONSISTENT_LOW';
-  const totalSelections = parseInt(params.get('total_selections') || '0');
+var P=new URLSearchParams(window.location.search);
+var score=parseInt(P.get('score')||'9');
+var gapType=P.get('gap_type')||'CONSISTENT_LOW';
+var totalSelections=parseInt(P.get('total_selections')||'0');
+var b01=parseInt(P.get('b01')||'0'),b02=parseInt(P.get('b02')||'0'),b04=parseInt(P.get('b04')||'0');
+var bAmp01=parseInt(P.get('ba01')||'0'),bAmp02=parseInt(P.get('ba02')||'0'),bAmp04=parseInt(P.get('ba04')||'0');
+var r03=parseInt(P.get('r03')||'0'),r05=parseInt(P.get('r05')||'0'),r06=parseInt(P.get('r06')||'0');
+var rAmp03=parseInt(P.get('ra03')||'0'),rAmp05=parseInt(P.get('ra05')||'0'),rAmp06=parseInt(P.get('ra06')||'0');
+var c07=parseInt(P.get('c07')||'0'),c08=parseInt(P.get('c08')||'0');
+var cAmp07=parseInt(P.get('ca07')||'0'),cAmp08=parseInt(P.get('ca08')||'0');
 
-  const b01 = parseInt(params.get('b01') || '0');
-  const b02 = parseInt(params.get('b02') || '0');
-  const b04 = parseInt(params.get('b04') || '0');
-  const bAmp01 = parseInt(params.get('ba01') || '0');
-  const bAmp02 = parseInt(params.get('ba02') || '0');
-  const bAmp04 = parseInt(params.get('ba04') || '0');
-  const r03 = parseInt(params.get('r03') || '0');
-  const r05 = parseInt(params.get('r05') || '0');
-  const r06 = parseInt(params.get('r06') || '0');
-  const rAmp03 = parseInt(params.get('ra03') || '0');
-  const rAmp05 = parseInt(params.get('ra05') || '0');
-  const rAmp06 = parseInt(params.get('ra06') || '0');
-  const c07 = parseInt(params.get('c07') || '0');
-  const c08 = parseInt(params.get('c08') || '0');
-  const cAmp07 = parseInt(params.get('ca07') || '0');
-  const cAmp08 = parseInt(params.get('ca08') || '0');
+var beingSel=b01+b02+b04, beingLoaded=(b01>0?1:0)+(b02>0?1:0)+(b04>0?1:0), beingMaxAmp=Math.max(bAmp01,bAmp02,bAmp04);
+var relatingSel=r03+r05+r06, relatingLoaded=(r03>0?1:0)+(r05>0?1:0)+(r06>0?1:0), relatingMaxAmp=Math.max(rAmp03,rAmp05,rAmp06);
+var creatingSel=c07+c08, creatingLoaded=(c07>0?1:0)+(c08>0?1:0), creatingMaxAmp=Math.max(cAmp07,cAmp08);
 
-  const beingSel = b01+b02+b04;
-  const beingLoaded = (b01>0?1:0)+(b02>0?1:0)+(b04>0?1:0);
-  const beingMaxAmp = Math.max(bAmp01,bAmp02,bAmp04);
-  const relatingSel = r03+r05+r06;
-  const relatingLoaded = (r03>0?1:0)+(r05>0?1:0)+(r06>0?1:0);
-  const relatingMaxAmp = Math.max(rAmp03,rAmp05,rAmp06);
-  const creatingSel = c07+c08;
-  const creatingLoaded = (c07>0?1:0)+(c08>0?1:0);
-  const creatingMaxAmp = Math.max(cAmp07,cAmp08);
+function calcState(sel,loaded,maxAmp,n){
+  if(maxAmp>=3)return'Fractured';if(sel>n*2)return'Fractured';
+  if(sel>=n*2&&loaded===n)return'Fractured';if(maxAmp>=2)return'Strained';
+  if(sel>n)return'Strained';if(sel>=1&&maxAmp<=1)return'Drifting';return'Coherent';
+}
+var bState=calcState(beingSel,beingLoaded,beingMaxAmp,3);
+var rState=calcState(relatingSel,relatingLoaded,relatingMaxAmp,3);
+var cState=calcState(creatingSel,creatingLoaded,creatingMaxAmp,2);
 
-  function calcState(sel, loaded, maxAmp, n) {
-    if (maxAmp >= 3) return 'Fractured';
-    if (sel > n*2) return 'Fractured';
-    if (sel >= n*2 && loaded === n) return 'Fractured';
-    if (maxAmp >= 2) return 'Strained';
-    if (sel > n) return 'Strained';
-    if (sel >= 1 && maxAmp <= 1) return 'Drifting';
-    return 'Coherent';
-  }
+var SC={
+  Coherent:{ring:'rgba(42,107,106,0.25)',border:'rgba(42,107,106,0.55)',solid:'#2A6B6A',bg:'rgba(42,107,106,0.06)'},
+  Driven:{ring:'rgba(74,111,165,0.22)',border:'rgba(74,111,165,0.5)',solid:'#4A6FA5',bg:'rgba(74,111,165,0.06)'},
+  Strained:{ring:'rgba(212,168,67,0.25)',border:'rgba(212,168,67,0.55)',solid:'#D4A843',bg:'rgba(212,168,67,0.06)'},
+  Drifting:{ring:'rgba(123,45,142,0.22)',border:'rgba(123,45,142,0.45)',solid:'#7B2D8E',bg:'rgba(123,45,142,0.06)'},
+  Fractured:{ring:'rgba(168,40,40,0.25)',border:'rgba(168,40,40,0.55)',solid:'#A82828',bg:'rgba(168,40,40,0.06)'}
+};
 
-  const bState = calcState(beingSel,beingLoaded,beingMaxAmp,3);
-  const rState = calcState(relatingSel,relatingLoaded,relatingMaxAmp,3);
-  const cState = calcState(creatingSel,creatingLoaded,creatingMaxAmp,2);
+// ═══ OVERALL STATE ═══
+var diagGapPct=Math.round((totalSelections/24)*100);
+var overallState='Coherent';
+if(diagGapPct>80) overallState='Fractured';
+else if(diagGapPct>60) overallState='Drifting';
+else if(diagGapPct>40) overallState='Strained';
+else if(diagGapPct>20) overallState='Driven';
 
-  const SC = {
-    'Coherent':  { ring:'rgba(42,107,106,0.25)',  border:'rgba(42,107,106,0.55)',  solid:'#2A6B6A', bg:'rgba(42,107,106,0.08)' },
-    'Driven':    { ring:'rgba(74,111,165,0.22)',   border:'rgba(74,111,165,0.5)',   solid:'#4A6FA5', bg:'rgba(74,111,165,0.08)' },
-    'Strained':  { ring:'rgba(212,168,67,0.25)',   border:'rgba(212,168,67,0.55)',  solid:'#D4A843', bg:'rgba(212,168,67,0.08)' },
-    'Drifting':  { ring:'rgba(123,45,142,0.22)',   border:'rgba(123,45,142,0.45)',  solid:'#7B2D8E', bg:'rgba(123,45,142,0.08)' },
-    'Fractured': { ring:'rgba(168,40,40,0.25)',    border:'rgba(168,40,40,0.55)',   solid:'#A82828', bg:'rgba(168,40,40,0.08)' }
-  };
+// ═══ SPECTRUM ═══
+var specW2=672, minN=24, maxN=specW2-24;
+var needleX=Math.max(minN,Math.min(maxN,(diagGapPct/100)*specW2));
+document.getElementById('specFill').setAttribute('fill', SC[overallState].solid);
+document.getElementById('specFill').setAttribute('width', Math.max(6, needleX));
+document.getElementById('needleLine').setAttribute('x1',needleX);
+document.getElementById('needleLine').setAttribute('x2',needleX);
+document.getElementById('needleDot').setAttribute('cx',needleX);
 
-  const cx=190, cy=190, coreR=30, minT=18, maxT=52;
-  function ringT(sel,mx) { return minT+(sel/mx)*(maxT-minT); }
+var tAnch='middle',tOff=0;
+if(diagGapPct<=5){tAnch='start';tOff=-2;}
+else if(diagGapPct>=95){tAnch='end';tOff=2;}
+['nPct','nL1','nL2'].forEach(function(id){
+  var el=document.getElementById(id);
+  el.setAttribute('x',needleX+tOff);
+  el.setAttribute('text-anchor',tAnch);
+});
+document.getElementById('nPct').innerHTML=diagGapPct+'<tspan font-size="15" fill="#7A756D">%</tspan>';
 
-  const bT=ringT(beingSel,9), relT=ringT(relatingSel,9), creT=ringT(creatingSel,6);
-  const bR=coreR+bT, rR=bR+relT, cR=rR+creT, outerR=cR+6;
+// ═══ PORTRAIT ═══
+var svg=document.getElementById('portSvg');
+var coreR=36, minT=26, maxT=46;
+function ringT(sel,mx){return minT+(sel/mx)*(maxT-minT);}
 
-  function setRing(id,r,state) {
-    const el=document.getElementById(id);
-    el.style.width=(r*2)+'px'; el.style.height=(r*2)+'px';
-    el.style.background=SC[state].ring;
-    el.style.border='2px solid '+SC[state].border;
-  }
-  setRing('ringBeing',bR,bState);
-  setRing('ringRelating',rR,rState);
-  setRing('ringCreating',cR,cState);
-  const oe=document.getElementById('ringOuter');
-  oe.style.width=(outerR*2)+'px'; oe.style.height=(outerR*2)+'px';
+var bT=ringT(beingSel,9), relTh=ringT(relatingSel,9), creTh=ringT(creatingSel,6);
+var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
+var gapBand=14;
+var outerR=cR+gapBand;
 
-  // Circle labels
-  const portrait=document.getElementById('portrait');
-  function addCL(letter,radius,angleDeg,state) {
-    const el=document.createElement('div');
-    el.className='circle-label';
-    el.style.borderColor=SC[state].solid; el.style.color=SC[state].solid;
-    const rad=(angleDeg*Math.PI)/180;
-    el.style.left=(cx+Math.cos(rad)*radius-14)+'px';
-    el.style.top=(cy+Math.sin(rad)*radius-14)+'px';
-    el.textContent=letter;
-    portrait.appendChild(el);
-  }
-  addCL('B',(coreR+bR)/2,-45,bState);
-  addCL('R',(bR+rR)/2,-45,rState);
-  addCL('C',(rR+cR)/2,-45,cState);
+var svgW=520, cx=svgW/2, topPad=28;
+var cy=outerR+topPad;
+var svgH=cy+24;
 
-  // Outer label
-  const ol=document.createElement('div');
-  ol.className='outer-label';
-  ol.style.left=cx+'px'; ol.style.top=(cy-outerR-16)+'px';
-  ol.style.transform='translateX(-50%)';
-  ol.textContent='Operating Surface';
-  portrait.appendChild(ol);
+svg.setAttribute('viewBox','0 0 '+svgW+' '+svgH);
+svg.setAttribute('height',svgH);
+svg.style.display='block';
+svg.style.margin='0 auto';
 
-  // SVG arrows
-  const svg=document.getElementById('arrowSvg');
-  const ac='#D4A843', iE=coreR+2, oEd=outerR-3;
+function svgEl(tag,attrs){
+  var el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(var k in attrs) el.setAttribute(k,attrs[k]);
+  return el;
+}
+function svgTxt(x,y,text,attrs){
+  var el=svgEl('text',{x:x,y:y});
+  for(var k in attrs) el.setAttribute(k,attrs[k]);
+  el.textContent=text;
+  svg.appendChild(el);
+}
 
-  function drawArrow(angleDeg) {
-    const rad=(angleDeg*Math.PI)/180;
-    const x1=cx+Math.cos(rad)*iE, y1=cy+Math.sin(rad)*iE;
-    const x2=cx+Math.cos(rad)*oEd, y2=cy+Math.sin(rad)*oEd;
+// Defs
+var defs=svgEl('defs',{});
+var rg=svgEl('radialGradient',{id:'cg',cx:'40%',cy:'38%',r:'60%'});
+rg.appendChild(svgEl('stop',{offset:'0%','stop-color':'#2A6B6A'}));
+rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
+defs.appendChild(rg);
+svg.appendChild(defs);
 
-    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-    line.setAttribute('x1',x1); line.setAttribute('y1',y1);
-    line.setAttribute('x2',x2); line.setAttribute('y2',y2);
-    line.setAttribute('stroke',ac); line.setAttribute('stroke-width','2.5');
-    svg.appendChild(line);
+// Operating surface — dashed outer ring with gap band
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:outerR,fill:'none',stroke:'#7A756D','stroke-width':'1.5','stroke-dasharray':'6 4',opacity:'0.5'}));
 
-    const hL=9, hA=28*Math.PI/180;
-    const h1=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    h1.setAttribute('points',
-      `${x2},${y2} ${x2-hL*Math.cos(rad-hA)},${y2-hL*Math.sin(rad-hA)} ${x2-hL*Math.cos(rad+hA)},${y2-hL*Math.sin(rad+hA)}`);
-    h1.setAttribute('fill',ac); svg.appendChild(h1);
+// Operating surface label — centred in the gap band between outer dashed ring and Creating ring
+var labelR=(outerR+cR)/2;
+svgTxt(cx, cy-labelR+4, 'OPERATING SURFACE', {
+  'text-anchor':'middle','font-size':'11','font-weight':'600',
+  'letter-spacing':'1.5',fill:'#7A756D','font-family':'DM Sans, sans-serif'
+});
 
-    const h2=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    h2.setAttribute('points',
-      `${x1},${y1} ${x1+hL*Math.cos(rad-hA)},${y1+hL*Math.sin(rad-hA)} ${x1+hL*Math.cos(rad+hA)},${y1+hL*Math.sin(rad+hA)}`);
-    h2.setAttribute('fill',ac); svg.appendChild(h2);
-  }
-  drawArrow(-90);
-  drawArrow(45);
-  drawArrow(135);
+// Territory rings outer to inner
+[{r:cR,s:cState},{r:rR,s:rState},{r:bR,s:bState}].forEach(function(d){
+  svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:d.r,fill:SC[d.s].ring,stroke:SC[d.s].border,'stroke-width':'1.5'}));
+});
 
-  // Side arrow height
-  const gapPx=outerR-coreR-6;
-  document.getElementById('sideArrow').style.minHeight=Math.max(gapPx,60)+'px';
+// Core
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
+svgTxt(cx, cy-6, 'COHERENT', {
+  'text-anchor':'middle','font-size':'9','font-weight':'700',
+  'letter-spacing':'1.8',fill:'rgba(255,255,255,0.9)','font-family':'DM Sans, sans-serif'
+});
+svgTxt(cx, cy+7, 'CORE', {
+  'text-anchor':'middle','font-size':'9','font-weight':'700',
+  'letter-spacing':'1.8',fill:'rgba(255,255,255,0.9)','font-family':'DM Sans, sans-serif'
+});
 
-  // ─── GAP SIZE ───
-  const diagGapPct=Math.round((totalSelections/24)*100);
-  document.getElementById('gapPct').innerHTML=diagGapPct+'<span class="unit">%</span>';
+// B/R/C labels — centred OVER each ring band, aligned on right at 0°
+// Being midpoint = halfway between coreR and bR
+// Relating midpoint = halfway between bR and rR
+// Creating midpoint = halfway between rR and cR
+var labelPositions=[
+  {midR:(coreR+bR)/2, letter:'B', state:bState},
+  {midR:(bR+rR)/2,    letter:'R', state:rState},
+  {midR:(rR+cR)/2,    letter:'C', state:cState}
+];
+labelPositions.forEach(function(d){
+  var lx=cx+d.midR;
+  var ly=cy;
+  svg.appendChild(svgEl('circle',{cx:lx,cy:ly,r:'14',fill:'#FFFFFF',stroke:SC[d.state].solid,'stroke-width':'2'}));
+  svgTxt(lx, ly+5, d.letter, {
+    'text-anchor':'middle','font-size':'13','font-weight':'700',
+    fill:SC[d.state].solid,'font-family':'DM Sans, sans-serif'
+  });
+});
 
-  let desc='';
-  if (diagGapPct<=5) desc='Minimal distance. Your coherent core is close to your operating surface. Very little structural friction detected.';
-  else if (diagGapPct<=20) desc='Small distance. Some friction present but your core signal is largely reaching the surface.';
-  else if (diagGapPct<=40) desc='Moderate distance. Structural friction is present across enough of your system to create a measurable gap between your core and how you operate.';
-  else if (diagGapPct<=60) desc='Significant distance. Substantial friction across multiple territories is separating your coherent core from your operating surface.';
-  else if (diagGapPct<=80) desc='Wide distance. Dense structural friction across most territories. Your operating surface is substantially separated from your core.';
-  else desc='Comprehensive distance. Your operating surface is heavily separated from your coherent core across nearly all territories.';
-  document.getElementById('gapDesc').textContent=desc;
+// Gap arrows — exactly evenly spaced: -60°, -90°, -120° (30° apart, symmetric)
+var ac='#D4A843';
+function drawArrow(angleDeg){
+  var rad=(angleDeg*Math.PI)/180;
+  var iE=coreR+3, oE=outerR-4;
+  var x1=cx+Math.cos(rad)*iE, y1=cy+Math.sin(rad)*iE;
+  var x2=cx+Math.cos(rad)*oE, y2=cy+Math.sin(rad)*oE;
+  svg.appendChild(svgEl('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:ac,'stroke-width':'2'}));
+  var hL=8, hA=24*Math.PI/180;
+  svg.appendChild(svgEl('polygon',{
+    points:x2+','+y2+' '+(x2-hL*Math.cos(rad-hA))+','+(y2-hL*Math.sin(rad-hA))+' '+(x2-hL*Math.cos(rad+hA))+','+(y2-hL*Math.sin(rad+hA)),
+    fill:ac
+  }));
+  svg.appendChild(svgEl('polygon',{
+    points:x1+','+y1+' '+(x1+hL*Math.cos(rad-hA))+','+(y1+hL*Math.sin(rad-hA))+' '+(x1+hL*Math.cos(rad+hA))+','+(y1+hL*Math.sin(rad+hA)),
+    fill:ac
+  }));
+}
+drawArrow(-90);
+drawArrow(-120);
+drawArrow(-60);
 
-  // ─── COMPARISON + READING ───
-  const feltGapPct=Math.round(((10-score)/10)*100);
-  document.getElementById('compFelt').textContent='You felt: '+feltGapPct+'% gap';
-  document.getElementById('compDiag').textContent='Diagnostic found: '+diagGapPct+'% gap';
+// ═══ GAP READING ═══
+var feltPct=Math.round(((10-score)/10)*100);
+var GC={
+  CONSISTENT_LOW:{name:'Genuine Alignment',desc:'You reported feeling '+feltPct+'% distance from your core. The diagnostic measured '+diagGapPct+'%. Both readings are low, and they broadly agree. The signal from your coherent core is reaching your operating self with relatively little delay. This is the most reliable read the diagnostic produces \u2014 when felt sense and structural evidence point in the same direction.'},
+  CONSISTENT_HIGH:{name:'Honest Distance',desc:'You reported feeling '+feltPct+'% distance from your core. The diagnostic measured '+diagGapPct+'%. Both readings are elevated, and they agree. You feel the distance \u2014 and the structural evidence confirms it is there. This is a clear-eyed read. The gap is real and you are not hiding from it.'},
+  CONTRADICTION_DRIVEN:{name:'Hidden Gap',desc:'You reported feeling '+feltPct+'% distance from your core, but the diagnostic measured '+diagGapPct+'%. The structural resistance is significantly higher than what you are feeling. The gap is present but not registering \u2014 which is the signature of the Driven state. Performance is masking the distance.'},
+  CONTRADICTION_INTERNAL:{name:'Existential Distance',desc:'You reported feeling '+feltPct+'% distance from your core, but the diagnostic measured only '+diagGapPct+'%. The structural friction is low \u2014 but what you feel is not. The source of the distance is not in the operational structure. It is beneath it, in the relationship between your coherent core and the life you have built around it.'}
+};
+var gc=GC[gapType]||GC.CONSISTENT_LOW;
+document.getElementById('readingName').textContent=gc.name;
+document.getElementById('readingDesc').textContent=gc.desc;
 
-  const GC = {
-    'CONSISTENT_LOW':        { name:'Genuine Alignment',    desc:'Your felt sense and the diagnostic agree — the gap is small. You are operating close to your coherent core and the structural evidence confirms it.' },
-    'CONSISTENT_HIGH':       { name:'Honest Distance',      desc:'Your felt sense and the diagnostic agree — the gap is real. You feel the distance and the structural evidence confirms it is there.' },
-    'CONTRADICTION_DRIVEN':  { name:'Hidden Gap',           desc:'You reported feeling close to your core, but the diagnostic found significant structural friction you may not be feeling yet. The gap is present but not registering.' },
-    'CONTRADICTION_INTERNAL':{ name:'Existential Distance', desc:'You reported significant distance from your core, but the diagnostic found minimal structural friction. The source of what you feel is not in the structure — it is beneath it.' }
-  };
-  const gc=GC[gapType]||GC['CONSISTENT_LOW'];
-  document.getElementById('readingName').textContent=gc.name;
-  document.getElementById('readingDesc').textContent=gc.desc;
-
-  // Territories
-  function setT(terId,circId,stId,state) {
-    document.getElementById(terId).style.background=SC[state].bg;
-    document.getElementById(circId).style.background=SC[state].solid;
-    const st=document.getElementById(stId);
-    st.textContent=state; st.style.color=SC[state].solid;
-  }
-  setT('terB','circB','stB',bState);
-  setT('terR','circR','stR',rState);
-  setT('terC','circC','stC',cState);
+// ═══ TERRITORY CARDS ═══
+function setT(tid,cid,sid,state){
+  document.getElementById(tid).style.background=SC[state].bg;
+  document.getElementById(cid).style.background=SC[state].solid;
+  var st=document.getElementById(sid);
+  st.textContent=state;st.style.color=SC[state].solid;
+}
+setT('terB','circB','stB',bState);
+setT('terR','circR','stR',rState);
+setT('terC','circC','stC',cState);
 </script>
 </body>
 </html>
