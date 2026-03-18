@@ -66,13 +66,180 @@ const SEC02_MEANING = {
   "QUALIFIED": `The diagnostic boundary a Qualified reading reveals is structural, not personal. Self-report instruments — all of them, not just this one — are limited by the respondent’s capacity to recognise what is happening in their own system. When that capacity is high, the instrument produces a clear signal. When the operating conditions have been normalised to the point where friction no longer registers as friction, the instrument produces silence — which can mean either genuine coherence or comprehensive management of reality. The distinction between these two conditions cannot be resolved by the leader alone. It requires an external read.`,
 };
 
-// ─── SECTION 03: PRIMAL GAP READING (4 versions) ───
-const SEC03 = {
-  "CONSISTENT_LOW": `Your felt alignment and your structural load are consistent. The distance between where you are operating and where you know you are capable of operating is small, and the friction across your operational domains confirms this. This is a reading of current alignment — a baseline you can measure future readings against.`,
-  "CONSISTENT_HIGH": `Your felt distance from your own centre of gravity is significant, and the friction across your operational domains is consistent with this. You are not in denial about the current conditions. The alignment between your felt state and your structural read means the diagnostic has a clear signal to work with — the pattern is visible and can be addressed structurally.`,
-  "CONTRADICTION_DRIVEN": `Your felt alignment is high — you experience yourself as operating close to your centre of gravity. Your structural load tells a different story. The friction across your operational domains is significant, concentrated in domains that carry real consequence. This gap between felt alignment and structural reality is the most important signal in this report. It does not mean your felt experience is wrong. It means there is a cost accumulating in your system that has not yet reached the level where you feel it. That cost does not wait for permission to compound.`,
-  "CONTRADICTION_INTERNAL": `Your felt distance from your own centre of gravity is significant, but the friction across your operational domains is minimal. The source of the distance is not structural — it is not embedded in how you operate day to day. It is more likely to originate at the foundational level: in the relationship between your sense of purpose and your daily reality. The friction is internal. The system is not in crisis. But the felt distance you carry is real, and it will eventually express structurally if it remains unaddressed.`,
+// ════════════════════════════════════════════════════════════════
+// SEC03_GAP — COMPLETE CONTENT ASSEMBLY
+// ════════════════════════════════════════════════════════════════
+//
+// Inputs: score, diagGapPct, gap_type, bState, rState, cState, totalSelections
+// Output: Full HTML for sec03_gap merge field
+//
+// Structure:
+//   Paragraph 1: Education + gap size + B/R/C education + personalised states
+//   Paragraph 2: Gap type reading (felt vs found)
+//   Paragraph 3: Territory concentration
+//   Paragraph 4: Forward thread
+// ════════════════════════════════════════════════════════════════
+
+
+
+// State colour for inline use
+const stateStyle = {
+  'Coherent':  "color:#2A6B6A;font-weight:bold;",
+  'Driven':    "color:#4A6FA5;font-weight:bold;",
+  'Strained':  "color:#D4A843;font-weight:bold;",
+  'Drifting':  "color:#7B2D8E;font-weight:bold;",
+  'Fractured': "color:#A82828;font-weight:bold;",
 };
+
+function stSpan(state) {
+  return "<span style='" + (stateStyle[state] || "") + "'>" + state + "</span>";
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// PARAGRAPH 1: EDUCATION + GAP SIZE + TERRITORIES + STATES
+// ════════════════════════════════════════════════════════════════
+
+function buildPara1(diagGapPct, bState, rState, cState) {
+  // Education block — same for all
+  let out = wrap("Every leader carries a distance between what they know to be true and how they actually operate. The Coherence Framework calls this the Primal Gap — the structural distance between your coherent core and the adapted self that runs your daily reality. Your core is always intact. It does not degrade. What varies is how much of its signal reaches the surface — and whether you can feel the distance when it doesn't.");
+
+  out += wrap("The diagnostic measures this distance from two directions. You reported how aligned you feel. The instrument independently read the structural friction across your operational domains. The question is whether those two readings agree.");
+
+  // Gap size — single line after visual
+  let sizeText = "";
+  if (diagGapPct <= 8) {
+    sizeText = "Your Primal Gap reads at " + bld + diagGapPct + "%" + be + " — a minimal distance. Your core signal is largely reaching the surface.";
+  } else if (diagGapPct <= 20) {
+    sizeText = "Your Primal Gap reads at " + bld + diagGapPct + "%" + be + ". Some friction sits between your core and the surface. It is not yet systemic, but it is structural.";
+  } else if (diagGapPct <= 40) {
+    sizeText = "Your Primal Gap reads at " + bld + diagGapPct + "%" + be + ". At this distance, a measurable portion of your core signal is not arriving at the operating surface. The adapted self is managing the gap.";
+  } else if (diagGapPct <= 60) {
+    sizeText = "Your Primal Gap reads at " + bld + diagGapPct + "%" + be + ". At this distance, more of your operating reality is being run by the adapted self than by your core. The friction is substantial enough to shape your decisions, your energy, and your capacity without announcing itself.";
+  } else if (diagGapPct <= 80) {
+    sizeText = "Your Primal Gap reads at " + bld + diagGapPct + "%" + be + ". At this distance, the adapted self is running most of your operating reality. Your core has not degraded — it never does. But the structural friction between the core and the surface is dense enough that what reaches you as felt experience may bear limited resemblance to what is actually happening underneath.";
+  } else {
+    sizeText = "Your Primal Gap reads at " + bld + diagGapPct + "%" + be + ". At this distance, nearly every operational domain is carrying friction. The adapted self is not supplementing your core — it is substituting for it. Your core remains intact. It is always intact. But the distance between it and your daily operating reality is at the upper boundary of what this diagnostic reads.";
+  }
+  out += wrap(sizeText);
+
+  // B/R/C education
+  out += wrap("The Coherence Framework reads this gap across three territories — the three fundamental domains of individual coherence. " + bld + "Being" + be + " is your relationship with yourself: your internal ground, your integrity, the capacity to know your own truth. " + bld + "Relating" + be + " is your relationship with others and with the environment you operate within: the field between you and the people, systems, and conditions that surround you. " + bld + "Creating" + be + " is your relationship with what you produce in the world: whether what you build reflects your actual reality and whether the changes you attempt become permanent.");
+
+  out += wrap("The eight questions you answered each read a specific operational domain. Those domains sit within these three territories.");
+
+  // State reveal
+  out += wrap("Your reading: " + stSpan(bState) + " in Being. " + stSpan(rState) + " in Relating. " + stSpan(cState) + " in Creating.");
+
+  return out;
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// PARAGRAPH 2: GAP TYPE READING
+// ════════════════════════════════════════════════════════════════
+
+function buildPara2(gapType, score, diagGapPct) {
+  const felt = "You reported feeling " + bld + score + " out of 10" + be + " in alignment with your own centre of gravity. The diagnostic found " + bld + diagGapPct + "% structural friction" + be + ". ";
+
+  const readings = {
+    'CONSISTENT_LOW': felt + "These two readings confirm each other. The distance you feel is the distance the system carries. This is the most structurally sound position in the diagnostic — not because the gap is small, but because your awareness of it is accurate. What you sense matches what is there. The conditions sustaining this alignment are real. The question this reading leaves open is not what needs to change, but what would need to shift for this alignment to move — and whether you would recognise the earliest signal of that shift.",
+
+    'CONSISTENT_HIGH': felt + "These two readings confirm each other. You feel the distance, and the structural evidence says the distance is real. This is the most workable position in the diagnostic — not because it is comfortable, but because the material is visible. What you sense is what is there. The friction is not hidden. It is not being managed beneath your awareness. It is available for examination, and that availability is the precondition for structural change.",
+
+    'CONTRADICTION_DRIVEN': felt + "These two readings do not agree. You feel closer to your core than the structural evidence supports. This is the gap the Coherence Framework calls the most dangerous — not because the friction is the highest, but because it is the least felt. The adapted self is performing well enough that the distance does not register as a problem. The cost is not arriving as friction. It is arriving as capacity you no longer have access to, decisions that feel harder than they should, and a vague sense that the effort required to sustain your current output is quietly increasing — without a clear explanation for why.",
+
+    'CONTRADICTION_INTERNAL': felt + "These two readings do not agree — but in the opposite direction. You feel further from your core than the structural evidence suggests. The operational domains are not carrying the load you sense. The system is holding. What you are feeling is real — but its source is not embedded in the mechanics of how you work. It originates beneath the structure, in the relationship between who you are and the ground you are standing on. This is the reading that most clearly points to the existential layer of the coherence architecture — the foundation that no operational diagnostic can fully reach."
+  };
+
+  return wrap(readings[gapType] || readings['CONSISTENT_HIGH']);
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// PARAGRAPH 3: TERRITORY CONCENTRATION
+// ════════════════════════════════════════════════════════════════
+
+function buildPara3(bState, rState, cState) {
+  // Determine pattern
+  const states = { 'Coherent': 0, 'Drifting': 1, 'Strained': 2, 'Fractured': 3 };
+  const bN = states[bState] || 0;
+  const rN = states[rState] || 0;
+  const cN = states[cState] || 0;
+
+  // All coherent
+  if (bN === 0 && rN === 0 && cN === 0) {
+    return wrap("All three territories read as Coherent. The friction the diagnostic detected is minimal and not concentrated in any single domain of your operating reality. This is a baseline reading — the structural conditions across your internal ground, your relational field, and what you are building are currently aligned.");
+  }
+
+  // All same non-coherent
+  if (bN === rN && rN === cN && bN > 0) {
+    return wrap("All three territories read at the same level — " + stSpan(bState) + " across Being, Relating, and Creating. The load is not localised. It is systemic. When friction distributes evenly rather than concentrating, the source is typically not in any single territory but in the conditions underneath all of them. This pattern points to the foundational layers of the coherence architecture rather than to any specific operational domain.");
+  }
+
+  // Being loaded, rest clearer
+  if (bN > rN && bN > cN) {
+    return wrap("The load concentrates in Being — your relationship with yourself, your internal ground and integrity. Relating and Creating are carrying less load. When the innermost territory is the most loaded, the pattern suggests the source is close to the core. The friction is in how you receive reality, how you structure your own leadership, and how connected you are to your own energy and purpose. It has not yet cascaded outward into your relationships or what you are building — but the coherence architecture predicts that it will, if the conditions at the Being level persist.");
+  }
+
+  // Relating loaded, rest clearer
+  if (rN > bN && rN > cN) {
+    return wrap("The load concentrates in Relating — your relationship with others and with the environment you operate within. Being and Creating are carrying less load. Your internal ground is more stable than your relational reality. When Relating carries the heaviest load, the pattern typically involves competing demands, deferred transitions, or structural exposure in a dependency that has disproportionate power over your decisions. The friction is in the space between you and the people, commitments, or systems you are navigating.");
+  }
+
+  // Creating loaded, rest clearer
+  if (cN > bN && cN > rN) {
+    return wrap("The load concentrates in Creating — your relationship with what you are producing in the world. Being and Relating are carrying less load. Your internal ground is relatively stable and your relational field is navigable. The friction is in whether your perception of your own reality is accurate and whether the changes you have attempted are actually holding. When Creating carries the heaviest load, the structural question is not about who you are or how you relate — it is about whether what you are building reflects your actual capacity or a version of reality that has not been tested against current conditions.");
+  }
+
+  // Inner loaded, outer clear (B >= R >= C and B > C)
+  if (bN >= rN && rN >= cN && bN > cN) {
+    return wrap("The friction is heaviest closest to your core and lightest at the operating surface. Being — your relationship with yourself — carries the most load. Relating sits in the middle. Creating is the clearest territory. This pattern suggests the source of the friction is foundational — it originates in your relationship with yourself and has begun to express in how you relate to others, but has not yet reached what you are building. The coherence architecture reads this as a leading indicator: the friction will move outward through the territories if the conditions at the Being level are not addressed.");
+  }
+
+  // Outer loaded, inner clear (C >= R >= B and C > B)
+  if (cN >= rN && rN >= bN && cN > bN) {
+    return wrap("The friction is heaviest at the operating surface and lightest closest to your core. Creating — your relationship with what you are producing — carries the most load. Relating sits in the middle. Being is the clearest territory. Your internal ground is stable. The friction is in what you are producing and how it is holding. This pattern typically indicates that the structural conditions at the surface are under pressure while the foundational layers remain intact. The question is whether the surface friction is a temporary condition or an early signal that the load will eventually move inward.");
+  }
+
+  // Mixed — no clear pattern
+  return wrap("The friction does not concentrate in a single territory. The load is distributed across Being, Relating, and Creating without a clear directional pattern — " + stSpan(bState) + " in Being, " + stSpan(rState) + " in Relating, " + stSpan(cState) + " in Creating. Each territory carries its own conditions, and the diagnostic reads them as independent rather than cascading. The specific distribution is examined in detail in the cluster profile that follows.");
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// PARAGRAPH 4: FORWARD THREAD
+// ════════════════════════════════════════════════════════════════
+
+function buildPara4(diagGapPct) {
+  if (diagGapPct > 15) {
+    return wrap("The sections that follow examine where this friction lives in specific detail — which operational domains are loaded, what register you are processing the friction through, and what the pattern across all eight domains reveals about how your system is currently managing this distance.");
+  }
+  return wrap("The sections that follow examine the specific domains the diagnostic read and the pattern across them. At this level of structural alignment, the reading is less about what needs to change and more about what would need to shift for this reading to be different — and whether you would recognise that shift before it registered as friction.");
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// MAIN ASSEMBLY
+// ════════════════════════════════════════════════════════════════
+
+function assembleSec03(v) {
+  const score = v.score;
+  const totalSelections = v.totalSelections;
+  const diagGapPct = Math.round((totalSelections / 24) * 100);
+  const gapType = v.gap_type;
+  const bState = v.bState;
+  const rState = v.rState;
+  const cState = v.cState;
+
+  return buildPara1(diagGapPct, bState, rState, cState)
+       + buildPara2(gapType, score, diagGapPct)
+       + buildPara3(bState, rState, cState)
+       + buildPara4(diagGapPct);
+}
+
+
+// ════════════════════════════════════════════════════════════════
 
 // ─── SECTION 04: CLUSTER PROFILE ───
 // Intro (Block 024)
@@ -247,9 +414,61 @@ function assembleReport(v) {
 
 
   // ─── SEC 03: PRIMAL GAP ───
-  const sec03_score = wrap("Your Primal Gap Score: " + bld + primalGap + " / 10" + be);
-  const sec03_reading = wrap(SEC03[gap] || "");
-  const sec03 = sec03_score + sec03_reading;
+  // Full multi-component assembly: education + size + territories + gap type + concentration + forward thread
+  // First calculate territory states
+  const b01_count = parseInt(v.b01_count || '0');
+  const b02_count = parseInt(v.b02_count || '0');
+  const b04_count = parseInt(v.b04_count || '0');
+  const r03_count = parseInt(v.r03_count || '0');
+  const r05_count = parseInt(v.r05_count || '0');
+  const r06_count = parseInt(v.r06_count || '0');
+  const c07_count = parseInt(v.c07_count || '0');
+  const c08_count = parseInt(v.c08_count || '0');
+
+  const b_amp01 = parseInt(v.amp_01 || '0');
+  const b_amp02 = parseInt(v.amp_02 || '0');
+  const b_amp04 = parseInt(v.amp_04 || '0');
+  const r_amp03 = parseInt(v.amp_03 || '0');
+  const r_amp05 = parseInt(v.amp_05 || '0');
+  const r_amp06 = parseInt(v.amp_06 || '0');
+  const c_amp07 = parseInt(v.amp_07 || '0');
+  const c_amp08 = parseInt(v.amp_08 || '0');
+
+  const beingSel = b01_count + b02_count + b04_count;
+  const beingLoaded = (b01_count>0?1:0) + (b02_count>0?1:0) + (b04_count>0?1:0);
+  const beingMaxAmp = Math.max(b_amp01, b_amp02, b_amp04);
+
+  const relatingSel = r03_count + r05_count + r06_count;
+  const relatingLoaded = (r03_count>0?1:0) + (r05_count>0?1:0) + (r06_count>0?1:0);
+  const relatingMaxAmp = Math.max(r_amp03, r_amp05, r_amp06);
+
+  const creatingSel = c07_count + c08_count;
+  const creatingLoaded = (c07_count>0?1:0) + (c08_count>0?1:0);
+  const creatingMaxAmp = Math.max(c_amp07, c_amp08);
+
+  function calcTerritoryState(sel, loaded, maxAmp, n) {
+    if (maxAmp >= 3) return 'Fractured';
+    if (sel > n * 2) return 'Fractured';
+    if (sel >= n * 2 && loaded === n) return 'Fractured';
+    if (maxAmp >= 2) return 'Strained';
+    if (sel > n) return 'Strained';
+    if (sel >= 1 && maxAmp <= 1) return 'Drifting';
+    return 'Coherent';
+  }
+
+  const bState = calcTerritoryState(beingSel, beingLoaded, beingMaxAmp, 3);
+  const rState = calcTerritoryState(relatingSel, relatingLoaded, relatingMaxAmp, 3);
+  const cState = calcTerritoryState(creatingSel, creatingLoaded, creatingMaxAmp, 2);
+
+  const totalSel = parseInt(v.total_selections || '0');
+  const sec03 = assembleSec03({
+    score: primalGap,
+    totalSelections: totalSel,
+    gap_type: gap,
+    bState: bState,
+    rState: rState,
+    cState: cState
+  });
 
 
   // ─── SEC 04: CLUSTER PROFILE ───
@@ -364,7 +583,11 @@ module.exports = async function handler(req, res) {
                    "leader_name", "snapshot_date", "primal_gap",
                    "c01_combo", "c02_combo", "c03_combo", "c04_combo",
                    "c05_combo", "c06_combo", "c07_combo", "c08_combo",
-                   "blind_spot_distribution", "text_field_response"]
+                   "blind_spot_distribution", "text_field_response",
+                   "total_selections", "b01_count", "b02_count", "b04_count",
+                   "r03_count", "r05_count", "r06_count", "c07_count", "c08_count",
+                   "amp_01", "amp_02", "amp_03", "amp_04",
+                   "amp_05", "amp_06", "amp_07", "amp_08"]
       });
     }
 
