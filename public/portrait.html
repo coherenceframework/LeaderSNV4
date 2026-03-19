@@ -36,6 +36,14 @@ var c07=parseInt(P.get('c07')||'0'),c08=parseInt(P.get('c08')||'0');
 var cAmp07=parseInt(P.get('ca07')||'0'),cAmp08=parseInt(P.get('ca08')||'0');
 var totalSelections=parseInt(P.get('total_selections')||'0');
 
+// State from scoring engine — single source of truth
+var stateMap={
+  'COHERENT':'Coherent','DRIVEN':'Driven','STRAINED':'Strained',
+  'DRIFTING':'Drifting','FRACTURED':'Fractured','QUALIFIED':'Coherent'
+};
+var rawState=P.get('state')||'COHERENT';
+var overallState=stateMap[rawState]||rawState;
+
 var beingSel=b01+b02+b04, beingLoaded=(b01>0?1:0)+(b02>0?1:0)+(b04>0?1:0), beingMaxAmp=Math.max(bAmp01,bAmp02,bAmp04);
 var relatingSel=r03+r05+r06, relatingLoaded=(r03>0?1:0)+(r05>0?1:0)+(r06>0?1:0), relatingMaxAmp=Math.max(rAmp03,rAmp05,rAmp06);
 var creatingSel=c07+c08, creatingLoaded=(c07>0?1:0)+(c08>0?1:0), creatingMaxAmp=Math.max(cAmp07,cAmp08);
@@ -48,13 +56,6 @@ function calcState(sel,loaded,maxAmp,n){
 var bState=calcState(beingSel,beingLoaded,beingMaxAmp,3);
 var rState=calcState(relatingSel,relatingLoaded,relatingMaxAmp,3);
 var cState=calcState(creatingSel,creatingLoaded,creatingMaxAmp,2);
-
-var diagGapPct=Math.round((totalSelections/24)*100);
-var overallState='Coherent';
-if(diagGapPct>80) overallState='Fractured';
-else if(diagGapPct>60) overallState='Drifting';
-else if(diagGapPct>40) overallState='Strained';
-else if(diagGapPct>20) overallState='Driven';
 
 var SC={
   Coherent:{ring:'rgba(42,107,106,0.25)',border:'rgba(42,107,106,0.55)',solid:'#2A6B6A',faint:'rgba(42,107,106,0.30)'},
@@ -76,17 +77,14 @@ var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
 var gapBand=18;
 var outerR=cR+gapBand;
 
-// Fixed dimensions — cy pushed up to show core + badges fully
 var svgW=520, svgH=340;
 var cx=svgW/2;
 var cy=svgH-18;
 
-// Zone radii — evenly from outerR to edge of visible area
 var maxZoneR=cy-12;
 var remainingStates=stateOrder.length-1-stateIndex;
 var zoneStep=remainingStates>0?(maxZoneR-outerR)/remainingStates:0;
 
-// Build zone radii array (including outerR as the base)
 var zoneRadii=[outerR];
 for(var i=1;i<=remainingStates;i++){
   zoneRadii.push(outerR+(zoneStep*i));
@@ -117,20 +115,18 @@ rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
 defs.appendChild(rg);
 svg.appendChild(defs);
 
-// ═══ OUTER STATE ZONE LINES — beyond operating surface ═══
+// ═══ OUTER STATE ZONE LINES ═══
 for(var i=stateIndex+1;i<stateOrder.length;i++){
   var zIdx=i-stateIndex;
   var zR=zoneRadii[zIdx];
   var zName=stateOrder[i];
   var zColor=SC[zName].faint;
 
-  // Dashed circle — visible
   svg.appendChild(svgEl('circle',{
     cx:cx,cy:cy,r:zR,
     fill:'none',stroke:zColor,'stroke-width':'1.2','stroke-dasharray':'5 4'
   }));
 
-  // Label — vertically centred between this zone and the one below it
   var prevR=zoneRadii[zIdx-1];
   var labelR=(zR+prevR)/2;
   var labelY=cy-labelR;
@@ -142,14 +138,13 @@ for(var i=stateIndex+1;i<stateOrder.length;i++){
   }
 }
 
-// ═══ OPERATING SURFACE — state coloured, label in gap band ═══
+// ═══ OPERATING SURFACE ═══
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:outerR,
   fill:'none',stroke:SC[overallState].solid,
   'stroke-width':'1.5','stroke-dasharray':'6 4',opacity:'0.55'
 }));
 
-// Label sits in the gap band between outerR and cR
 var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-5;
 svgTxt(cx, osLabelY, 'OPERATING SURFACE', {
@@ -161,12 +156,12 @@ svgTxt(cx, osLabelY+13, overallState, {
   'letter-spacing':'0.8',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
 
-// ═══ TERRITORY RINGS — unchanged ═══
+// ═══ TERRITORY RINGS ═══
 [{r:cR,s:cState},{r:rR,s:rState},{r:bR,s:bState}].forEach(function(d){
   svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:d.r,fill:SC[d.s].ring,stroke:SC[d.s].border,'stroke-width':'1.5'}));
 });
 
-// ═══ CORE — unchanged ═══
+// ═══ CORE ═══
 svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
 svgTxt(cx, cy-6, 'COHERENT', {
   'text-anchor':'middle','font-size':'9','font-weight':'700',
@@ -177,7 +172,7 @@ svgTxt(cx, cy+7, 'CORE', {
   'letter-spacing':'1.8',fill:'rgba(255,255,255,0.9)','font-family':'DM Sans, sans-serif'
 });
 
-// ═══ B/R/C LABELS — centred on rings, right side ═══
+// ═══ B/R/C LABELS ═══
 [
   {midR:(coreR+bR)/2, letter:'B', state:bState},
   {midR:(bR+rR)/2,    letter:'R', state:rState},
@@ -191,27 +186,15 @@ svgTxt(cx, cy+7, 'CORE', {
   });
 });
 
-// ═══ STATES THAT RINGS HAVE PASSED THROUGH ═══
-// When rings extend past lower state boundaries, show subtle label at bottom edge
-// State boundary radii (fixed proportions of maxZoneR)
-var boundaryRadii={
-  Driven: coreR + (maxZoneR-coreR)*0.2,
-  Strained: coreR + (maxZoneR-coreR)*0.4,
-  Drifting: coreR + (maxZoneR-coreR)*0.6,
-  Fractured: coreR + (maxZoneR-coreR)*0.8
-};
-
-// Show passed-through states as tiny labels along the bottom
+// ═══ PASSED-THROUGH STATES ═══
 var passedStates=[];
 for(var i=1;i<=stateIndex;i++){
   passedStates.push(stateOrder[i]);
 }
 if(passedStates.length>0){
-  var startX=16;
-  var spacing=60;
+  var startX=16, spacing=60;
   for(var i=0;i<passedStates.length;i++){
     var ps=passedStates[i];
-    // Small coloured dot + label at bottom-left
     svg.appendChild(svgEl('circle',{
       cx:startX+(i*spacing)+4, cy:svgH-8, r:'3',
       fill:SC[ps].faint
@@ -223,7 +206,7 @@ if(passedStates.length>0){
   }
 }
 
-// ═══ GAP ARROWS — evenly at -60, -90, -120 ═══
+// ═══ GAP ARROWS ═══
 var ac='#D4A843';
 function drawArrow(angleDeg){
   var rad=(angleDeg*Math.PI)/180;
