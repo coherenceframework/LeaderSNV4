@@ -58,22 +58,24 @@
 var P=new URLSearchParams(window.location.search);
 var totalSelections=parseInt(P.get('total_selections')||'0');
 
+// State from scoring engine — single source of truth
+var stateMap={
+  'COHERENT':'Coherent','DRIVEN':'Driven','STRAINED':'Strained',
+  'DRIFTING':'Drifting','FRACTURED':'Fractured','QUALIFIED':'Coherent'
+};
+var rawState=P.get('state')||'COHERENT';
+var overallState=stateMap[rawState]||rawState;
+
 var SC={
   Coherent:'#2A6B6A', Driven:'#4A6FA5', Strained:'#D4A843',
   Drifting:'#7B2D8E', Fractured:'#A82828'
 };
 
 var diagGapPct=Math.round((totalSelections/24)*100);
-var overallState='Coherent';
-if(diagGapPct>80) overallState='Fractured';
-else if(diagGapPct>60) overallState='Drifting';
-else if(diagGapPct>40) overallState='Strained';
-else if(diagGapPct>20) overallState='Driven';
-
 var specW=672, minN=24, maxN=specW-24;
 var needleX=Math.max(minN,Math.min(maxN,(diagGapPct/100)*specW));
 
-document.getElementById('specFill').setAttribute('fill', SC[overallState]);
+document.getElementById('specFill').setAttribute('fill', SC[overallState]||SC.Coherent);
 document.getElementById('specFill').setAttribute('width', Math.max(6, needleX));
 document.getElementById('needleLine').setAttribute('x1',needleX);
 document.getElementById('needleLine').setAttribute('x2',needleX);
