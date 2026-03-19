@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=672, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .wrapper {
+    width: 672px;
+    padding: 0;
+    background: #FFFFFF;
+  }
+  .territories-header {
+    padding: 16px 0 10px;
+    font-size: 12px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: #7A756D;
+  }
+  .territories-row {
+    display: flex;
+    border: 1px solid #E8E5DF;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .territory { flex: 1; padding: 18px 22px 20px; }
+  .territory:not(:last-child) { border-right: 1px solid #E8E5DF; }
+  .t-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .t-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: #FFFFFF; flex-shrink: 0;
+  }
+  .t-name { font-size: 18px; font-weight: 700; color: #1A1A2E; }
+  .t-desc { font-size: 13px; color: #7A756D; line-height: 1.45; margin-bottom: 10px; }
+  .t-state { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="territories-header">Your three territories of a whole operating self</div>
+  <div class="territories-row">
+    <div class="territory" id="terB">
+      <div class="t-header"><div class="t-circle" id="circB">B</div><div class="t-name">Being</div></div>
+      <div class="t-desc">Your ground and internal integrity</div>
+      <div class="t-state" id="stB">—</div>
+    </div>
+    <div class="territory" id="terR">
+      <div class="t-header"><div class="t-circle" id="circR">R</div><div class="t-name">Relating</div></div>
+      <div class="t-desc">The field between you and others</div>
+      <div class="t-state" id="stR">—</div>
+    </div>
+    <div class="territory" id="terC">
+      <div class="t-header"><div class="t-circle" id="circC">C</div><div class="t-name">Creating</div></div>
+      <div class="t-desc">What you are building in the world</div>
+      <div class="t-state" id="stC">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var P=new URLSearchParams(window.location.search);
+var b01=parseInt(P.get('b01')||'0'),b02=parseInt(P.get('b02')||'0'),b04=parseInt(P.get('b04')||'0');
+var bAmp01=parseInt(P.get('ba01')||'0'),bAmp02=parseInt(P.get('ba02')||'0'),bAmp04=parseInt(P.get('ba04')||'0');
+var r03=parseInt(P.get('r03')||'0'),r05=parseInt(P.get('r05')||'0'),r06=parseInt(P.get('r06')||'0');
+var rAmp03=parseInt(P.get('ra03')||'0'),rAmp05=parseInt(P.get('ra05')||'0'),rAmp06=parseInt(P.get('ra06')||'0');
+var c07=parseInt(P.get('c07')||'0'),c08=parseInt(P.get('c08')||'0');
+var cAmp07=parseInt(P.get('ca07')||'0'),cAmp08=parseInt(P.get('ca08')||'0');
+
+var beingSel=b01+b02+b04, beingLoaded=(b01>0?1:0)+(b02>0?1:0)+(b04>0?1:0), beingMaxAmp=Math.max(bAmp01,bAmp02,bAmp04);
+var relatingSel=r03+r05+r06, relatingLoaded=(r03>0?1:0)+(r05>0?1:0)+(r06>0?1:0), relatingMaxAmp=Math.max(rAmp03,rAmp05,rAmp06);
+var creatingSel=c07+c08, creatingLoaded=(c07>0?1:0)+(c08>0?1:0), creatingMaxAmp=Math.max(cAmp07,cAmp08);
+
+function calcState(sel,loaded,maxAmp,n){
+  if(maxAmp>=3)return'Fractured';if(sel>n*2)return'Fractured';
+  if(sel>=n*2&&loaded===n)return'Fractured';if(maxAmp>=2)return'Strained';
+  if(sel>n)return'Strained';if(sel>=1&&maxAmp<=1)return'Drifting';return'Coherent';
+}
+var bState=calcState(beingSel,beingLoaded,beingMaxAmp,3);
+var rState=calcState(relatingSel,relatingLoaded,relatingMaxAmp,3);
+var cState=calcState(creatingSel,creatingLoaded,creatingMaxAmp,2);
+
+var SC={
+  Coherent:{solid:'#2A6B6A',bg:'rgba(42,107,106,0.06)'},
+  Driven:{solid:'#4A6FA5',bg:'rgba(74,111,165,0.06)'},
+  Strained:{solid:'#D4A843',bg:'rgba(212,168,67,0.06)'},
+  Drifting:{solid:'#7B2D8E',bg:'rgba(123,45,142,0.06)'},
+  Fractured:{solid:'#A82828',bg:'rgba(168,40,40,0.06)'}
+};
+
+function setT(tid,cid,sid,state){
+  document.getElementById(tid).style.background=SC[state].bg;
+  document.getElementById(cid).style.background=SC[state].solid;
+  var st=document.getElementById(sid);
+  st.textContent=state;st.style.color=SC[state].solid;
+}
+setT('terB','circB','stB',bState);
+setT('terR','circR','stR',rState);
+setT('terC','circC','stC',cState);
+</script>
+</body>
+</html>

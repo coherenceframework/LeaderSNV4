@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=520, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    min-height: 100vh;
+  }
+  .wrapper {
+    width: 520px;
+    background: #FFFFFF;
+    text-align: center;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <svg id="portSvg" width="520" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<script>
+var P=new URLSearchParams(window.location.search);
+var b01=parseInt(P.get('b01')||'0'),b02=parseInt(P.get('b02')||'0'),b04=parseInt(P.get('b04')||'0');
+var bAmp01=parseInt(P.get('ba01')||'0'),bAmp02=parseInt(P.get('ba02')||'0'),bAmp04=parseInt(P.get('ba04')||'0');
+var r03=parseInt(P.get('r03')||'0'),r05=parseInt(P.get('r05')||'0'),r06=parseInt(P.get('r06')||'0');
+var rAmp03=parseInt(P.get('ra03')||'0'),rAmp05=parseInt(P.get('ra05')||'0'),rAmp06=parseInt(P.get('ra06')||'0');
+var c07=parseInt(P.get('c07')||'0'),c08=parseInt(P.get('c08')||'0');
+var cAmp07=parseInt(P.get('ca07')||'0'),cAmp08=parseInt(P.get('ca08')||'0');
+
+var beingSel=b01+b02+b04, beingLoaded=(b01>0?1:0)+(b02>0?1:0)+(b04>0?1:0), beingMaxAmp=Math.max(bAmp01,bAmp02,bAmp04);
+var relatingSel=r03+r05+r06, relatingLoaded=(r03>0?1:0)+(r05>0?1:0)+(r06>0?1:0), relatingMaxAmp=Math.max(rAmp03,rAmp05,rAmp06);
+var creatingSel=c07+c08, creatingLoaded=(c07>0?1:0)+(c08>0?1:0), creatingMaxAmp=Math.max(cAmp07,cAmp08);
+
+function calcState(sel,loaded,maxAmp,n){
+  if(maxAmp>=3)return'Fractured';if(sel>n*2)return'Fractured';
+  if(sel>=n*2&&loaded===n)return'Fractured';if(maxAmp>=2)return'Strained';
+  if(sel>n)return'Strained';if(sel>=1&&maxAmp<=1)return'Drifting';return'Coherent';
+}
+var bState=calcState(beingSel,beingLoaded,beingMaxAmp,3);
+var rState=calcState(relatingSel,relatingLoaded,relatingMaxAmp,3);
+var cState=calcState(creatingSel,creatingLoaded,creatingMaxAmp,2);
+
+var SC={
+  Coherent:{ring:'rgba(42,107,106,0.25)',border:'rgba(42,107,106,0.55)',solid:'#2A6B6A'},
+  Driven:{ring:'rgba(74,111,165,0.22)',border:'rgba(74,111,165,0.5)',solid:'#4A6FA5'},
+  Strained:{ring:'rgba(212,168,67,0.25)',border:'rgba(212,168,67,0.55)',solid:'#D4A843'},
+  Drifting:{ring:'rgba(123,45,142,0.22)',border:'rgba(123,45,142,0.45)',solid:'#7B2D8E'},
+  Fractured:{ring:'rgba(168,40,40,0.25)',border:'rgba(168,40,40,0.55)',solid:'#A82828'}
+};
+
+var svg=document.getElementById('portSvg');
+var coreR=36, minT=26, maxT=46;
+function ringT(sel,mx){return minT+(sel/mx)*(maxT-minT);}
+
+var bT=ringT(beingSel,9), relTh=ringT(relatingSel,9), creTh=ringT(creatingSel,6);
+var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
+var gapBand=14;
+var outerR=cR+gapBand;
+
+// SVG dimensions: show the top half of the rings plus padding
+var svgW=520, cx=svgW/2;
+var topPad=28;
+// cy is at the bottom — we only show the upper half
+var visibleH=outerR+topPad+20;
+var cy=visibleH;
+var svgH=visibleH+10;
+
+svg.setAttribute('viewBox','0 0 '+svgW+' '+svgH);
+svg.setAttribute('height',svgH);
+svg.style.display='block';
+svg.style.margin='0 auto';
+
+function svgEl(tag,attrs){
+  var el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(var k in attrs) el.setAttribute(k,attrs[k]);
+  return el;
+}
+function svgTxt(x,y,text,attrs){
+  var el=svgEl('text',{x:x,y:y});
+  for(var k in attrs) el.setAttribute(k,attrs[k]);
+  el.textContent=text;
+  svg.appendChild(el);
+}
+
+// Defs
+var defs=svgEl('defs',{});
+var rg=svgEl('radialGradient',{id:'cg',cx:'40%',cy:'38%',r:'60%'});
+rg.appendChild(svgEl('stop',{offset:'0%','stop-color':'#2A6B6A'}));
+rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
+defs.appendChild(rg);
+svg.appendChild(defs);
+
+// Operating surface — dashed
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:outerR,fill:'none',stroke:'#7A756D','stroke-width':'1.5','stroke-dasharray':'6 4',opacity:'0.5'}));
+
+// Operating surface label — centred in gap band
+var labelY=cy-((outerR+cR)/2)-4;
+svgTxt(cx, labelY, 'OPERATING SURFACE', {
+  'text-anchor':'middle','font-size':'11','font-weight':'600',
+  'letter-spacing':'1.5',fill:'#7A756D','font-family':'DM Sans, sans-serif'
+});
+
+// Territory rings
+[{r:cR,s:cState},{r:rR,s:rState},{r:bR,s:bState}].forEach(function(d){
+  svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:d.r,fill:SC[d.s].ring,stroke:SC[d.s].border,'stroke-width':'1.5'}));
+});
+
+// Core
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
+svgTxt(cx, cy-6, 'COHERENT', {
+  'text-anchor':'middle','font-size':'9','font-weight':'700',
+  'letter-spacing':'1.8',fill:'rgba(255,255,255,0.9)','font-family':'DM Sans, sans-serif'
+});
+svgTxt(cx, cy+7, 'CORE', {
+  'text-anchor':'middle','font-size':'9','font-weight':'700',
+  'letter-spacing':'1.8',fill:'rgba(255,255,255,0.9)','font-family':'DM Sans, sans-serif'
+});
+
+// B/R/C labels — centred over each ring band, aligned right at 0°
+[
+  {midR:(coreR+bR)/2, letter:'B', state:bState},
+  {midR:(bR+rR)/2,    letter:'R', state:rState},
+  {midR:(rR+cR)/2,    letter:'C', state:cState}
+].forEach(function(d){
+  var lx=cx+d.midR, ly=cy;
+  svg.appendChild(svgEl('circle',{cx:lx,cy:ly,r:'14',fill:'#FFFFFF',stroke:SC[d.state].solid,'stroke-width':'2'}));
+  svgTxt(lx, ly+5, d.letter, {
+    'text-anchor':'middle','font-size':'13','font-weight':'700',
+    fill:SC[d.state].solid,'font-family':'DM Sans, sans-serif'
+  });
+});
+
+// Gap arrows — evenly at -60°, -90°, -120°
+var ac='#D4A843';
+function drawArrow(angleDeg){
+  var rad=(angleDeg*Math.PI)/180;
+  var iE=coreR+3, oE=outerR-4;
+  var x1=cx+Math.cos(rad)*iE, y1=cy+Math.sin(rad)*iE;
+  var x2=cx+Math.cos(rad)*oE, y2=cy+Math.sin(rad)*oE;
+  svg.appendChild(svgEl('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:ac,'stroke-width':'2'}));
+  var hL=8, hA=24*Math.PI/180;
+  svg.appendChild(svgEl('polygon',{
+    points:x2+','+y2+' '+(x2-hL*Math.cos(rad-hA))+','+(y2-hL*Math.sin(rad-hA))+' '+(x2-hL*Math.cos(rad+hA))+','+(y2-hL*Math.sin(rad+hA)),
+    fill:ac
+  }));
+  svg.appendChild(svgEl('polygon',{
+    points:x1+','+y1+' '+(x1+hL*Math.cos(rad-hA))+','+(y1+hL*Math.sin(rad-hA))+' '+(x1+hL*Math.cos(rad+hA))+','+(y1+hL*Math.sin(rad+hA)),
+    fill:ac
+  }));
+}
+drawArrow(-60);
+drawArrow(-90);
+drawArrow(-120);
+</script>
+</body>
+</html>

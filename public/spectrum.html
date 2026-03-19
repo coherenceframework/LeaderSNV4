@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=672, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .wrapper {
+    width: 672px;
+    padding: 16px 0 12px;
+    background: #FFFFFF;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <svg viewBox="0 0 672 124" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="specGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#2A6B6A"/>
+        <stop offset="25%" stop-color="#4A6FA5"/>
+        <stop offset="50%" stop-color="#D4A843"/>
+        <stop offset="75%" stop-color="#7B2D8E"/>
+        <stop offset="100%" stop-color="#A82828"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="62" width="672" height="11" rx="5.5" fill="#E8E5DF"/>
+    <rect x="0" y="62" width="672" height="11" rx="5.5" fill="url(#specGrad)" opacity="0.12"/>
+    <rect x="0" y="62" id="specFill" width="87" height="11" rx="5.5" fill="#2A6B6A"/>
+    <line x1="134" y1="60" x2="134" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+    <line x1="269" y1="60" x2="269" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+    <line x1="403" y1="60" x2="403" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+    <line x1="538" y1="60" x2="538" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+    <line id="needleLine" x1="87" y1="54" x2="87" y2="80" stroke="#1A1A2E" stroke-width="2.5"/>
+    <circle id="needleDot" cx="87" cy="67.5" r="5" fill="#1A1A2E"/>
+    <text id="nL1" x="87" y="12" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">RESISTANCE TO</text>
+    <text id="nL2" x="87" y="24" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">COHERENT CORE</text>
+    <text id="nPct" x="87" y="48" text-anchor="middle" font-size="26" font-weight="700" fill="#1A1A2E" font-family="DM Sans, sans-serif">0<tspan font-size="15" fill="#7A756D">%</tspan></text>
+    <text x="67" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#2A6B6A" font-family="DM Sans, sans-serif">Coherent</text>
+    <text x="201" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#4A6FA5" font-family="DM Sans, sans-serif">Driven</text>
+    <text x="336" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#D4A843" font-family="DM Sans, sans-serif">Strained</text>
+    <text x="470" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#7B2D8E" font-family="DM Sans, sans-serif">Drifting</text>
+    <text x="605" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#A82828" font-family="DM Sans, sans-serif">Fractured</text>
+    <text x="0" y="118" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal arrives in the moment</text>
+    <text x="672" y="118" text-anchor="end" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal may never arrive</text>
+  </svg>
+</div>
+
+<script>
+var P=new URLSearchParams(window.location.search);
+var totalSelections=parseInt(P.get('total_selections')||'0');
+
+var SC={
+  Coherent:'#2A6B6A', Driven:'#4A6FA5', Strained:'#D4A843',
+  Drifting:'#7B2D8E', Fractured:'#A82828'
+};
+
+var diagGapPct=Math.round((totalSelections/24)*100);
+var overallState='Coherent';
+if(diagGapPct>80) overallState='Fractured';
+else if(diagGapPct>60) overallState='Drifting';
+else if(diagGapPct>40) overallState='Strained';
+else if(diagGapPct>20) overallState='Driven';
+
+var specW=672, minN=24, maxN=specW-24;
+var needleX=Math.max(minN,Math.min(maxN,(diagGapPct/100)*specW));
+
+document.getElementById('specFill').setAttribute('fill', SC[overallState]);
+document.getElementById('specFill').setAttribute('width', Math.max(6, needleX));
+document.getElementById('needleLine').setAttribute('x1',needleX);
+document.getElementById('needleLine').setAttribute('x2',needleX);
+document.getElementById('needleDot').setAttribute('cx',needleX);
+
+var tAnch='middle',tOff=0;
+if(diagGapPct<=5){tAnch='start';tOff=-2;}
+else if(diagGapPct>=95){tAnch='end';tOff=2;}
+['nPct','nL1','nL2'].forEach(function(id){
+  var el=document.getElementById(id);
+  el.setAttribute('x',needleX+tOff);
+  el.setAttribute('text-anchor',tAnch);
+});
+document.getElementById('nPct').innerHTML=diagGapPct+'<tspan font-size="15" fill="#7A756D">%</tspan>';
+</script>
+</body>
+</html>
