@@ -66,25 +66,15 @@
 
 <script>
 var P=new URLSearchParams(window.location.search);
-var b01=parseInt(P.get('b01')||'0'),b02=parseInt(P.get('b02')||'0'),b04=parseInt(P.get('b04')||'0');
-var bAmp01=parseInt(P.get('ba01')||'0'),bAmp02=parseInt(P.get('ba02')||'0'),bAmp04=parseInt(P.get('ba04')||'0');
-var r03=parseInt(P.get('r03')||'0'),r05=parseInt(P.get('r05')||'0'),r06=parseInt(P.get('r06')||'0');
-var rAmp03=parseInt(P.get('ra03')||'0'),rAmp05=parseInt(P.get('ra05')||'0'),rAmp06=parseInt(P.get('ra06')||'0');
-var c07=parseInt(P.get('c07')||'0'),c08=parseInt(P.get('c08')||'0');
-var cAmp07=parseInt(P.get('ca07')||'0'),cAmp08=parseInt(P.get('ca08')||'0');
 
-var beingSel=b01+b02+b04, beingLoaded=(b01>0?1:0)+(b02>0?1:0)+(b04>0?1:0), beingMaxAmp=Math.max(bAmp01,bAmp02,bAmp04);
-var relatingSel=r03+r05+r06, relatingLoaded=(r03>0?1:0)+(r05>0?1:0)+(r06>0?1:0), relatingMaxAmp=Math.max(rAmp03,rAmp05,rAmp06);
-var creatingSel=c07+c08, creatingLoaded=(c07>0?1:0)+(c08>0?1:0), creatingMaxAmp=Math.max(cAmp07,cAmp08);
-
-function calcState(sel,loaded,maxAmp,n){
-  if(maxAmp>=3)return'Fractured';if(sel>n*2)return'Fractured';
-  if(sel>=n*2&&loaded===n)return'Fractured';if(maxAmp>=2)return'Strained';
-  if(sel>n)return'Strained';if(sel>=1&&maxAmp<=1)return'Drifting';return'Coherent';
-}
-var bState=calcState(beingSel,beingLoaded,beingMaxAmp,3);
-var rState=calcState(relatingSel,relatingLoaded,relatingMaxAmp,3);
-var cState=calcState(creatingSel,creatingLoaded,creatingMaxAmp,2);
+// States from scoring engine — single source of truth
+var stateMap={
+  'COHERENT':'Coherent','DRIVEN':'Driven','STRAINED':'Strained',
+  'DRIFTING':'Drifting','FRACTURED':'Fractured','QUALIFIED':'Coherent'
+};
+var bState=stateMap[P.get('bstate')||'COHERENT']||'Coherent';
+var rState=stateMap[P.get('rstate')||'COHERENT']||'Coherent';
+var cState=stateMap[P.get('cstate')||'COHERENT']||'Coherent';
 
 var SC={
   Coherent:{solid:'#2A6B6A',bg:'rgba(42,107,106,0.06)'},
