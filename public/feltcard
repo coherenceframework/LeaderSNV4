@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=672, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .wrapper {
+    width: 672px;
+    padding: 16px 0;
+    background: #FFFFFF;
+  }
+  .section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #D4A843;
+    margin-bottom: 12px;
+  }
+  .card {
+    display: flex;
+    border: 1px solid #E8E5DF;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .col-num {
+    width: 155px;
+    flex-shrink: 0;
+    padding: 20px 20px;
+  }
+  .col-num:first-child {
+    border-right: 1px solid #E8E5DF;
+  }
+  .col-reading {
+    flex: 1;
+    padding: 20px 24px;
+    background: #F8F7F5;
+    border-left: 1px solid #E8E5DF;
+  }
+  .col-label {
+    font-size: 10px;
+    color: #7A756D;
+    margin-bottom: 6px;
+  }
+  .col-pct {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .col-pct .unit {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7A756D;
+  }
+  .col-desc {
+    font-size: 10px;
+    color: #5A5650;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .reading-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A1A2E;
+    margin-bottom: 8px;
+  }
+  .reading-text {
+    font-size: 10px;
+    color: #5A5650;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="section-title">Your felt truth, measured</div>
+  <div class="card">
+    <div class="col-num">
+      <div class="col-label">You reported</div>
+      <div class="col-pct" id="feltPctEl" style="color:#1A1A2E;">—<span class="unit">%</span></div>
+      <div class="col-desc" id="feltDesc">felt distance from your core.</div>
+    </div>
+    <div class="col-num">
+      <div class="col-label">Diagnostic found</div>
+      <div class="col-pct" id="diagPctEl">—<span class="unit">%</span></div>
+      <div class="col-desc">structural resistance weighted by intensity across eight domains.</div>
+    </div>
+    <div class="col-reading">
+      <div class="reading-name" id="readName">—</div>
+      <div class="reading-text" id="readText">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var P=new URLSearchParams(window.location.search);
+var felt=parseInt(P.get('felt')||'0');
+var diag=parseInt(P.get('diag')||'0');
+var pgap=parseInt(P.get('pgap')||'5');
+var gtype=P.get('gtype')||'CONSISTENT_LOW';
+var state=P.get('state')||'COHERENT';
+
+var stateColors={
+  COHERENT:'#2A6B6A',DRIVEN:'#4A6FA5',STRAINED:'#D4A843',
+  DRIFTING:'#7B2D8E',FRACTURED:'#A82828'
+};
+var sColor=stateColors[state]||'#2A6B6A';
+
+document.getElementById('feltPctEl').innerHTML=felt+'<span class="unit">%</span>';
+document.getElementById('feltDesc').textContent='felt distance from your core. You rated yourself '+pgap+' out of 10 in alignment.';
+document.getElementById('diagPctEl').innerHTML=diag+'<span class="unit">%</span>';
+document.getElementById('diagPctEl').style.color=sColor;
+
+var readings={
+  CONSISTENT_LOW:{
+    name:'Genuine Alignment',
+    text:'Both readings are low, and they agree. The signal from your coherent core is reaching your operating self with relatively little delay.'
+  },
+  CONSISTENT_HIGH:{
+    name:'Honest Distance',
+    text:'Both readings are elevated, and they agree. You feel the distance -- and the structural evidence confirms it is there.'
+  },
+  CONTRADICTION_DRIVEN:{
+    name:'Hidden Gap',
+    text:'The structural friction is higher than what you are feeling. The gap is present but not registering. Performance is masking the distance.'
+  },
+  CONTRADICTION_INTERNAL:{
+    name:'Existential Distance',
+    text:'The structural friction is low -- but what you feel is not. The source of the distance is beneath the operational structure, in the relationship between your coherent core and the life you have built around it.'
+  }
+};
+var r=readings[gtype]||readings.CONSISTENT_LOW;
+document.getElementById('readName').textContent=r.name;
+document.getElementById('readText').textContent=r.text;
+</script>
+</body>
+</html>
