@@ -71,7 +71,7 @@ var SC={
   Drifting:'#7B2D8E', Fractured:'#A82828'
 };
 
-var diagGapPct=Math.round((totalSelections/24)*100);
+var diagGapPct=parseInt(P.get('pct')||'0');
 var specW=672, minN=24, maxN=specW-24;
 var needleX=Math.max(minN,Math.min(maxN,(diagGapPct/100)*specW));
 
