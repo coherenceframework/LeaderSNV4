@@ -32,23 +32,29 @@
         <stop offset="100%" stop-color="#A82828"/>
       </linearGradient>
     </defs>
+    <!-- Track -->
     <rect x="0" y="62" width="672" height="11" rx="5.5" fill="#E8E5DF"/>
     <rect x="0" y="62" width="672" height="11" rx="5.5" fill="url(#specGrad)" opacity="0.12"/>
     <rect x="0" y="62" id="specFill" width="87" height="11" rx="5.5" fill="#2A6B6A"/>
-    <line x1="134" y1="60" x2="134" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
-    <line x1="269" y1="60" x2="269" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
-    <line x1="403" y1="60" x2="403" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
-    <line x1="538" y1="60" x2="538" y2="75" stroke="#D5D2CC" stroke-width="0.75"/>
+    <!-- Zone dividers — dashed lines at real thresholds: 12%, 29%, 51%, 73% -->
+    <line x1="81" y1="58" x2="81" y2="100" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="195" y1="58" x2="195" y2="100" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="343" y1="58" x2="343" y2="100" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="491" y1="58" x2="491" y2="100" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
+    <!-- Needle -->
     <line id="needleLine" x1="87" y1="54" x2="87" y2="80" stroke="#1A1A2E" stroke-width="2.5"/>
     <circle id="needleDot" cx="87" cy="67.5" r="5" fill="#1A1A2E"/>
+    <!-- Labels above needle -->
     <text id="nL1" x="87" y="12" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">RESISTANCE TO</text>
     <text id="nL2" x="87" y="24" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">COHERENT CORE</text>
     <text id="nPct" x="87" y="48" text-anchor="middle" font-size="26" font-weight="700" fill="#1A1A2E" font-family="DM Sans, sans-serif">0<tspan font-size="15" fill="#7A756D">%</tspan></text>
-    <text x="67" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#2A6B6A" font-family="DM Sans, sans-serif">Coherent</text>
-    <text x="201" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#4A6FA5" font-family="DM Sans, sans-serif">Driven</text>
-    <text x="336" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#D4A843" font-family="DM Sans, sans-serif">Strained</text>
-    <text x="470" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#7B2D8E" font-family="DM Sans, sans-serif">Drifting</text>
-    <text x="605" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#A82828" font-family="DM Sans, sans-serif">Fractured</text>
+    <!-- Zone labels centred in their zones -->
+    <text x="40" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#2A6B6A" font-family="DM Sans, sans-serif">Coherent</text>
+    <text x="138" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#4A6FA5" font-family="DM Sans, sans-serif">Driven</text>
+    <text x="269" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#D4A843" font-family="DM Sans, sans-serif">Strained</text>
+    <text x="417" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#7B2D8E" font-family="DM Sans, sans-serif">Drifting</text>
+    <text x="581" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#A82828" font-family="DM Sans, sans-serif">Fractured</text>
+    <!-- Temporal anchors -->
     <text x="0" y="118" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal arrives in the moment</text>
     <text x="672" y="118" text-anchor="end" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal may never arrive</text>
   </svg>
@@ -56,9 +62,7 @@
 
 <script>
 var P=new URLSearchParams(window.location.search);
-var totalSelections=parseInt(P.get('total_selections')||'0');
 
-// State from scoring engine — single source of truth
 var stateMap={
   'COHERENT':'Coherent','DRIVEN':'Driven','STRAINED':'Strained',
   'DRIFTING':'Drifting','FRACTURED':'Fractured','QUALIFIED':'Coherent'
