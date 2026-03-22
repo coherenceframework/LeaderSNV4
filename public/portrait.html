@@ -29,7 +29,6 @@
 <script>
 var P=new URLSearchParams(window.location.search);
 
-// Cluster data for ring thickness calculation
 var b01=parseInt(P.get('b01')||'0'),b02=parseInt(P.get('b02')||'0'),b04=parseInt(P.get('b04')||'0');
 var ba01=parseInt(P.get('ba01')||'0'),ba02=parseInt(P.get('ba02')||'0'),ba04=parseInt(P.get('ba04')||'0');
 var r03=parseInt(P.get('r03')||'0'),r05=parseInt(P.get('r05')||'0'),r06=parseInt(P.get('r06')||'0');
@@ -37,12 +36,10 @@ var ra03=parseInt(P.get('ra03')||'0'),ra05=parseInt(P.get('ra05')||'0'),ra06=par
 var c07=parseInt(P.get('c07')||'0'),c08=parseInt(P.get('c08')||'0');
 var ca07=parseInt(P.get('ca07')||'0'),ca08=parseInt(P.get('ca08')||'0');
 
-// Territory resistance scores = selections x amplitude per cluster, summed
 var beingScore=(b01*ba01)+(b02*ba02)+(b04*ba04);
 var relatingScore=(r03*ra03)+(r05*ra05)+(r06*ra06);
 var creatingScore=(c07*ca07)+(c08*ca08);
 
-// States from scoring engine — single source of truth
 var stateMap={
   'COHERENT':'Coherent','DRIVEN':'Driven','STRAINED':'Strained',
   'DRIFTING':'Drifting','FRACTURED':'Fractured','QUALIFIED':'Coherent'
@@ -53,25 +50,23 @@ var rState=stateMap[P.get('rstate')||'COHERENT']||'Coherent';
 var cState=stateMap[P.get('cstate')||'COHERENT']||'Coherent';
 
 var SC={
-  Coherent:{ring:'rgba(42,107,106,0.25)',border:'rgba(42,107,106,0.55)',solid:'#2A6B6A',faint:'rgba(42,107,106,0.30)'},
-  Driven:{ring:'rgba(74,111,165,0.22)',border:'rgba(74,111,165,0.5)',solid:'#4A6FA5',faint:'rgba(74,111,165,0.30)'},
-  Strained:{ring:'rgba(212,168,67,0.25)',border:'rgba(212,168,67,0.55)',solid:'#D4A843',faint:'rgba(212,168,67,0.30)'},
-  Drifting:{ring:'rgba(123,45,142,0.22)',border:'rgba(123,45,142,0.45)',solid:'#7B2D8E',faint:'rgba(123,45,142,0.30)'},
-  Fractured:{ring:'rgba(168,40,40,0.25)',border:'rgba(168,40,40,0.55)',solid:'#A82828',faint:'rgba(168,40,40,0.30)'}
+  Coherent:{ring:'rgba(42,107,106,0.25)',border:'rgba(42,107,106,0.55)',solid:'#2A6B6A'},
+  Driven:{ring:'rgba(74,111,165,0.22)',border:'rgba(74,111,165,0.5)',solid:'#4A6FA5'},
+  Strained:{ring:'rgba(212,168,67,0.25)',border:'rgba(212,168,67,0.55)',solid:'#D4A843'},
+  Drifting:{ring:'rgba(123,45,142,0.22)',border:'rgba(123,45,142,0.45)',solid:'#7B2D8E'},
+  Fractured:{ring:'rgba(168,40,40,0.25)',border:'rgba(168,40,40,0.55)',solid:'#A82828'}
 };
 
 var stateOrder=['Coherent','Driven','Strained','Drifting','Fractured'];
 var stateIndex=stateOrder.indexOf(overallState);
 
-// Ring thickness from territory resistance score
-// Being max=27, Relating max=27, Creating max=18
 var svg=document.getElementById('portSvg');
 var coreR=36, minT=26, maxT=46;
 function ringT(score,maxScore){return minT+(score/maxScore)*(maxT-minT);}
 
 var bT=ringT(beingScore,27), relTh=ringT(relatingScore,27), creTh=ringT(creatingScore,18);
 var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
-var gapBand=18;
+var gapBand=24;
 var outerR=cR+gapBand;
 
 var svgW=520, svgH=340;
@@ -112,50 +107,58 @@ rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
 defs.appendChild(rg);
 svg.appendChild(defs);
 
-// Outer state zone lines
+// ═══ OUTER STATE ZONE LINES — visible, normal weight ═══
 for(var i=stateIndex+1;i<stateOrder.length;i++){
   var zIdx=i-stateIndex;
   var zR=zoneRadii[zIdx];
   var zName=stateOrder[i];
-  var zColor=SC[zName].faint;
+  var zSolid=SC[zName].solid;
+  // Solid colour dashed lines — clearly visible
   svg.appendChild(svgEl('circle',{
     cx:cx,cy:cy,r:zR,
-    fill:'none',stroke:zColor,'stroke-width':'1.2','stroke-dasharray':'5 4'
+    fill:'none',stroke:zSolid,'stroke-width':'1.2','stroke-dasharray':'5 4',opacity:'0.45'
   }));
+  // Zone label centred between this line and the one below
   var prevR=zoneRadii[zIdx-1];
   var labelR=(zR+prevR)/2;
   var labelY=cy-labelR;
   if(labelY>10 && labelY<svgH-10){
     svgTxt(cx, labelY+4, zName, {
-      'text-anchor':'middle','font-size':'10','font-weight':'500',
-      fill:zColor,'font-family':'DM Sans, sans-serif'
+      'text-anchor':'middle','font-size':'10','font-weight':'600',
+      fill:zSolid,opacity:'0.45','font-family':'DM Sans, sans-serif'
     });
   }
 }
 
-// Operating surface
+// ═══ OPERATING SURFACE — bold, distinct from zone lines ═══
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:outerR,
   fill:'none',stroke:SC[overallState].solid,
-  'stroke-width':'1.5','stroke-dasharray':'6 4',opacity:'0.55'
+  'stroke-width':'3','stroke-dasharray':'8 4'
 }));
+// Label in gap band — white background for readability
 var osMidR=(outerR+cR)/2;
-var osLabelY=cy-osMidR-5;
+var osLabelY=cy-osMidR-7;
+// White rect behind text
+svg.appendChild(svgEl('rect',{
+  x:cx-90,y:osLabelY-12,width:'180',height:'32',
+  rx:'4',fill:'#FFFFFF',opacity:'0.9'
+}));
 svgTxt(cx, osLabelY, 'OPERATING SURFACE', {
-  'text-anchor':'middle','font-size':'10','font-weight':'600',
-  'letter-spacing':'1.2',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
+  'text-anchor':'middle','font-size':'12','font-weight':'700',
+  'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
-svgTxt(cx, osLabelY+13, overallState, {
-  'text-anchor':'middle','font-size':'11','font-weight':'700',
-  'letter-spacing':'0.8',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
+svgTxt(cx, osLabelY+15, overallState, {
+  'text-anchor':'middle','font-size':'13','font-weight':'700',
+  'letter-spacing':'1',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
 
-// Territory rings
+// ═══ TERRITORY RINGS ═══
 [{r:cR,s:cState},{r:rR,s:rState},{r:bR,s:bState}].forEach(function(d){
   svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:d.r,fill:SC[d.s].ring,stroke:SC[d.s].border,'stroke-width':'1.5'}));
 });
 
-// Core
+// ═══ CORE ═══
 svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
 svgTxt(cx, cy-6, 'COHERENT', {
   'text-anchor':'middle','font-size':'9','font-weight':'700',
@@ -166,7 +169,7 @@ svgTxt(cx, cy+7, 'CORE', {
   'letter-spacing':'1.8',fill:'rgba(255,255,255,0.9)','font-family':'DM Sans, sans-serif'
 });
 
-// B/R/C labels centred on rings, right side
+// ═══ B/R/C LABELS ═══
 [
   {midR:(coreR+bR)/2, letter:'B', state:bState},
   {midR:(bR+rR)/2,    letter:'R', state:rState},
@@ -180,7 +183,7 @@ svgTxt(cx, cy+7, 'CORE', {
   });
 });
 
-// Passed-through states
+// ═══ PASSED-THROUGH STATES ═══
 var passedStates=[];
 for(var i=1;i<=stateIndex;i++){
   passedStates.push(stateOrder[i]);
@@ -191,16 +194,16 @@ if(passedStates.length>0){
     var ps=passedStates[i];
     svg.appendChild(svgEl('circle',{
       cx:startX+(i*spacing)+4, cy:svgH-8, r:'3',
-      fill:SC[ps].faint
+      fill:SC[ps].solid, opacity:'0.45'
     }));
     svgTxt(startX+(i*spacing)+12, svgH-5, ps, {
       'text-anchor':'start','font-size':'8','font-weight':'500',
-      fill:SC[ps].faint,'font-family':'DM Sans, sans-serif'
+      fill:SC[ps].solid, opacity:'0.45','font-family':'DM Sans, sans-serif'
     });
   }
 }
 
-// Gap arrows
+// ═══ GAP ARROWS ═══
 var ac='#D4A843';
 function drawArrow(angleDeg){
   var rad=(angleDeg*Math.PI)/180;
