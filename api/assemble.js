@@ -323,8 +323,7 @@ function assembleReport(v) {
 const gap_being_reading = buildTerritoryReading("Being", bState, GAP_BEING[bState]);
 const gap_relating_reading = buildTerritoryReading("Relating", rState, GAP_RELATING[rState]);
 const gap_creating_reading = buildTerritoryReading("Creating", cState, GAP_CREATING[cState]);
-const gap_bridge = wrap(GAP_BRIDGE);
-
+const gap_bridge = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#4A4A5A;line-height:1.7;margin-bottom:14px;'>The sections that follow examine the specific operational domains the diagnostic read within each territory — the eight clusters that sit between your coherent core and your operating surface, each one a point where the signal is either passing through or being filtered.</p>";
   // ─── SEC 04: CLUSTER PROFILE ───
   let sec04 = wrap(SEC04_INTRO);
   const clusterNames = {
