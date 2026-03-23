@@ -323,6 +323,7 @@ function assembleReport(v) {
 const gap_being_reading = buildTerritoryReading("Being", bState, GAP_BEING[bState]);
 const gap_relating_reading = buildTerritoryReading("Relating", rState, GAP_RELATING[rState]);
 const gap_creating_reading = buildTerritoryReading("Creating", cState, GAP_CREATING[cState]);
+const gap_bridge = wrap(GAP_BRIDGE);
 
   // ─── SEC 04: CLUSTER PROFILE ───
   let sec04 = wrap(SEC04_INTRO);
