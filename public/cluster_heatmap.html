@@ -2,164 +2,110 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=744, initial-scale=1.0">
+<meta name="viewport" content="width=672, initial-scale=1.0">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
     background: #FFFFFF;
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    align-items: flex-start;
   }
-
   .wrapper {
-    width: 700px;
-    padding: 40px 36px;
+    width: 672px;
+    padding: 28px 0 20px;
     background: #FFFFFF;
   }
-
   .title {
+    font-family: 'Montserrat', sans-serif;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 2.5px;
     text-transform: uppercase;
     color: #D4A843;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
-
   .subtitle {
     font-size: 10px;
     color: #7A756D;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
-
   .heatmap {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 6px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
-
   .cluster-cell {
     border-radius: 6px;
-    padding: 16px 12px;
+    padding: 16px 10px 14px;
     text-align: center;
-    position: relative;
     min-height: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease;
   }
-
-  /* Intensity levels */
-  .cluster-cell.level-0 {
-    background: #F5F3EF;
-    border: 1px solid #E8E5DF;
-  }
-  .cluster-cell.level-0 .cell-name { color: #B5B0A8; }
-  .cluster-cell.level-0 .cell-label { color: #CCC8C0; }
-  .cluster-cell.level-0 .cell-indicator { background: #E0DDD7; }
-
-  .cluster-cell.level-1 {
-    background: #EDE8DF;
-    border: 1px solid #DDD8CE;
-  }
-  .cluster-cell.level-1 .cell-name { color: #7A756D; }
-  .cluster-cell.level-1 .cell-label { color: #9E9890; }
-  .cluster-cell.level-1 .cell-indicator { background: #D4A843; opacity: 0.4; }
-
-  .cluster-cell.level-2 {
-    background: #D8CFBF;
-    border: 1px solid #C8BFAF;
-  }
-  .cluster-cell.level-2 .cell-name { color: #4A4A5A; }
-  .cluster-cell.level-2 .cell-label { color: #6A6560; }
-  .cluster-cell.level-2 .cell-indicator { background: #D4A843; opacity: 0.6; }
-
-  .cluster-cell.level-3 {
-    background: #3A3A50;
-    border: 1px solid #2A2A3E;
-  }
-  .cluster-cell.level-3 .cell-name { color: #D4A843; }
-  .cluster-cell.level-3 .cell-label { color: rgba(255,255,255,0.5); }
-  .cluster-cell.level-3 .cell-indicator { background: #D4A843; }
-
-  .cluster-cell.level-4 {
-    background: #1A1A2E;
-    border: 1px solid #0E0E1E;
-    box-shadow: 0 2px 12px rgba(26, 26, 46, 0.3);
-  }
-  .cluster-cell.level-4 .cell-name { color: #D4A843; font-weight: 700; }
-  .cluster-cell.level-4 .cell-label { color: rgba(255,255,255,0.6); }
-  .cluster-cell.level-4 .cell-indicator { background: #D4A843; }
-
   .cell-number {
+    font-family: 'Montserrat', sans-serif;
     font-size: 8px;
     font-weight: 600;
     letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     opacity: 0.5;
   }
-
   .cell-name {
+    font-family: 'Montserrat', sans-serif;
     font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
   }
-
   .cell-label {
     font-size: 8px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
   }
-
-  /* Indicator dots showing selections */
+  .cell-state {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+  }
   .cell-indicators {
     display: flex;
     gap: 4px;
-    margin-top: 10px;
+    margin-top: 8px;
   }
-
   .cell-indicator {
     width: 6px;
     height: 6px;
     border-radius: 50%;
   }
-
   .cell-indicator.empty {
     background: transparent;
-    border: 1px solid rgba(128, 128, 128, 0.3);
+    border: 1px solid rgba(128,128,128,0.25);
   }
-
-  /* Legend */
   .legend {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding-top: 16px;
+    gap: 18px;
+    padding-top: 14px;
     border-top: 1px solid #E8E5DF;
   }
-
   .legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
   }
-
   .legend-swatch {
     width: 14px;
     height: 14px;
     border-radius: 3px;
   }
-
   .legend-text {
     font-size: 9px;
     color: #7A756D;
@@ -173,88 +119,82 @@
   <div class="heatmap" id="heatmap"></div>
   <div class="legend">
     <div class="legend-item">
-      <div class="legend-swatch" style="background:#F5F3EF;border:1px solid #E8E5DF;"></div>
-      <div class="legend-text">Clear</div>
+      <div class="legend-swatch" style="background:rgba(42,107,106,0.10);border:1px solid rgba(42,107,106,0.25);"></div>
+      <div class="legend-text">Coherent</div>
     </div>
     <div class="legend-item">
-      <div class="legend-swatch" style="background:#EDE8DF;border:1px solid #DDD8CE;"></div>
-      <div class="legend-text">Manageable</div>
+      <div class="legend-swatch" style="background:rgba(74,111,165,0.18);border:1px solid rgba(74,111,165,0.35);"></div>
+      <div class="legend-text">Driven</div>
     </div>
     <div class="legend-item">
-      <div class="legend-swatch" style="background:#D8CFBF;border:1px solid #C8BFAF;"></div>
-      <div class="legend-text">Active</div>
+      <div class="legend-swatch" style="background:rgba(212,168,67,0.22);border:1px solid rgba(212,168,67,0.40);"></div>
+      <div class="legend-text">Strained</div>
     </div>
     <div class="legend-item">
-      <div class="legend-swatch" style="background:#3A3A50;"></div>
-      <div class="legend-text">Draining</div>
+      <div class="legend-swatch" style="background:rgba(123,45,142,0.20);border:1px solid rgba(123,45,142,0.35);"></div>
+      <div class="legend-text">Drifting</div>
     </div>
     <div class="legend-item">
-      <div class="legend-swatch" style="background:#1A1A2E;"></div>
-      <div class="legend-text">Defining</div>
+      <div class="legend-swatch" style="background:rgba(168,40,40,0.22);border:1px solid rgba(168,40,40,0.40);"></div>
+      <div class="legend-text">Fractured</div>
     </div>
   </div>
 </div>
 
 <script>
-  const clusters = [
-    { num: '01', name: 'Inception', label: 'Signal & Source' },
-    { num: '02', name: 'Construction', label: 'Structure & Authority' },
-    { num: '03', name: 'Interaction', label: 'Motion & Choice' },
-    { num: '04', name: 'Internalisation', label: 'Energy & Rhythm' },
-    { num: '05', name: 'Turning Point', label: 'The Threshold' },
-    { num: '06', name: 'The Crisis', label: 'Entrapment & Collapse' },
-    { num: '07', name: 'Emergence', label: 'Perception & Truth' },
-    { num: '08', name: 'Completion', label: 'Integration' }
-  ];
+var clusters = [
+  { num: '01', name: 'Inception', label: 'Signal & Source' },
+  { num: '02', name: 'Construction', label: 'Structure & Authority' },
+  { num: '03', name: 'Interaction', label: 'Motion & Choice' },
+  { num: '04', name: 'Internalisation', label: 'Energy & Rhythm' },
+  { num: '05', name: 'Turning Point', label: 'The Threshold' },
+  { num: '06', name: 'The Crisis', label: 'Entrapment & Collapse' },
+  { num: '07', name: 'Emergence', label: 'Perception & Truth' },
+  { num: '08', name: 'Completion', label: 'Integration' }
+];
 
-  const params = new URLSearchParams(window.location.search);
+var SC = {
+  COHERENT:  { solid: '#2A6B6A', bg: 'rgba(42,107,106,0.08)',  border: 'rgba(42,107,106,0.20)',  stateText: '#2A6B6A', dot: 'rgba(42,107,106,0.35)', display: 'Coherent' },
+  DRIVEN:    { solid: '#4A6FA5', bg: 'rgba(74,111,165,0.12)',  border: 'rgba(74,111,165,0.28)',  stateText: '#4A6FA5', dot: 'rgba(74,111,165,0.5)',  display: 'Driven' },
+  STRAINED:  { solid: '#D4A843', bg: 'rgba(212,168,67,0.14)',  border: 'rgba(212,168,67,0.30)',  stateText: '#B8922A', dot: 'rgba(212,168,67,0.55)', display: 'Strained' },
+  DRIFTING:  { solid: '#7B2D8E', bg: 'rgba(123,45,142,0.12)',  border: 'rgba(123,45,142,0.28)',  stateText: '#7B2D8E', dot: 'rgba(123,45,142,0.5)',  display: 'Drifting' },
+  FRACTURED: { solid: '#A82828', bg: 'rgba(168,40,40,0.14)',   border: 'rgba(168,40,40,0.30)',   stateText: '#A82828', dot: 'rgba(168,40,40,0.55)',  display: 'Fractured' }
+};
 
-  // Read parameters: c01=count, a01=amplitude for each cluster
-  // Count: 0-3 (number of A/B/C selections)
-  // Amplitude: 0=none, 1=manageable, 2=draining, 3=defining
-  
-  const heatmap = document.getElementById('heatmap');
+var P = new URLSearchParams(window.location.search);
+var heatmap = document.getElementById('heatmap');
 
-  clusters.forEach(cl => {
-    const count = parseInt(params.get('c' + cl.num) || '0');
-    const amp = parseInt(params.get('a' + cl.num) || '0');
+clusters.forEach(function(cl) {
+  var score = parseInt(P.get('s' + cl.num) || '0');
+  var state = (P.get('st' + cl.num) || 'COHERENT').toUpperCase();
+  var count = parseInt(P.get('n' + cl.num) || '0');
 
-    // Calculate intensity level (0-4)
-    let level = 0;
-    if (count === 0) {
-      level = 0;
-    } else if (count === 1 && amp <= 1) {
-      level = 1;
-    } else if (count <= 2 && amp <= 2) {
-      level = 2;
-    } else if (amp === 3 || count === 3) {
-      level = 4;
+  var c = SC[state] || SC.COHERENT;
+
+  var cell = document.createElement('div');
+  cell.className = 'cluster-cell';
+  cell.style.background = c.bg;
+  cell.style.border = '1px solid ' + c.border;
+
+  // Build indicator dots
+  var dots = '';
+  for (var i = 0; i < 3; i++) {
+    if (i < count) {
+      dots += '<div class="cell-indicator" style="background:' + c.dot + ';"></div>';
     } else {
-      level = 3;
+      dots += '<div class="cell-indicator empty"></div>';
     }
+  }
 
-    const cell = document.createElement('div');
-    cell.className = `cluster-cell level-${level}`;
+  cell.innerHTML =
+    '<div class="cell-number" style="color:#B5B0A8;">' + cl.num + '</div>' +
+    '<div class="cell-name" style="color:#1A1A2E;">' + cl.name + '</div>' +
+    '<div class="cell-label" style="color:#7A756D;">' + cl.label + '</div>' +
+    '<div class="cell-state" style="color:' + c.stateText + ';">' + c.display + '</div>' +
+    '<div class="cell-indicators">' + dots + '</div>';
 
-    // Build indicator dots
-    let dots = '';
-    for (let i = 0; i < 3; i++) {
-      if (i < count) {
-        dots += '<div class="cell-indicator"></div>';
-      } else {
-        dots += '<div class="cell-indicator empty"></div>';
-      }
-    }
-
-    cell.innerHTML = `
-      <div class="cell-number">${cl.num}</div>
-      <div class="cell-name">${cl.name}</div>
-      <div class="cell-label">${cl.label}</div>
-      <div class="cell-indicators">${dots}</div>
-    `;
-
-    heatmap.appendChild(cell);
-  });
+  heatmap.appendChild(cell);
+});
 </script>
 </body>
 </html>
