@@ -66,7 +66,12 @@ const TERRITORY_SUBTITLES = {
     "Fractured": "What you are producing in the world is no longer connected to who you actually are",
   },
 };
-
+function buildPortraitFrame(state, diagPct) {
+  const ds = displayState(state);
+  return wrap("This is your Coherence Portrait — the Primal Gap as it exists in you right now. Your Coherent Core sits at the centre, always intact. Your Operating Surface — where you actually function in the world — sits at the "
+    + bld + stSpan(ds) + be + " threshold, indicated as a "
+    + bld + diagPct + "%" + be + " resistance to your core signal. Your core signal is filtered through three territories of your whole operating self — Being, Relating, and Creating. The readings that follow show how each territory is carrying that resistance.");
+}
 function buildTerritoryReading(territory, state, prose) {
   const stColor = stateStyle[state] || "color:#1A1A2E;font-weight:bold;";
   const subtitle = TERRITORY_SUBTITLES[territory][state];
@@ -320,6 +325,7 @@ function assembleReport(v) {
   const gap_spectrum_reading = buildGapSpectrumReading(state, diagPct);
 
   // ─── GAP TERRITORY READINGS (replaces old sec03) ───
+const portrait_frame = buildPortraitFrame(state, diagPct);
 const gap_being_reading = buildTerritoryReading("Being", bState, GAP_BEING[bState]);
 const gap_relating_reading = buildTerritoryReading("Relating", rState, GAP_RELATING[rState]);
 const gap_creating_reading = buildTerritoryReading("Creating", cState, GAP_CREATING[cState]);
