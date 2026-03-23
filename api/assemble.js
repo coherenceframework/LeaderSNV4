@@ -385,6 +385,7 @@ const gap_bridge = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:
     gap_being_reading: gap_being_reading,
     gap_relating_reading: gap_relating_reading,
     gap_creating_reading: gap_creating_reading,
+    portrait_frame: portrait_frame,
     gap_bridge: gap_bridge,
     sec04_html: sec04,
     sec05_html: sec05,
