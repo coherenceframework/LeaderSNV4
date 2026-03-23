@@ -25,7 +25,7 @@
   <svg viewBox="0 0 672 124" width="100%" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="specGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#2A6B6A"/>
+        <stop offset="0%" stop-color="#3A7D44"/>
         <stop offset="25%" stop-color="#4A6FA5"/>
         <stop offset="50%" stop-color="#D4A843"/>
         <stop offset="75%" stop-color="#7B2D8E"/>
@@ -35,7 +35,7 @@
     <!-- Track -->
     <rect x="0" y="62" width="672" height="11" rx="5.5" fill="#E8E5DF"/>
     <rect x="0" y="62" width="672" height="11" rx="5.5" fill="url(#specGrad)" opacity="0.12"/>
-    <rect x="0" y="62" id="specFill" width="87" height="11" rx="5.5" fill="#2A6B6A"/>
+    <rect x="0" y="62" id="specFill" width="87" height="11" rx="5.5" fill="#3A7D44"/>
     <!-- Zone dividers — dashed lines at real thresholds: 12%, 29%, 51%, 73% -->
     <line x1="81" y1="58" x2="81" y2="100" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
     <line x1="195" y1="58" x2="195" y2="100" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
@@ -49,7 +49,7 @@
     <text id="nL2" x="87" y="24" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">COHERENT CORE</text>
     <text id="nPct" x="87" y="48" text-anchor="middle" font-size="26" font-weight="700" fill="#1A1A2E" font-family="DM Sans, sans-serif">0<tspan font-size="15" fill="#7A756D">%</tspan></text>
     <!-- Zone labels centred in their zones -->
-    <text x="40" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#2A6B6A" font-family="DM Sans, sans-serif">Coherent</text>
+    <text x="40" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#3A7D44" font-family="DM Sans, sans-serif">Coherent</text>
     <text x="138" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#4A6FA5" font-family="DM Sans, sans-serif">Driven</text>
     <text x="269" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#D4A843" font-family="DM Sans, sans-serif">Strained</text>
     <text x="417" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#7B2D8E" font-family="DM Sans, sans-serif">Drifting</text>
@@ -71,7 +71,7 @@ var rawState=P.get('state')||'COHERENT';
 var overallState=stateMap[rawState]||rawState;
 
 var SC={
-  Coherent:'#2A6B6A', Driven:'#4A6FA5', Strained:'#D4A843',
+  Coherent:'#3A7D44', Driven:'#4A6FA5', Strained:'#D4A843',
   Drifting:'#7B2D8E', Fractured:'#A82828'
 };
 
