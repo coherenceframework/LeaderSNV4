@@ -51,7 +51,7 @@ var rState=stateMap[P.get('rstate')||'COHERENT']||'Coherent';
 var cState=stateMap[P.get('cstate')||'COHERENT']||'Coherent';
 
 var SC={
-  Coherent:{ring:'rgba(42,107,106,0.25)',border:'rgba(42,107,106,0.55)',solid:'#2A6B6A'},
+  Coherent:{ring:'rgba(42,107,106,0.25)',border:'rgba(42,107,106,0.55)',solid:'#3A7D44'},
   Driven:{ring:'rgba(74,111,165,0.22)',border:'rgba(74,111,165,0.5)',solid:'#4A6FA5'},
   Strained:{ring:'rgba(212,168,67,0.25)',border:'rgba(212,168,67,0.55)',solid:'#D4A843'},
   Drifting:{ring:'rgba(123,45,142,0.22)',border:'rgba(123,45,142,0.45)',solid:'#7B2D8E'},
@@ -103,7 +103,7 @@ function svgTxt(x,y,text,attrs){
 // Defs
 var defs=svgEl('defs',{});
 var rg=svgEl('radialGradient',{id:'cg',cx:'40%',cy:'38%',r:'60%'});
-rg.appendChild(svgEl('stop',{offset:'0%','stop-color':'#2A6B6A'}));
+rg.appendChild(svgEl('stop',{offset:'0%','stop-color':'#3A7D44'}));
 rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
 defs.appendChild(rg);
 svg.appendChild(defs);
