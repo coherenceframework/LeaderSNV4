@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=744, initial-scale=1.0">
+<meta name="viewport" content="width=800, initial-scale=1.0">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
     background: #FFFFFF;
     display: flex;
     justify-content: center;
@@ -18,94 +18,75 @@
   }
 
   .wrapper {
-    width: 700px;
-    padding: 40px 36px;
+    width: 780px;
+    padding: 32px 24px;
     background: #FFFFFF;
-  }
-
-  .title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: #D4A843;
-    margin-bottom: 28px;
   }
 
   .spectrum {
     display: flex;
     gap: 6px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .state-card {
     flex: 1;
     border-radius: 8px;
-    padding: 20px 14px;
+    padding: 20px 12px;
     text-align: center;
-    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
   }
 
-  .state-card.inactive {
-    background: #F5F3EF;
-    border: 1px solid #E8E5DF;
-  }
-
-  .state-card.inactive .state-name {
-    color: #A09B93;
-    font-size: 11px;
-    font-weight: 600;
+  .state-card .state-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
+    margin-bottom: 8px;
   }
 
-  .state-card.inactive .state-desc {
-    color: #B5B0A8;
-    font-size: 9px;
+  .state-card .state-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
     line-height: 1.4;
-    margin-top: 8px;
   }
 
+  /* Active card styling */
   .state-card.active {
-    background: #1A1A2E;
-    border: 1px solid #1A1A2E;
-    box-shadow: 0 4px 20px rgba(26, 26, 46, 0.25);
-    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: scale(1.03);
   }
-
   .state-card.active .state-name {
-    color: #D4A843;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
+    color: #FFFFFF;
+    font-size: 14px;
   }
-
   .state-card.active .state-desc {
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 9.5px;
-    line-height: 1.4;
-    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 11px;
   }
-
   .state-card.active::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 3px;
-    background: #D4A843;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Inactive card styling — state colour text on light tinted bg */
+  .state-card.inactive .state-name {
+    opacity: 0.6;
+  }
+  .state-card.inactive .state-desc {
+    opacity: 0.5;
   }
 
   .indicator {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 20px;
-    padding-top: 16px;
+    padding-top: 14px;
     border-top: 1px solid #E8E5DF;
   }
 
@@ -113,70 +94,90 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #D4A843;
     flex-shrink: 0;
   }
 
   .indicator-text {
-    font-size: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
     color: #7A756D;
     line-height: 1.4;
   }
 
   .indicator-text strong {
-    color: #1A1A2E;
     font-weight: 600;
   }
 </style>
 </head>
 <body>
 <div class="wrapper">
-  <div class="title">Your Coherence State</div>
   <div class="spectrum" id="spectrum"></div>
   <div class="indicator">
-    <div class="indicator-dot"></div>
+    <div class="indicator-dot" id="indicator-dot"></div>
     <div class="indicator-text">
-      Your current reading: <strong id="state-label"></strong>. 
-      This is a signal of current conditions — not a permanent definition.
+      Your current reading is <strong id="state-label"></strong>.
+      This is a signal of current conditions &mdash; not a permanent definition.
     </div>
   </div>
 </div>
 
 <script>
-  const states = [
-    { id: 'FRACTURED', name: 'Fractured', desc: 'Comprehensive load. System under maximum strain.' },
-    { id: 'DRIFTING', name: 'Drifting', desc: 'Diffuse friction. The primary signal has faded.' },
-    { id: 'STRAINED', name: 'Strained', desc: 'Real load with real awareness. Effort vs design.' },
-    { id: 'DRIVEN', name: 'Driven', desc: 'High performance. Invisible cost accumulating.' },
-    { id: 'COHERENT', name: 'Coherent', desc: 'System in alignment. Friction navigated, not avoided.' }
+  var states = [
+    { id: 'FRACTURED', name: 'Fractured', desc: 'Comprehensive load. The signal may not be arriving.', color: '#A82828' },
+    { id: 'DRIFTING', name: 'Drifting', desc: 'Diffuse friction. The primary signal has faded.', color: '#7B2D8E' },
+    { id: 'STRAINED', name: 'Strained', desc: 'Real load with real awareness. Effort vs design.', color: '#D4A843' },
+    { id: 'DRIVEN', name: 'Driven', desc: 'High performance. Invisible cost accumulating.', color: '#4A6FA5' },
+    { id: 'COHERENT', name: 'Coherent', desc: 'System in alignment. Friction navigated, not avoided.', color: '#2A6B6A' }
   ];
 
-  // Read state from URL params
-  const params = new URLSearchParams(window.location.search);
-  let activeState = (params.get('state') || 'STRAINED').toUpperCase();
+  var params = new URLSearchParams(window.location.search);
+  var activeState = (params.get('state') || 'DRIVEN').toUpperCase();
+  var isQualified = activeState === 'QUALIFIED';
 
-  // Handle QUALIFIED as a special case - highlight none, show label
-  const isQualified = activeState === 'QUALIFIED';
+  var spectrum = document.getElementById('spectrum');
+  var stateLabel = document.getElementById('state-label');
+  var indicatorDot = document.getElementById('indicator-dot');
 
-  const spectrum = document.getElementById('spectrum');
-  const stateLabel = document.getElementById('state-label');
+  var activeColor = '#D4A843';
 
-  states.forEach(s => {
-    const card = document.createElement('div');
-    const isActive = !isQualified && s.id === activeState;
-    card.className = `state-card ${isActive ? 'active' : 'inactive'}`;
-    card.innerHTML = `
-      <div class="state-name">${s.name}</div>
-      <div class="state-desc">${s.desc}</div>
-    `;
+  states.forEach(function(s) {
+    var isActive = !isQualified && s.id === activeState;
+    var card = document.createElement('div');
+    card.className = 'state-card ' + (isActive ? 'active' : 'inactive');
+
+    if (isActive) {
+      card.style.background = s.color;
+      activeColor = s.color;
+    } else {
+      var r = parseInt(s.color.substring(1, 3), 16);
+      var g = parseInt(s.color.substring(3, 5), 16);
+      var b = parseInt(s.color.substring(5, 7), 16);
+      card.style.background = 'rgba(' + r + ',' + g + ',' + b + ',0.08)';
+      // Use state colour for text on inactive cards
+      var nameEl = card.querySelector('.state-name');
+      var descEl = card.querySelector('.state-desc');
+    }
+
+    card.innerHTML = '<div class="state-name">' + s.name + '</div><div class="state-desc">' + s.desc + '</div>';
+
+    if (!isActive) {
+      card.querySelector('.state-name').style.color = s.color;
+      card.querySelector('.state-desc').style.color = s.color;
+    }
     spectrum.appendChild(card);
   });
 
+  // Set indicator dot to active state colour
+  indicatorDot.style.background = activeColor;
+
+  // Set label
   if (isQualified) {
     stateLabel.textContent = 'Qualified Read';
+    stateLabel.style.color = '#1A1A2E';
   } else {
-    const found = states.find(s => s.id === activeState);
+    var found = states.find(function(s) { return s.id === activeState; });
     stateLabel.textContent = found ? found.name : activeState;
+    stateLabel.style.color = activeColor;
   }
 </script>
 </body>
