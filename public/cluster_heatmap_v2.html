@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=672, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .wrapper {
+    width: 672px;
+    padding: 28px 0 20px;
+    background: #FFFFFF;
+  }
+  .title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #D4A843;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    font-size: 10px;
+    color: #7A756D;
+    margin-bottom: 24px;
+  }
+  .territory-row {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 8px;
+  }
+  .territory-label {
+    width: 90px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 4px;
+  }
+  .t-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+  }
+  .t-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: #1A1A2E;
+    text-align: center;
+  }
+  .t-state {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 2px;
+  }
+  .cluster-grid {
+    flex: 1;
+    display: grid;
+    gap: 6px;
+  }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .cluster-cell {
+    border-radius: 6px;
+    padding: 14px 10px 12px;
+    text-align: center;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .cell-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    opacity: 0.45;
+  }
+  .cell-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: #1A1A2E;
+    margin-bottom: 3px;
+  }
+  .cell-label {
+    font-size: 8px;
+    color: #7A756D;
+    letter-spacing: 0.3px;
+    margin-bottom: 5px;
+  }
+  .cell-state {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+  }
+  .cell-indicators {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .cell-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .cell-indicator.empty {
+    background: transparent;
+    border: 1px solid rgba(128,128,128,0.25);
+  }
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-top: 14px;
+    margin-top: 8px;
+    border-top: 1px solid #E8E5DF;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+  }
+  .legend-text {
+    font-size: 9px;
+    color: #7A756D;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="title">Cluster Profile</div>
+  <div class="subtitle">Friction load across eight operational domains grouped by territory</div>
+  <div id="rows"></div>
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#EAF2EB;border:1px solid #B8D4BB;"></div>
+      <div class="legend-text">Coherent</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#DCE6F2;border:1px solid #A8BDD8;"></div>
+      <div class="legend-text">Driven</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#FBF4E2;border:1px solid #E8D5A0;"></div>
+      <div class="legend-text">Strained</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#F3E8F6;border:1px solid #D4B0DE;"></div>
+      <div class="legend-text">Drifting</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:#FAEAEA;border:1px solid #E0B4B4;"></div>
+      <div class="legend-text">Fractured</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SC = {
+  COHERENT:  { solid:'#3A7D44', bg:'#EAF2EB', border:'#B8D4BB', stateText:'#3A7D44', dot:'#3A7D44', display:'Coherent' },
+  DRIVEN:    { solid:'#4A6FA5', bg:'#DCE6F2', border:'#A8BDD8', stateText:'#4A6FA5', dot:'#4A6FA5', display:'Driven' },
+  STRAINED:  { solid:'#D4A843', bg:'#FBF4E2', border:'#E8D5A0', stateText:'#B8922A', dot:'#D4A843', display:'Strained' },
+  DRIFTING:  { solid:'#7B2D8E', bg:'#F3E8F6', border:'#D4B0DE', stateText:'#7B2D8E', dot:'#7B2D8E', display:'Drifting' },
+  FRACTURED: { solid:'#A82828', bg:'#FAEAEA', border:'#E0B4B4', stateText:'#A82828', dot:'#A82828', display:'Fractured' }
+};
+
+var territories = [
+  {
+    letter: 'B', name: 'Being', stateParam: 'bstate',
+    clusters: [
+      { num:'01', name:'Inception', label:'Signal & Source' },
+      { num:'02', name:'Construction', label:'Structure & Authority' },
+      { num:'04', name:'Internalisation', label:'Energy & Rhythm' }
+    ]
+  },
+  {
+    letter: 'R', name: 'Relating', stateParam: 'rstate',
+    clusters: [
+      { num:'03', name:'Interaction', label:'Motion & Choice' },
+      { num:'05', name:'Turning Point', label:'The Threshold' },
+      { num:'06', name:'The Crisis', label:'Entrapment & Collapse' }
+    ]
+  },
+  {
+    letter: 'C', name: 'Creating', stateParam: 'cstate',
+    clusters: [
+      { num:'07', name:'Emergence', label:'Perception & Truth' },
+      { num:'08', name:'Completion', label:'Integration' }
+    ]
+  }
+];
+
+var P = new URLSearchParams(window.location.search);
+var container = document.getElementById('rows');
+
+territories.forEach(function(ter) {
+  var tState = (P.get(ter.stateParam) || 'COHERENT').toUpperCase();
+  var tColor = SC[tState] || SC.COHERENT;
+
+  var row = document.createElement('div');
+  row.className = 'territory-row';
+
+  var label = document.createElement('div');
+  label.className = 'territory-label';
+  label.innerHTML =
+    '<div class="t-circle" style="background:' + tColor.solid + ';">' + ter.letter + '</div>' +
+    '<div class="t-name">' + ter.name + '</div>' +
+    '<div class="t-state" style="color:' + tColor.stateText + ';">' + tColor.display + '</div>';
+
+  var grid = document.createElement('div');
+  grid.className = 'cluster-grid grid-' + ter.clusters.length;
+
+  ter.clusters.forEach(function(cl) {
+    var score = parseInt(P.get('s' + cl.num) || '0');
+    var state = (P.get('st' + cl.num) || 'COHERENT').toUpperCase();
+    var count = parseInt(P.get('n' + cl.num) || '0');
+    var c = SC[state] || SC.COHERENT;
+
+    var dots = '';
+    for (var i = 0; i < 3; i++) {
+      if (i < count) {
+        dots += '<div class="cell-indicator" style="background:' + c.dot + ';"></div>';
+      } else {
+        dots += '<div class="cell-indicator empty"></div>';
+      }
+    }
+
+    var cell = document.createElement('div');
+    cell.className = 'cluster-cell';
+    cell.style.background = c.bg;
+    cell.style.border = '1px solid ' + c.border;
+    cell.innerHTML =
+      '<div class="cell-number" style="color:#B5B0A8;">' + cl.num + '</div>' +
+      '<div class="cell-name">' + cl.name + '</div>' +
+      '<div class="cell-label">' + cl.label + '</div>' +
+      '<div class="cell-state" style="color:' + c.stateText + ';">' + c.display + '</div>' +
+      '<div class="cell-indicators">' + dots + '</div>';
+
+    grid.appendChild(cell);
+  });
+
+  row.appendChild(label);
+  row.appendChild(grid);
+  container.appendChild(row);
+});
+</script>
+</body>
+</html>
