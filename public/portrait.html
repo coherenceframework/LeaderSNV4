@@ -45,6 +45,7 @@ var stateMap={
   'DRIFTING':'Drifting','FRACTURED':'Fractured','QUALIFIED':'Coherent'
 };
 var overallState=stateMap[P.get('state')||'COHERENT']||'Coherent';
+var overallPct=P.get('pct')||'0';
 var bState=stateMap[P.get('bstate')||'COHERENT']||'Coherent';
 var rState=stateMap[P.get('rstate')||'COHERENT']||'Coherent';
 var cState=stateMap[P.get('cstate')||'COHERENT']||'Coherent';
@@ -141,16 +142,16 @@ var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-7;
 // White rect behind text
 svg.appendChild(svgEl('rect',{
-  x:cx-90,y:osLabelY-12,width:'180',height:'32',
+  x:cx-130,y:osLabelY-12,width:'260',height:'32',
   rx:'4',fill:'#FFFFFF',opacity:'0.9'
 }));
 svgTxt(cx, osLabelY, 'OPERATING SURFACE', {
   'text-anchor':'middle','font-size':'12','font-weight':'700',
   'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
-svgTxt(cx, osLabelY+15, overallState, {
-  'text-anchor':'middle','font-size':'13','font-weight':'700',
-  'letter-spacing':'1',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
+svgTxt(cx, osLabelY+15, overallState + ' \u2014 ' + overallPct + '% resistance', {
+  'text-anchor':'middle','font-size':'11','font-weight':'600',
+  'letter-spacing':'0.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
 
 // ═══ TERRITORY RINGS ═══
