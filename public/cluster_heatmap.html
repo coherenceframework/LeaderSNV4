@@ -119,23 +119,23 @@
   <div class="heatmap" id="heatmap"></div>
   <div class="legend">
     <div class="legend-item">
-      <div class="legend-swatch" style="background:rgba(42,107,106,0.10);border:1px solid rgba(42,107,106,0.25);"></div>
+      <div class="legend-swatch" style="background:#EAF2EB;border:1px solid #B8D4BB;"></div>
       <div class="legend-text">Coherent</div>
     </div>
     <div class="legend-item">
-      <div class="legend-swatch" style="background:rgba(74,111,165,0.18);border:1px solid rgba(74,111,165,0.35);"></div>
+      <div class="legend-swatch" style="background:#DCE6F2;border:1px solid #A8BDD8;"></div>
       <div class="legend-text">Driven</div>
     </div>
     <div class="legend-item">
-      <div class="legend-swatch" style="background:rgba(212,168,67,0.22);border:1px solid rgba(212,168,67,0.40);"></div>
+      <div class="legend-swatch" style="background:#FBF4E2;border:1px solid #E8D5A0;"></div>
       <div class="legend-text">Strained</div>
     </div>
     <div class="legend-item">
-      <div class="legend-swatch" style="background:rgba(123,45,142,0.20);border:1px solid rgba(123,45,142,0.35);"></div>
+      <div class="legend-swatch" style="background:#F3E8F6;border:1px solid #D4B0DE;"></div>
       <div class="legend-text">Drifting</div>
     </div>
     <div class="legend-item">
-      <div class="legend-swatch" style="background:rgba(168,40,40,0.22);border:1px solid rgba(168,40,40,0.40);"></div>
+      <div class="legend-swatch" style="background:#FAEAEA;border:1px solid #E0B4B4;"></div>
       <div class="legend-text">Fractured</div>
     </div>
   </div>
@@ -154,11 +154,11 @@ var clusters = [
 ];
 
 var SC = {
-  COHERENT:  { solid: '#2A6B6A', bg: 'rgba(42,107,106,0.08)',  border: 'rgba(42,107,106,0.20)',  stateText: '#2A6B6A', dot: 'rgba(42,107,106,0.35)', display: 'Coherent' },
-  DRIVEN:    { solid: '#4A6FA5', bg: 'rgba(74,111,165,0.12)',  border: 'rgba(74,111,165,0.28)',  stateText: '#4A6FA5', dot: 'rgba(74,111,165,0.5)',  display: 'Driven' },
-  STRAINED:  { solid: '#D4A843', bg: 'rgba(212,168,67,0.14)',  border: 'rgba(212,168,67,0.30)',  stateText: '#B8922A', dot: 'rgba(212,168,67,0.55)', display: 'Strained' },
-  DRIFTING:  { solid: '#7B2D8E', bg: 'rgba(123,45,142,0.12)',  border: 'rgba(123,45,142,0.28)',  stateText: '#7B2D8E', dot: 'rgba(123,45,142,0.5)',  display: 'Drifting' },
-  FRACTURED: { solid: '#A82828', bg: 'rgba(168,40,40,0.14)',   border: 'rgba(168,40,40,0.30)',   stateText: '#A82828', dot: 'rgba(168,40,40,0.55)',  display: 'Fractured' }
+  COHERENT:  { solid: '#3A7D44', bg: '#EAF2EB',  border: '#B8D4BB',  stateText: '#3A7D44', dot: '#3A7D44', display: 'Coherent' },
+  DRIVEN:    { solid: '#4A6FA5', bg: '#DCE6F2',  border: '#A8BDD8',  stateText: '#4A6FA5', dot: '#4A6FA5', display: 'Driven' },
+  STRAINED:  { solid: '#D4A843', bg: '#FBF4E2',  border: '#E8D5A0',  stateText: '#B8922A', dot: '#D4A843', display: 'Strained' },
+  DRIFTING:  { solid: '#7B2D8E', bg: '#F3E8F6',  border: '#D4B0DE',  stateText: '#7B2D8E', dot: '#7B2D8E', display: 'Drifting' },
+  FRACTURED: { solid: '#A82828', bg: '#FAEAEA',  border: '#E0B4B4',  stateText: '#A82828', dot: '#A82828', display: 'Fractured' }
 };
 
 var P = new URLSearchParams(window.location.search);
