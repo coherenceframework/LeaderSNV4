@@ -43,6 +43,43 @@ function displayState(raw) {
   };
   return map[raw] || raw;
 }
+const TERRITORY_SUBTITLES = {
+  "Being": {
+    "Coherent": "The signal from your core is arriving and you are responding to it",
+    "Driven": "The signal is arriving but being overridden by a self that performs too well to question",
+    "Strained": "You know what is true — the cost of acting on it is what holds you",
+    "Drifting": "The internal reference point that should orient everything else has become unreliable",
+    "Fractured": "What you are operating from may no longer be connected to who you actually are",
+  },
+  "Relating": {
+    "Coherent": "Truth is moving freely between you and the people around you",
+    "Driven": "The signal is being edited before it reaches the surface — and no one around you knows",
+    "Strained": "You know who needs to hear what — the cost of saying it is what holds you",
+    "Drifting": "You may no longer be certain what the people around you actually think or need",
+    "Fractured": "What moves between you and others is no longer carrying truth",
+  },
+  "Creating": {
+    "Coherent": "What you intend and what you produce are aligned",
+    "Driven": "The output is strong but the connection between the work and who you are is maintained by force",
+    "Strained": "The gap between what you set out to build and what actually gets produced has widened enough to register",
+    "Drifting": "The link between what you are building and the signal that should guide it has become unreliable",
+    "Fractured": "What you are producing in the world is no longer connected to who you actually are",
+  },
+};
+
+function buildTerritoryReading(territory, state, prose) {
+  const stColor = stateStyle[state] || "color:#1A1A2E;font-weight:bold;";
+  const subtitle = TERRITORY_SUBTITLES[territory][state];
+  let out = "<h3 style='font-family:Montserrat,sans-serif;font-size:13pt;margin-top:22px;margin-bottom:4px;'>"
+    + "<span style='color:#D4A843;font-weight:bold;'>" + territory + "</span>"
+    + "<span style='color:#D4A843;font-weight:normal;'> — </span>"
+    + "<span style='" + stColor + "'>" + state + "</span>"
+    + "</h3>";
+  out += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>"
+    + subtitle + "</p>";
+  out += wrap(prose);
+  return out;
+}
 
 
 // ════════════════════════════════════════════════════════════════
@@ -283,10 +320,9 @@ function assembleReport(v) {
   const gap_spectrum_reading = buildGapSpectrumReading(state, diagPct);
 
   // ─── GAP TERRITORY READINGS (replaces old sec03) ───
-  const gap_being_reading = wrap(GAP_BEING[bState] || GAP_BEING["Coherent"]);
-  const gap_relating_reading = wrap(GAP_RELATING[rState] || GAP_RELATING["Coherent"]);
-  const gap_creating_reading = wrap(GAP_CREATING[cState] || GAP_CREATING["Coherent"]);
-  const gap_bridge = wrap(GAP_BRIDGE);
+const gap_being_reading = buildTerritoryReading("Being", bState, GAP_BEING[bState]);
+const gap_relating_reading = buildTerritoryReading("Relating", rState, GAP_RELATING[rState]);
+const gap_creating_reading = buildTerritoryReading("Creating", cState, GAP_CREATING[cState]);
 
   // ─── SEC 04: CLUSTER PROFILE ───
   let sec04 = wrap(SEC04_INTRO);
