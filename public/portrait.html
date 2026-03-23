@@ -208,7 +208,7 @@ if(passedStates.length>0){
 var ac='#D4A843';
 function drawArrow(angleDeg){
   var rad=(angleDeg*Math.PI)/180;
-  var iE=coreR+3, oE=outerR-4;
+  var iE=coreR+3, oE=cR-2;
   var x1=cx+Math.cos(rad)*iE, y1=cy+Math.sin(rad)*iE;
   var x2=cx+Math.cos(rad)*oE, y2=cy+Math.sin(rad)*oE;
   svg.appendChild(svgEl('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:ac,'stroke-width':'2'}));
