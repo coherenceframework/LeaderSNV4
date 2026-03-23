@@ -15,7 +15,7 @@
 // ════════════════════════════════════════════════════════════════
 
 // ─── HTML STYLE FRAGMENTS ───
-const ps = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:10px;'>";
+const ps = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:11px;'>";
 const pe = "</p>";
 const bld = "<strong style='color:#1A1A2E;'>";
 const be = "</strong>";
