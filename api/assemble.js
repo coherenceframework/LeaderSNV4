@@ -338,17 +338,17 @@ function assembleReport(v) {
 
   // ─── RETURN ALL MERGE FIELDS ───
   return {
-    sec01_opening: sec01,
+    sec01_html: sec01,
     gap_spectrum_reading: gap_spectrum_reading,
     gap_being_reading: gap_being_reading,
     gap_relating_reading: gap_relating_reading,
     gap_creating_reading: gap_creating_reading,
     gap_bridge: gap_bridge,
-    sec04_clusters: sec04,
-    sec05_pattern: sec05,
-    sec06_framework: sec06,
-    sec09_textfield: sec09,
-    sec10_openloop: sec10,
+    sec04_html: sec04,
+    sec05_html: sec05,
+    sec06_html: sec06,
+    sec09_html: sec09,
+    sec10_html: sec10,
   };
 }
 
