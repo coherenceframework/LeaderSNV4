@@ -167,8 +167,6 @@ const GAP_BRIDGE = `The sections that follow examine the specific operational do
 // SECTION 04: CLUSTER PROFILE — STATE-DRIVEN ARCHITECTURE
 // ════════════════════════════════════════════════════════════════
 
-const SEC04_BLINDSPOT = `Several operational domains read as clear \u2014 no recognisable friction was identified. In combination with the load present in other domains, this pattern raises a structural question. Systems do not typically develop concentrated friction in downstream domains from a clean foundation. The domains reading as clear may reflect genuine alignment \u2014 or they may reflect conditions so deeply embedded in how you operate that they have become invisible as normal. The absence of recognised friction is not the same as the absence of friction. It may simply mean the friction has become the water you swim in.`;
-
 const clusterMeta = {
   "01": { name: "Openness", subtitle: "How you receive what is new" },
   "02": { name: "Structure", subtitle: "How you hold your leadership" },
