@@ -539,8 +539,10 @@ function buildSec04(combos, clusterScores) {
 
   // Blind spot callout — appears between intro and first domain reading
   if (hasLoad && clearCount >= 3) {
-    sec04 += "<p style='font-family:Montserrat,sans-serif;font-size:11pt;color:#1A1A2E;font-weight:bold;margin-top:20px;margin-bottom:10px;'>A Note on What Was Not Recognised</p>"
-      + wrap("Several operational domains read as clear \u2014 no recognisable friction was identified. In combination with the load present in other domains, this pattern raises a structural question. Systems do not typically develop concentrated friction in downstream domains from a clean foundation. The domains reading as clear may reflect genuine alignment \u2014 or they may reflect conditions so deeply embedded in how you operate that they have become invisible as normal. The absence of recognised friction is not the same as the absence of friction. It may simply mean the friction has become the water you swim in.");
+    sec04 += "<blockquote style='font-family:Inter,sans-serif;font-size:10pt;color:#4A4A5A;border-left:4px solid #D4A843;padding-left:40px;margin:20px 0 24px 0;line-height:1.2;'>"
+      + "<span style='font-family:Montserrat,sans-serif;font-size:11pt;color:#1A1A2E;font-weight:bold;'>A Note on What Was Not Recognised</span><br><br>"
+      + "Several operational domains read as clear \u2014 no recognisable friction was identified. In combination with the load present in other domains, this pattern raises a structural question. Systems do not typically develop concentrated friction in downstream domains from a clean foundation. The domains reading as clear may reflect genuine alignment \u2014 or they may reflect conditions so deeply embedded in how you operate that they have become invisible as normal. The absence of recognised friction is not the same as the absence of friction. It may simply mean the friction has become the water you swim in."
+      + "</blockquote>";
   }
 
   // Domain readings
