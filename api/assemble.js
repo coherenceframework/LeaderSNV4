@@ -539,9 +539,7 @@ function clusterState(score) {
 
 function buildSec04(combos, clusterScores) {
 let sec04 = "";
-
-
-  // Domain readings
+// Domain readings
   for (const cn of ["01","02","03","04","05","06","07","08"]) {
     const combo = combos[cn];
     const score = clusterScores[cn];
