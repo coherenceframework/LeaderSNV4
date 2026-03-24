@@ -168,14 +168,14 @@ const GAP_BRIDGE = `The sections that follow examine the specific operational do
 // ════════════════════════════════════════════════════════════════
 
 const clusterMeta = {
-  "01": { name: "Openness", subtitle: "How you receive what is new" },
-  "02": { name: "Structure", subtitle: "How you hold your leadership" },
-  "03": { name: "Direction", subtitle: "How you choose under competing demands" },
-  "04": { name: "Vitality", subtitle: "What fuels you and what depletes you" },
-  "05": { name: "Transition", subtitle: "What you are holding past its time" },
-  "06": { name: "Exposure", subtitle: "Where you are trapped or fragile" },
-  "07": { name: "Clarity", subtitle: "How accurately you see your situation" },
-  "08": { name: "Integration", subtitle: "Whether your changes have held" },
+  "01": { name: "OPENNESS", subtitle: "How you receive what is new" },
+  "02": { name: "STRUCTURE", subtitle: "How you hold your leadership" },
+  "03": { name: "DIRECTION", subtitle: "How you choose under competing demands" },
+  "04": { name: "VITALITY", subtitle: "What fuels you and what depletes you" },
+  "05": { name: "TRANSITION", subtitle: "What you are holding past its time" },
+  "06": { name: "EXPOSURE", subtitle: "Where you are trapped or fragile" },
+  "07": { name: "CLARITY", subtitle: "How accurately you see your situation" },
+  "08": { name: "INTEGRATION", subtitle: "Whether your changes have held" },
 };
 
 const SEC04_STATE = {
@@ -380,14 +380,14 @@ const SEC05_TERRITORIES = [
 ];
 
 const SEC05_CLUSTER_NAMES = {
-  "01": "Openness",
-  "02": "Structure",
-  "03": "Direction",
-  "04": "Vitality",
-  "05": "Transition",
-  "06": "Exposure",
-  "07": "Clarity",
-  "08": "Integration",
+  "01": "OPENNESS",
+  "02": "STRUCTURE",
+  "03": "DIRECTION",
+  "04": "VITALITY",
+  "05": "TRANSITION",
+  "06": "EXPOSURE",
+  "07": "CLARITY",
+  "08": "INTEGRATION",
 };
 
 
