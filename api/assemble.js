@@ -429,22 +429,6 @@ function assembleReport(v) {
   };
   const sec04 = buildSec04(combos, clusterScores);
 
-  // ─── BLINDSPOT NOTE (separate merge field) ───
-  let blindspot_note = "";
-  let bsHasLoad = false;
-  let bsClearCount = 0;
-  for (const cn of ["01","02","03","04","05","06","07","08"]) {
-    const combo = combos[cn];
-    if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
-      bsHasLoad = true;
-    } else {
-      bsClearCount++;
-    }
-  }
-  if (bsHasLoad && bsClearCount >= 3) {
-    blindspot_note = wrap("Several operational domains read as clear \u2014 no recognisable friction was identified. In combination with the load present in other domains, this pattern raises a structural question. Systems do not typically develop concentrated friction in downstream domains from a clean foundation. The domains reading as clear may reflect genuine alignment \u2014 or they may reflect conditions so deeply embedded in how you operate that they have become invisible as normal. The absence of recognised friction is not the same as the absence of friction. It may simply mean the friction has become the water you swim in.");
-  }
-
   // ─── SEC 05: THE PATTERN ───
   let sec05 = wrap(SEC05_FRAME);
   sec05 += wrap(SEC05_DOMINANCE[dom] || SEC05_DOMINANCE["MIXED"]);
@@ -474,7 +458,6 @@ function assembleReport(v) {
     gap_creating_reading: gap_creating_reading,
     gap_bridge: gap_bridge,
     sec04_html: sec04,
-    blindspot_note: blindspot_note,
     sec05_html: sec05,
     sec06_html: sec06,
     sec09_html: sec09,
