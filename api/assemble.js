@@ -526,7 +526,27 @@ function buildSec04(combos, clusterScores) {
   let sec04 = wrap(SEC04_INTRO);
   let hasLoad = false;
   let clearCount = 0;
-
+ 
+  // Pre-count to determine if blind spot block should appear at top
+  for (const cn of ["01","02","03","04","05","06","07","08"]) {
+    const combo = combos[cn];
+    if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
+      hasLoad = true;
+    } else {
+      clearCount++;
+    }
+  }
+ 
+  // Blind spot callout — appears between intro and first domain reading
+  if (hasLoad && clearCount >= 3) {
+    sec04 += "<div style='background:#FAF8F5;border-left:4px solid #D4A843;padding:18px 20px;margin:20px 0 24px 0;border-radius:0 6px 6px 0;'>"
+      + "<p style='font-family:Montserrat,sans-serif;font-size:11pt;color:#1A1A2E;font-weight:bold;margin-bottom:10px;'>A Note on What Was Not Selected</p>"
+      + "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#4A4A5A;line-height:1.2;margin-bottom:0;'>"
+      + "Several operational domains read as clear \u2014 no recognisable friction was selected. In combination with the load present in other domains, this pattern raises a structural question. Systems do not typically develop concentrated friction in downstream domains from a clean foundation. The domains reading as clear may reflect genuine alignment \u2014 or they may reflect conditions so deeply embedded in how you operate that they have become invisible as normal. The absence of recognised friction is not the same as the absence of friction. It may simply mean the friction has become the water you swim in."
+      + "</p></div>";
+  }
+ 
+  // Domain readings
   for (const cn of ["01","02","03","04","05","06","07","08"]) {
     const combo = combos[cn];
     const score = clusterScores[cn];
@@ -534,9 +554,9 @@ function buildSec04(combos, clusterScores) {
     const meta = clusterMeta[cn];
     const stateKey = cn + "_" + cState;
     const reading = SEC04_STATE[stateKey];
-
+ 
     if (!reading) continue;
-
+ 
     // Heading: cluster name (gold) — state (state colour) with colon
     const stColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
     sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:22px;margin-bottom:4px;'>"
@@ -544,18 +564,18 @@ function buildSec04(combos, clusterScores) {
       + "<span style='color:#D4A843;font-weight:normal;'> \u2014 </span>"
       + "<span style='" + stColor + "'>" + cState + ":</span>"
       + "</h3>";
-
+ 
     // Subtitle
     sec04 += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:10px;'>"
       + meta.subtitle + "</p>";
-
+ 
     // Headline (bold)
     sec04 += "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#1A1A2E;line-height:1.2;margin-bottom:8px;font-weight:bold;'>"
       + reading.headline + "</p>";
-
+ 
     // Body
     sec04 += wrap(reading.body);
-
+ 
     // Combo detail — only if friction was selected (not D/NONE/BLANK)
     if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
       const comboKey = cn + "_" + combo;
@@ -563,21 +583,13 @@ function buildSec04(combos, clusterScores) {
       if (comboText) {
         sec04 += wrap(comboText);
       }
-      hasLoad = true;
-    } else {
-      clearCount++;
     }
-
+ 
     // Question (italic)
     sec04 += "<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.2;margin-bottom:16px;'>"
       + reading.question + "</p>";
   }
-
-  // Blind spot narrative
-  if (hasLoad && clearCount >= 3) {
-    sec04 += wrap(SEC04_BLINDSPOT);
-  }
-
+ 
   return sec04;
 }
 
