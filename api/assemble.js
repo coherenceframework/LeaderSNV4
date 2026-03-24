@@ -564,6 +564,8 @@ function buildSec04(combos, clusterScores) {
         sec04 += wrap(comboText);
       }
       hasLoad = true;
+    } else {
+      clearCount++;
     }
 
     // Question (italic)
