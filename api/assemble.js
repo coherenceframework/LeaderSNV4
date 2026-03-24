@@ -337,17 +337,569 @@ function buildSec04(combos, clusterScores) {
 // SECTION 05: THE PATTERN
 // ════════════════════════════════════════════════════════════════
 
-const SEC05_FRAME = `The Snapshot reads three registers: what you can see and name, what you feel but cannot yet articulate, and where your energy is going. The pattern across these three registers \u2014 across all eight domains \u2014 reveals how you are currently processing your own reality.`;
+// ════════════════════════════════════════════════════════════════
+// SECTION 05: THE PATTERN — REBUILT (v3)
+// Register Map + Concentration Reading + Diagnostic Question
+//
+// DROP-IN REPLACEMENT:
+// 1. Delete everything between "SECTION 05: THE PATTERN" and
+//    "SECTION 06: FRAMEWORK" in the original assemble.js
+// 2. Paste this entire block in its place
+// 3. In assembleReport(), replace the 3-line sec05 block:
+//      let sec05 = wrap(SEC05_FRAME);
+//      sec05 += wrap(SEC05_DOMINANCE[dom] || SEC05_DOMINANCE["MIXED"]);
+//      sec05 += wrap(SEC05_OBSERVATION);
+//    With:
+//      const sec05 = buildSec05(combos, clusterScores);
+// ════════════════════════════════════════════════════════════════
 
-const SEC05_DOMINANCE = {
-  "A_DOMINANT": `Your selections concentrate in the observable register. The friction in your system is not hidden from you \u2014 it is visible, identifiable, and in most domains you could point to specific evidence of it. The question this pattern raises is not whether you see the friction but whether seeing it has translated into structural change. Observable friction that persists despite awareness is often friction that is being managed rather than resolved \u2014 worked around rather than redesigned. Seeing clearly is a necessary condition for change. It is not a sufficient one.`,
-  "B_DOMINANT": `Your selections concentrate in the felt register. In most domains, the friction registers as an instinct, an unease, a recognition that something is present \u2014 without the kind of structural evidence you could point to or prove. This is the pattern of a leader whose internal signal is active and accurate but whose reality has not yet produced the observable data to confirm it. The felt truth is ahead of the visible reality. This is not imprecision in your perception. It is a signal that the structural expression of what you are sensing may not have surfaced yet \u2014 or may be present in a form you have not yet learned to recognise.`,
-  "C_DOMINANT": `Your selections concentrate in the cost register. Across most domains, what registers most clearly is not the specific friction or the felt experience underneath it, but the toll \u2014 the drain, the effort, the sense that more energy is going out than is coming back. This pattern often describes a leader who has carried the load long enough that the specific causes have blurred into a general condition of depletion. The cost is undeniable. The source of the cost is not yet clear. This is the pattern where structural diagnosis has the highest immediate impact \u2014 because naming the specific source of the drain is the first condition for stopping it.`,
-  "MIXED": `Your selections do not concentrate in a single register. Across your operational domains, you recognise some friction as visible and nameable, some as felt but not yet articulated, and some primarily through what it costs you in energy. This pattern suggests a leader who is processing their current reality through multiple channels simultaneously \u2014 seeing some things with clarity, sensing others without being able to name them, and registering others only through their toll. The diagnostic value of this pattern is in the specific distribution: which domains are you seeing clearly, which are you feeling, and which are you only registering through what they cost?`,
+// ─── TERRITORY DEFINITIONS (for SEC05 pattern analysis) ───
+
+const SEC05_TERRITORIES = [
+  {
+    name: "Being",
+    opener: "In Being \u2014 your relationship with yourself \u2014",
+    meaning: "your internal integrity",
+    meaningPhrase: "who you are beneath the operating self",
+    clusters: ["01", "02", "04"],
+  },
+  {
+    name: "Relating",
+    opener: "In Relating \u2014 the field between you and others \u2014",
+    meaning: "how truth moves between you and the people around you",
+    meaningPhrase: "how you connect with the people and systems around you",
+    clusters: ["03", "05", "06"],
+  },
+  {
+    name: "Creating",
+    opener: "In Creating \u2014 your relationship with what you are building \u2014",
+    meaning: "the connection between who you are and what you produce",
+    meaningPhrase: "what you are building in the world",
+    clusters: ["07", "08"],
+  },
+];
+
+const SEC05_CLUSTER_NAMES = {
+  "01": "Openness",
+  "02": "Structure",
+  "03": "Direction",
+  "04": "Vitality",
+  "05": "Transition",
+  "06": "Exposure",
+  "07": "Clarity",
+  "08": "Integration",
 };
 
-const SEC05_OBSERVATION = `The register through which you recognise friction is itself diagnostic information. What you see clearly is available for structural change \u2014 the question is whether you will act on it. What you feel but cannot name is signalling ahead of your conscious understanding \u2014 the question is what would need to change for that signal to become visible and actionable. What you register only through its cost is being maintained by something you have not yet identified \u2014 the question is what that cost is protecting you from seeing.`;
 
+// ─── REGISTER EXTRACTION ───
+
+function extractRegisters(combo, score) {
+  const s = parseInt(score) || 0;
+  const c = (combo || "").toUpperCase().trim();
+
+  if (c === "D") {
+    if (s <= 1) return { registers: [], path: "clean" };
+    return { registers: [], path: "unchannelled" };
+  }
+
+  const regs = [];
+  if (c.indexOf("A") !== -1) regs.push("observable");
+  if (c.indexOf("B") !== -1) regs.push("felt");
+  if (c.indexOf("C") !== -1) regs.push("cost");
+
+  return { registers: regs, path: "active" };
+}
+
+
+// ─── LIST FORMATTING (for SEC05) ───
+
+function sec05ListNames(clusterIds) {
+  const names = clusterIds.map(function(id) { return SEC05_CLUSTER_NAMES[id]; });
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return names[0] + " and " + names[1];
+  return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
+}
+
+
+// ─── TERRITORY ANALYSIS ───
+
+function analyseTerritory(territory, combos, clusterScores) {
+  const obs = [];
+  const felt = [];
+  const cost = [];
+  const clean = [];
+  const unchannelled = [];
+
+  for (var i = 0; i < territory.clusters.length; i++) {
+    var cn = territory.clusters[i];
+    var ext = extractRegisters(combos[cn], clusterScores[cn]);
+    if (ext.path === "clean") {
+      clean.push(cn);
+    } else if (ext.path === "unchannelled") {
+      unchannelled.push(cn);
+    } else {
+      if (ext.registers.indexOf("observable") !== -1) obs.push(cn);
+      if (ext.registers.indexOf("felt") !== -1) felt.push(cn);
+      if (ext.registers.indexOf("cost") !== -1) cost.push(cn);
+    }
+  }
+
+  var activeCount = territory.clusters.length - clean.length - unchannelled.length;
+  var activeRegisters = [];
+  if (obs.length > 0) activeRegisters.push("observable");
+  if (felt.length > 0) activeRegisters.push("felt");
+  if (cost.length > 0) activeRegisters.push("cost");
+
+  var sig = activeRegisters.slice().sort().join("+") || (unchannelled.length > 0 ? "unchannelled" : "clean");
+
+  return { obs: obs, felt: felt, cost: cost, clean: clean, unchannelled: unchannelled, activeCount: activeCount, activeRegisters: activeRegisters, sig: sig, territory: territory };
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// PIECE 1: THE REGISTER MAP
+// ════════════════════════════════════════════════════════════════
+
+function buildSingleTerritoryPara(a) {
+  var t = a.territory;
+  var para = t.opener + " ";
+
+  if (a.clean.length === t.clusters.length) {
+    para += "the diagnostic detected no friction through the observable, felt, or cost registers. "
+      + "The coherence quality readings confirm the signal is arriving and being metabolised. "
+      + "This territory is not contributing to your current load.";
+    return para;
+  }
+
+  if (a.activeCount === 0 && a.unchannelled.length > 0) {
+    para += "you reported no friction through any of the three channels.";
+    if (a.clean.length > 0) {
+      para += " " + sec05ListNames(a.clean) + (a.clean.length === 1 ? " reads" : " read") + " Coherent.";
+    }
+    para += " But the coherence quality reading in " + sec05ListNames(a.unchannelled)
+      + " suggests the signal is not fully settled. "
+      + "The instrument reads friction in this territory that you have not yet located through any register. "
+      + "That does not mean it is not there. It means it has not yet surfaced into a form your conscious awareness can access.";
+    return para;
+  }
+
+  if (a.activeRegisters.length === 1) {
+    var reg = a.activeRegisters[0];
+    var regClusters = reg === "observable" ? a.obs : reg === "felt" ? a.felt : a.cost;
+
+    if (reg === "observable") {
+      para += "the friction is visible to you. "
+        + sec05ListNames(regClusters) + (regClusters.length === 1 ? " carries" : " carry")
+        + " signal you recognise in your own behaviour \u2014 "
+        + "you can see the pattern operating, even if you have not yet acted on it. "
+        + "Recognition is the precondition for structural change. It is not the same thing as structural change.";
+    } else if (reg === "felt") {
+      para += "the friction registers below the surface. "
+        + sec05ListNames(regClusters) + (regClusters.length === 1 ? " carries" : " carry")
+        + " signal you sense but have not yet fully articulated. "
+        + "Something about " + t.meaning
+        + " is present in the system ahead of your ability to name it. "
+        + "That signal is not imprecise. It is early.";
+    } else {
+      para += "the friction registers primarily through what it costs you. "
+        + sec05ListNames(regClusters) + (regClusters.length === 1 ? " is" : " are")
+        + " drawing energy \u2014 the drain is real even where its source has not become fully visible or fully felt. "
+        + "When the cost register is the only active channel, the friction has bypassed your conscious awareness entirely "
+        + "and is showing up in the energy equation.";
+    }
+
+  } else if (a.activeRegisters.length === 2) {
+
+    if (a.activeRegisters.indexOf("observable") !== -1 && a.activeRegisters.indexOf("felt") !== -1) {
+      para += "the friction splits between what you can see and what you can feel. ";
+      var obsOnly = a.obs.filter(function(cn) { return a.felt.indexOf(cn) === -1; });
+      var feltOnly = a.felt.filter(function(cn) { return a.obs.indexOf(cn) === -1; });
+      var both = a.obs.filter(function(cn) { return a.felt.indexOf(cn) !== -1; });
+      if (both.length > 0) {
+        para += sec05ListNames(both) + (both.length === 1 ? " carries" : " carry")
+          + " signal in both registers \u2014 visible and felt simultaneously. ";
+      }
+      if (obsOnly.length > 0) {
+        para += sec05ListNames(obsOnly) + (obsOnly.length === 1 ? " carries" : " carry")
+          + " signal you recognise in your own behaviour. ";
+      }
+      if (feltOnly.length > 0) {
+        para += sec05ListNames(feltOnly) + (feltOnly.length === 1 ? " carries" : " carry")
+          + " signal you sense but cannot yet articulate. ";
+      }
+      para += "The gap between recognising and sensing tells you where your awareness of "
+        + t.meaning + " is sharpest and where it is still forming.";
+
+    } else if (a.activeRegisters.indexOf("observable") !== -1 && a.activeRegisters.indexOf("cost") !== -1) {
+      para += "the friction splits between what you can see and what it is costing you. ";
+      var obsOnly2 = a.obs.filter(function(cn) { return a.cost.indexOf(cn) === -1; });
+      var costOnly2 = a.cost.filter(function(cn) { return a.obs.indexOf(cn) === -1; });
+      var both2 = a.obs.filter(function(cn) { return a.cost.indexOf(cn) !== -1; });
+      if (both2.length > 0) {
+        para += sec05ListNames(both2) + (both2.length === 1 ? " carries" : " carry")
+          + " signal that is both visible and costing you energy. ";
+      }
+      if (obsOnly2.length > 0) {
+        para += sec05ListNames(obsOnly2) + (obsOnly2.length === 1 ? " carries" : " carry")
+          + " signal you recognise in your own behaviour. ";
+      }
+      if (costOnly2.length > 0) {
+        para += sec05ListNames(costOnly2) + (costOnly2.length === 1 ? " registers" : " register")
+          + " primarily through drain. ";
+      }
+      para += "The felt channel between those two has not yet activated \u2014 "
+        + "you are seeing some of the friction and paying for the rest, "
+        + "but what you are not yet allowing yourself to feel about " + t.meaning + " sits in the gap.";
+
+    } else {
+      para += "the friction registers through what you feel and what it costs you. ";
+      var feltOnly3 = a.felt.filter(function(cn) { return a.cost.indexOf(cn) === -1; });
+      var costOnly3 = a.cost.filter(function(cn) { return a.felt.indexOf(cn) === -1; });
+      var both3 = a.felt.filter(function(cn) { return a.cost.indexOf(cn) !== -1; });
+      if (both3.length > 0) {
+        para += sec05ListNames(both3) + (both3.length === 1 ? " carries" : " carry")
+          + " signal you both sense and are paying for. ";
+      }
+      if (feltOnly3.length > 0) {
+        para += sec05ListNames(feltOnly3) + (feltOnly3.length === 1 ? " carries" : " carry")
+          + " signal you sense but have not yet named. ";
+      }
+      if (costOnly3.length > 0) {
+        para += sec05ListNames(costOnly3) + (costOnly3.length === 1 ? " registers" : " register")
+          + " through drain alone. ";
+      }
+      para += "What has not yet arrived in this territory is the self-recognised pattern \u2014 "
+        + "the friction you can see operating in your own behaviour and act on directly. "
+        + "The friction in " + t.meaning + " has not yet become something you recognise as a pattern in how you are operating.";
+    }
+
+  } else {
+    para += "the friction is registering through every available channel. ";
+    var obsOnly4 = a.obs.filter(function(cn) { return a.felt.indexOf(cn) === -1 && a.cost.indexOf(cn) === -1; });
+    var feltOnly4 = a.felt.filter(function(cn) { return a.obs.indexOf(cn) === -1 && a.cost.indexOf(cn) === -1; });
+    var costOnly4 = a.cost.filter(function(cn) { return a.obs.indexOf(cn) === -1 && a.felt.indexOf(cn) === -1; });
+    var multiReg = a.territory.clusters.filter(function(cn) {
+      var count = 0;
+      if (a.obs.indexOf(cn) !== -1) count++;
+      if (a.felt.indexOf(cn) !== -1) count++;
+      if (a.cost.indexOf(cn) !== -1) count++;
+      return count >= 2;
+    });
+
+    var parts = [];
+    if (obsOnly4.length > 0) parts.push(sec05ListNames(obsOnly4) + (obsOnly4.length === 1 ? " carries" : " carry") + " signal you recognise in your own behaviour");
+    if (feltOnly4.length > 0) parts.push(sec05ListNames(feltOnly4) + (feltOnly4.length === 1 ? " carries" : " carry") + " signal you feel");
+    if (costOnly4.length > 0) parts.push(sec05ListNames(costOnly4) + (costOnly4.length === 1 ? " registers" : " register") + " through cost");
+    if (multiReg.length > 0) parts.push(sec05ListNames(multiReg) + (multiReg.length === 1 ? " registers" : " register") + " across multiple channels simultaneously");
+
+    if (parts.length > 0) {
+      para += parts.join(". ") + ". ";
+    }
+    para += "Nothing in this territory is hidden from the instrument. "
+      + "The question is not awareness \u2014 it is what you do with what the full pattern is showing you about "
+      + t.meaning + ".";
+  }
+
+  if (a.clean.length > 0 && a.activeCount > 0) {
+    var activeClusters = a.territory.clusters.filter(function(cn) {
+      return a.clean.indexOf(cn) === -1 && a.unchannelled.indexOf(cn) === -1;
+    });
+    if (a.clean.length === 1) {
+      para += " " + SEC05_CLUSTER_NAMES[a.clean[0]]
+        + " reads Coherent \u2014 the load in this territory is not uniform. "
+        + "There is ground holding where other domains are not.";
+    } else {
+      para += " " + sec05ListNames(a.clean) + " both read Coherent. "
+        + "The friction in this territory concentrates in "
+        + (activeClusters.length === 1
+          ? SEC05_CLUSTER_NAMES[activeClusters[0]] + " alone"
+          : sec05ListNames(activeClusters))
+        + ".";
+    }
+  }
+
+  if (a.unchannelled.length > 0 && a.activeCount > 0) {
+    para += " " + SEC05_CLUSTER_NAMES[a.unchannelled[0]]
+      + " carries friction the instrument detects but you did not locate through any of the three channels. "
+      + "That signal warrants attention precisely because it has no register \u2014 "
+      + "it is present in the system but invisible to the mechanism you are using to read yourself.";
+  }
+
+  return para;
+}
+
+
+function buildPiece1(analyses) {
+  var allDPath = analyses.every(function(a) { return a.activeCount === 0; });
+  var unchannelledTerritories = analyses.filter(function(a) { return a.unchannelled.length > 0; });
+
+  if (allDPath && unchannelledTerritories.length >= 2) {
+    var out = "";
+    var allUnchannelled = [];
+    var allClean = [];
+    var i, a, t;
+    for (i = 0; i < analyses.length; i++) {
+      a = analyses[i];
+      for (var j = 0; j < a.unchannelled.length; j++) allUnchannelled.push(a.unchannelled[j]);
+      for (var k = 0; k < a.clean.length; k++) allClean.push(a.clean[k]);
+    }
+
+    out += wrap(
+      "Across all three territories, you reported no friction through any of the three channels. "
+      + "But the coherence quality readings are not uniformly settled. "
+      + "The instrument reads friction in " + allUnchannelled.length
+      + " of your eight domains that you did not locate through any register \u2014 "
+      + "not because it is absent, but because it has not yet surfaced into a form "
+      + "your conscious awareness can access through self-report."
+    );
+
+    if (allClean.length > 0) {
+      out += wrap(
+        sec05ListNames(allClean) + (allClean.length === 1 ? " reads" : " read")
+        + " Coherent with settled quality \u2014 "
+        + (allClean.length === 1 ? "this domain is" : "these domains are")
+        + " genuinely holding. "
+        + sec05ListNames(allUnchannelled) + (allUnchannelled.length === 1 ? " carries" : " carry")
+        + " the unsettled signal. "
+        + "The distribution across territories tells you this is not localised to one part of your leadership \u2014 "
+        + "it is a systemic condition operating below the threshold of the mechanism you are using to read yourself."
+      );
+    } else {
+      out += wrap(
+        "Every domain carries unsettled signal. "
+        + "This is not a reading of load in the conventional sense. "
+        + "It is a reading of a system where friction is present everywhere "
+        + "but has not yet found a channel through which you can recognise, feel, or measure it."
+      );
+    }
+
+    for (i = 0; i < analyses.length; i++) {
+      a = analyses[i]; t = a.territory;
+      if (a.unchannelled.length > 0) {
+        var line = "In " + t.name + ", " + sec05ListNames(a.unchannelled)
+          + (a.unchannelled.length === 1 ? " carries" : " carry") + " the unsettled signal.";
+        if (a.clean.length > 0) {
+          line += " " + sec05ListNames(a.clean) + (a.clean.length === 1 ? " reads" : " read") + " Coherent.";
+        }
+        out += wrap(line);
+      } else {
+        out += wrap(t.name + " reads Coherent across all its domains.");
+      }
+    }
+    return out;
+  }
+
+  var activeTerritories = analyses.filter(function(a) { return a.activeCount > 0; });
+  var sigs = activeTerritories.map(function(a) { return a.sig; });
+  var allSameSig = activeTerritories.length > 1 && sigs.every(function(s) { return s === sigs[0]; });
+
+  if (allSameSig && activeTerritories.length >= 2) {
+    var sig = sigs[0];
+    var regParts = sig.split("+");
+    var out2 = "";
+
+    var terrNames = activeTerritories.map(function(a) { return a.territory.name; });
+    var terrList = terrNames.length === 2
+      ? terrNames[0] + " and " + terrNames[1]
+      : terrNames.slice(0, -1).join(", ") + ", and " + terrNames[terrNames.length - 1];
+
+    out2 += wrap(
+      "Across " + terrList
+      + ", the friction registers through the same channels. "
+      + "This is not a coincidence of the data. It is a pattern \u2014 "
+      + "your system is processing friction in "
+      + (regParts.length === 1 ? "a single register" : regParts.length === 2 ? "two registers" : "all three registers")
+      + " regardless of which territory it appears in. "
+      + "That consistency tells you something about how you relate to friction itself, "
+      + "not just what the friction is about."
+    );
+
+    if (regParts.indexOf("felt") !== -1 && regParts.indexOf("cost") !== -1 && regParts.indexOf("observable") === -1) {
+      out2 += wrap("The felt and cost registers are active. The observable register is not. You sense the friction and you are paying for it \u2014 but the self-recognised pattern \u2014 the friction you can see operating in your own behaviour \u2014 has not yet surfaced. This is a system-wide condition: the friction across your leadership exists below the line of behavioural recognition.");
+    } else if (regParts.indexOf("observable") !== -1 && regParts.indexOf("felt") !== -1 && regParts.indexOf("cost") === -1) {
+      out2 += wrap("The observable and felt registers are active. The cost register has not yet surfaced. You see some of the friction and sense the rest \u2014 but the energy toll has not registered, or has not been connected to its source. The cost may be present. It may not be visible because it hasn\u2019t been counted.");
+    } else if (regParts.indexOf("observable") !== -1 && regParts.indexOf("cost") !== -1 && regParts.indexOf("felt") === -1) {
+      out2 += wrap("The observable and cost registers are active. The felt register is largely silent. You can see the friction and you are paying for it \u2014 but the felt channel between seeing and paying has not activated. You know and you are depleted, but you may not be allowing yourself to feel what sits between the two.");
+    } else if (regParts.length === 1 && regParts[0] === "observable") {
+      out2 += wrap("Only the observable register is active. Across your territories, you recognise the friction in your own behaviour. You are not yet feeling its weight or paying for it in ways you have connected to its source. The question is whether the absence of felt and cost signals means the friction is manageable \u2014 or whether those registers have not yet caught up with what you have already recognised.");
+    } else if (regParts.length === 1 && regParts[0] === "felt") {
+      out2 += wrap("Only the felt register is active. Across your territories, you sense the friction before you can name it. Neither the observable evidence nor the energy cost has surfaced. Your system is signalling ahead of both your conscious awareness and your energy equation. That signal deserves serious attention \u2014 it is the earliest warning your system produces.");
+    } else if (regParts.length === 1 && regParts[0] === "cost") {
+      out2 += wrap("Only the cost register is active. Across your territories, the drain is the signal. You are not seeing the friction and you are not feeling it \u2014 you are paying for it. When cost is the only register across the system, the friction has bypassed both your conscious awareness and your felt sense. Something is consuming energy at a level that neither your analytical mind nor your instinct has been able to locate.");
+    } else {
+      out2 += wrap("All three registers are active across your territories. You recognise the friction in your behaviour, feel it beneath the surface, and measure what it costs. The pattern is not one of blindness. It is one of comprehensive load \u2014 every channel your system has for processing friction is engaged.");
+    }
+
+    for (i = 0; i < analyses.length; i++) {
+      a = analyses[i]; t = a.territory;
+      if (a.activeCount === 0 && a.clean.length === t.clusters.length) {
+        out2 += wrap(t.name + " reads Coherent across all its domains \u2014 this territory is not contributing to the pattern.");
+      } else if (a.activeCount === 0 && a.unchannelled.length > 0) {
+        out2 += wrap("In " + t.name + ", " + sec05ListNames(a.unchannelled) + (a.unchannelled.length === 1 ? " carries" : " carry") + " friction the instrument detects but you did not locate through any register." + (a.clean.length > 0 ? " " + sec05ListNames(a.clean) + (a.clean.length === 1 ? " reads" : " read") + " Coherent." : ""));
+      } else if (a.activeCount > 0) {
+        var actClusters = t.clusters.filter(function(cn) { return a.clean.indexOf(cn) === -1 && a.unchannelled.indexOf(cn) === -1; });
+        var ln = "In " + t.name + ", " + sec05ListNames(actClusters) + (actClusters.length === 1 ? " carries" : " carry") + " the load \u2014 " + t.meaning + " is processing the friction through " + (a.activeRegisters.length === 1 ? "the " + a.activeRegisters[0] + " register" : a.activeRegisters.length === 2 ? "both the " + a.activeRegisters[0] + " and " + a.activeRegisters[1] + " registers" : "all three registers") + ".";
+        if (a.clean.length > 0) ln += " " + sec05ListNames(a.clean) + (a.clean.length === 1 ? " reads" : " read") + " Coherent.";
+        if (a.unchannelled.length > 0) ln += " " + SEC05_CLUSTER_NAMES[a.unchannelled[0]] + " carries unchannelled friction.";
+        out2 += wrap(ln);
+      }
+    }
+    return out2;
+
+  } else {
+    var out3 = "";
+    for (i = 0; i < analyses.length; i++) {
+      out3 += wrap(buildSingleTerritoryPara(analyses[i]));
+    }
+    return out3;
+  }
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// PIECE 2: THE CONCENTRATION READING
+// ════════════════════════════════════════════════════════════════
+
+function buildPiece2(analyses) {
+  var obsCount = 0, feltCount = 0, costCount = 0;
+  var obsTerritories = {}, feltTerritories = {}, costTerritories = {};
+  var totalActive = 0, totalUnchannelled = 0;
+  var i, a;
+
+  for (i = 0; i < analyses.length; i++) {
+    a = analyses[i];
+    for (var j = 0; j < a.obs.length; j++) { obsCount++; obsTerritories[a.territory.name] = true; }
+    for (var k = 0; k < a.felt.length; k++) { feltCount++; feltTerritories[a.territory.name] = true; }
+    for (var m = 0; m < a.cost.length; m++) { costCount++; costTerritories[a.territory.name] = true; }
+    totalActive += a.activeCount;
+    totalUnchannelled += a.unchannelled.length;
+  }
+
+  var objKeys = function(obj) { var arr = []; for (var k in obj) { if (obj.hasOwnProperty(k)) arr.push(k); } return arr; };
+  var terrListStr = function(obj) { var arr = objKeys(obj); if (arr.length === 1) return arr[0]; if (arr.length === 2) return arr[0] + " and " + arr[1]; return arr.slice(0,-1).join(", ") + ", and " + arr[arr.length-1]; };
+  var terrSize = function(obj) { return objKeys(obj).length; };
+
+  if (totalActive <= 2) {
+    var text = "Across your system, the friction that activates a register is limited to " + totalActive + " of your eight operational domains.";
+    if (totalUnchannelled > 0) {
+      text += " The instrument also detects unsettled signal in " + totalUnchannelled + (totalUnchannelled === 1 ? " domain" : " domains") + " where you reported no friction through any channel. That combination \u2014 limited register activation alongside unchannelled friction \u2014 suggests a system that is largely coherent but not entirely settled. The pattern here is not about load. It is about what may be forming at the edges of a coherent state.";
+    } else {
+      text += " The remainder read Coherent with settled quality readings. The pattern here is not about dominance \u2014 it is about location. The friction that is present has a specific address, and the coherence around it is what gives that address its diagnostic weight.";
+    }
+    return wrap(text);
+  }
+
+  var counts = [["observable", obsCount], ["felt", feltCount], ["cost", costCount]];
+  counts.sort(function(a, b) { return b[1] - a[1]; });
+  var top = counts[0], second = counts[1], third = counts[2];
+  var singleDominant = top[1] > second[1];
+  var coDominant = top[1] === second[1] && top[1] > third[1];
+
+  var terrSetFor = function(reg) { if (reg === "observable") return obsTerritories; if (reg === "felt") return feltTerritories; return costTerritories; };
+
+  if (singleDominant) {
+    var reg = top[0];
+    var tSet = terrSetFor(reg);
+    var isConc = terrSize(tSet) === 1;
+    var tName = isConc ? objKeys(tSet)[0] : null;
+
+    if (isConc) {
+      var tMeaning = "";
+      for (i = 0; i < SEC05_TERRITORIES.length; i++) { if (SEC05_TERRITORIES[i].name === tName) tMeaning = SEC05_TERRITORIES[i].meaningPhrase; }
+
+      if (reg === "observable") {
+        return wrap("Across your system, the observable register dominates \u2014 and it concentrates in " + tName + ". The friction you have recognised in your own behaviour lives primarily in " + tMeaning + ". This concentration tells you where your conscious awareness of your own conditions is most active. It also tells you, by implication, where it is least active \u2014 the territories that are either reading clean or carrying friction through channels you have not yet accessed.");
+      } else if (reg === "felt") {
+        return wrap("Across your system, the felt register dominates \u2014 and it concentrates in " + tName + ". The friction you sense but cannot yet name lives primarily in " + tMeaning + ". The concentration suggests the unnamed signal has a specific locus. It is not diffuse. It is telling you something about " + tMeaning + " that has not yet become visible \u2014 and the specificity of that location is itself information.");
+      } else {
+        return wrap("Across your system, the cost register dominates \u2014 and it concentrates in " + tName + ". The drain lives primarily in " + tMeaning + ". The concentration means the source of the depletion has an address. It is not systemic. It is structural, it is locatable, and it is responsive to intervention at the level where " + tMeaning + " is set.");
+      }
+    } else {
+      if (reg === "observable") {
+        return wrap("Across your system, the observable register dominates \u2014 distributed across " + terrListStr(tSet) + ". You can see the friction across multiple territories. The breadth of that visibility is itself a reading: you are not blind to your conditions. The structural question is whether that clarity has become its own holding pattern \u2014 seeing clearly enough to describe the problem, not clearly enough to dismantle it.");
+      } else if (reg === "felt") {
+        return wrap("Across your system, the felt register dominates \u2014 running through " + terrListStr(feltTerritories) + ". The friction you sense but cannot name is not localised to one territory. When the felt register is this broadly distributed, it is not signalling about any single domain. It is signalling about the operating conditions themselves \u2014 something systemic that your whole self is registering ahead of your ability to articulate it.");
+      } else {
+        return wrap("Across your system, the cost register dominates \u2014 running through " + terrListStr(costTerritories) + ". The drain is not coming from one territory. It is distributed. When cost dominates at this breadth without the observable or felt registers keeping pace, the depletion is structural and the source is not yet located. This is the pattern where naming the specific origin of the drain has the highest immediate impact on the energy equation.");
+      }
+    }
+  }
+
+  if (coDominant) {
+    var r1 = top[0], r2 = second[0];
+    var t1 = terrSetFor(r1), t2 = terrSetFor(r2);
+    var distSentence = "";
+    if (terrSize(t1) === 1 && terrSize(t2) === 1) {
+      var tn1 = objKeys(t1)[0], tn2 = objKeys(t2)[0];
+      if (tn1 === tn2) { distSentence = "Both registers concentrate in " + tn1 + " \u2014 the friction in that territory is being processed through two channels simultaneously."; }
+      else { distSentence = "The " + r1 + " register concentrates in " + tn1 + " while the " + r2 + " register concentrates in " + tn2 + " \u2014 the two channels are operating in different parts of your leadership."; }
+    } else {
+      distSentence = "The " + r1 + " register appears in " + terrListStr(t1) + ". The " + r2 + " register appears in " + terrListStr(t2) + ".";
+    }
+    var pair = [r1, r2].sort().join("+");
+    if (pair === "felt+observable") {
+      return wrap("Across your system, two registers share the load \u2014 the observable and the felt. In some domains you recognise the friction in your own behaviour. In others it is sensed but not yet named. " + distSentence + " Your awareness is operating at two different depths. Where you can see, clarity is available. Where you can only feel, something is signalling that has not yet found its evidence.");
+    }
+    if (pair === "cost+observable") {
+      return wrap("Across your system, two registers share the load \u2014 the observable and the cost. In some domains you recognise the friction in your behaviour. In others it shows up only through the energy it consumes. " + distSentence + " The register that is largely absent is the felt channel \u2014 the one that carries what you sense but cannot name. That absence suggests the friction you cannot see is bypassing your felt awareness and arriving directly as drain.");
+    }
+    return wrap("Across your system, two registers share the load \u2014 the felt and the cost. In some domains the friction is sensed. In others it registers through the energy it consumes. " + distSentence + " What is largely absent from your pattern is the observable register \u2014 the channel that carries friction you have recognised in your own behaviour and can act on directly. The friction in your system has not yet become something you see operating in how you lead. You are carrying it in the registers that sit below behavioural recognition.");
+  }
+
+  return wrap("Across your system, no single register dominates. The friction distributes across what you can see, what you feel, and what it costs you without concentrating in any one channel. This is a leader processing their current reality through every available register simultaneously. The diagnostic weight is not in the dominance \u2014 it is in the territory-level distribution: which registers are active in which parts of your leadership, and what the gaps between them reveal about the friction you are closest to resolving and the friction that has not yet become available to you.");
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// PIECE 3: THE DIAGNOSTIC QUESTION
+// ════════════════════════════════════════════════════════════════
+
+function buildPiece3(analyses) {
+  var obsCount = 0, feltCount = 0, costCount = 0, totalActive = 0, totalUnchannelled = 0;
+  for (var i = 0; i < analyses.length; i++) {
+    var a = analyses[i];
+    obsCount += a.obs.length; feltCount += a.felt.length; costCount += a.cost.length;
+    totalActive += a.activeCount; totalUnchannelled += a.unchannelled.length;
+  }
+
+  if (totalActive <= 2) {
+    if (totalUnchannelled > 0) {
+      return wrap("The coherence your system is reading is real. The unsettled signal the instrument detects alongside it is also real. The question this pattern raises is not whether your current state holds \u2014 but whether the signal that has not yet found a register is the early edge of a shift that your conscious awareness has not yet caught up with.");
+    }
+    return wrap("The coherence your system is reading is real and the quality of it is settled. The question this pattern raises is not about friction \u2014 it is about what sustains this state. Coherence under real-world conditions is maintained, not permanent. Would you recognise the early signal if the conditions that sustain it began to shift?");
+  }
+
+  var counts = [["observable", obsCount], ["felt", feltCount], ["cost", costCount]];
+  counts.sort(function(a, b) { return b[1] - a[1]; });
+  var top = counts[0], second = counts[1];
+  var singleDominant = top[1] > second[1];
+  var coDominant = top[1] === second[1] && top[1] > counts[2][1];
+
+  if (singleDominant) {
+    if (top[0] === "observable") return wrap("You see your friction. The question this pattern raises is not about awareness. It is about the distance between seeing and acting \u2014 whether the clarity you have is generating structural change, or whether it has become a way of managing what you are not yet willing to dismantle.");
+    if (top[0] === "felt") return wrap("Your system is signalling ahead of your conscious understanding. The question this pattern raises is: what would need to change in the conditions of your leadership for the signal you are carrying to become something you can name, locate, and act on \u2014 and what is the cost of continuing to carry it in a form that cannot yet be addressed?");
+    return wrap("The drain is the loudest signal in your system. The question this pattern raises is: what is the cost protecting you from confronting? When the energy equation is this clearly inverted and neither the observable nor the felt register has caught up, the depletion is not the problem. It is the symptom of a problem that has not yet surfaced into a form you can see or feel.");
+  }
+
+  if (coDominant) {
+    var pair = [top[0], second[0]].sort().join("+");
+    if (pair === "felt+observable") return wrap("You are seeing some of your friction and sensing the rest. The question this pattern raises is: what separates the domains where you have clarity from the domains where you have only instinct \u2014 and is that separation telling you something about where your system is ready for structural change and where it is not?");
+    if (pair === "cost+observable") return wrap("You can see some of the friction and you are paying for the rest. The question this pattern raises is: what are you not allowing yourself to feel about the conditions you can already name and the cost you are already carrying? The felt register\u2019s absence from this pattern is not silence. It is information.");
+    return wrap("You feel the friction and you are paying for it. The question this pattern raises is: what would make the friction visible \u2014 and are you willing to find out, knowing that what becomes visible also becomes something that can no longer be carried quietly?");
+  }
+
+  return wrap("Your friction is distributed across every register your system has available. The question this pattern raises is not about any single channel. It is about the operating conditions themselves: whether the breadth of the friction is a temporary accumulation under specific pressures, or whether it reflects a structural arrangement that is generating load faster than your system can metabolise it.");
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// SEC05 MAIN BUILD FUNCTION
+// ════════════════════════════════════════════════════════════════
+
+function buildSec05(combos, clusterScores) {
+  var analyses = SEC05_TERRITORIES.map(function(t) { return analyseTerritory(t, combos, clusterScores); });
+  return buildPiece1(analyses) + buildPiece2(analyses) + buildPiece3(analyses);
+}
 
 // ════════════════════════════════════════════════════════════════
 // SECTION 06: FRAMEWORK
@@ -428,9 +980,7 @@ function assembleReport(v) {
   const sec04 = buildSec04(combos, clusterScores);
 
   // ─── SEC 05: THE PATTERN ───
-  let sec05 = wrap(SEC05_FRAME);
-  sec05 += wrap(SEC05_DOMINANCE[dom] || SEC05_DOMINANCE["MIXED"]);
-  sec05 += wrap(SEC05_OBSERVATION);
+  const sec05 = buildSec05(combos, clusterScores);
 
   // ─── SEC 06: FRAMEWORK ───
   const sec06 = wrap(SEC06_CONNECTION[dom] || SEC06_CONNECTION["MIXED"]);
