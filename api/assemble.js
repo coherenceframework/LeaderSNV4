@@ -538,7 +538,7 @@ function clusterState(score) {
   }
 
 function buildSec04(combos, clusterScores) {
-  let sec04 = wrap(SEC04_INTRO);
+let sec04 = "";
 
 
   // Domain readings
