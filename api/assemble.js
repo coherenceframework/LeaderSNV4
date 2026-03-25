@@ -292,8 +292,7 @@ function clusterState(score) {
 function buildSec04(combos, clusterScores) {
   let sec04 = "";
 
-let clusterIndex = 0;
-for (const cn of ["01","02","03","04","05","06","07","08"]) {
+  for (const cn of ["01","02","03","04","05","06","07","08"]) {
     const combo = combos[cn];
     const score = clusterScores[cn];
     const cState = clusterState(score);
@@ -303,13 +302,12 @@ for (const cn of ["01","02","03","04","05","06","07","08"]) {
 
     if (!reading) continue;
 
-    if (clusterIndex > 0) {
-      sec04 += "<hr style='border:none;border-top:1px solid #E8E5DF;margin:18px 0 14px 0;'>";
-    }
-    clusterIndex++;
-
     const stColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
-    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:0;margin-bottom:4px;'>"
+    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:22px;margin-bottom:4px;'>"
+      + "<span style='color:#D4A843;font-weight:bold;'>" + meta.name + "</span>"
+      + "<span style='color:#D4A843;font-weight:normal;'> \u2014 </span>"
+      + "<span style='" + stColor + "'>" + cState + ":</span>"
+      + "</h3>";
 
     sec04 += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:10px;'>"
       + meta.subtitle + "</p>";
