@@ -34,21 +34,21 @@ function displayState(raw) {
 }
 
 const TERRITORY_SUBTITLES = {
-  "Being": {
+  "BEING": {
     "Coherent": "The signal from your core is arriving and you are responding to it",
     "Driven": "The signal is arriving but being overridden by a self that performs too well to question",
     "Strained": "You know what is true \u2014 the cost of acting on it is what holds you",
     "Drifting": "The internal reference point that should orient everything else has become unreliable",
     "Fractured": "What you are operating from may no longer be connected to who you actually are",
   },
-  "Relating": {
+  "RELATING": {
     "Coherent": "Truth is moving freely between you and the people around you",
     "Driven": "The signal is being edited before it reaches the surface \u2014 and no one around you knows",
     "Strained": "You know who needs to hear what \u2014 the cost of saying it is what holds you",
     "Drifting": "You may no longer be certain what the people around you actually think or need",
     "Fractured": "What moves between you and others is no longer carrying truth",
   },
-  "Creating": {
+  "CREATING": {
     "Coherent": "What you intend and what you produce are aligned",
     "Driven": "The output is strong but the connection between the work and who you are is maintained by force",
     "Strained": "The gap between what you set out to build and what actually gets produced has widened enough to register",
@@ -303,7 +303,7 @@ function buildSec04(combos, clusterScores) {
     if (!reading) continue;
 
     const stColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
-    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:16px;margin-bottom:4px;'>"
+    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:13pt;margin-top:16px;margin-bottom:4px;'>"
       + "<span style='color:#D4A843;font-weight:bold;'>" + meta.name + "</span>"
       + "<span style='color:#D4A843;font-weight:normal;'> \u2014 </span>"
       + "<span style='" + stColor + "'>" + cState + ":</span>"
