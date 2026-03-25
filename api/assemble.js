@@ -301,7 +301,9 @@ function buildSec04(combos, clusterScores) {
     const reading = SEC04_STATE[stateKey];
 
     if (!reading) continue;
-
+    if (cn === "05") {
+      sec04 += "<p style='page-break-before:always;margin:0;padding:0;line-height:0;font-size:0;'>&nbsp;</p>";
+    }
     const stColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
     sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:13pt;margin-top:12px;margin-bottom:4px;'>"
       + "<span style='color:#2E2E2C;font-weight:bold;'>" + meta.name + "</span>"
