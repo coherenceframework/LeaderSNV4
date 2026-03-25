@@ -303,7 +303,7 @@ function buildSec04(combos, clusterScores) {
     if (!reading) continue;
 
     const stColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
-    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:22px;margin-bottom:4px;'>"
+    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:16px;margin-bottom:4px;'>"
       + "<span style='color:#D4A843;font-weight:bold;'>" + meta.name + "</span>"
       + "<span style='color:#D4A843;font-weight:normal;'> \u2014 </span>"
       + "<span style='" + stColor + "'>" + cState + ":</span>"
@@ -325,7 +325,7 @@ function buildSec04(combos, clusterScores) {
       }
     }
 
-    sec04 += "<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.2;margin-bottom:16px;'>"
+    sec04 += "<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.2;margin-bottom:12px;'>"
       + reading.question + "</p>";
   }
 
