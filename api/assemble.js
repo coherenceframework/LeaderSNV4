@@ -979,23 +979,6 @@ function assembleReport(v) {
   };
   const sec04 = buildSec04(combos, clusterScores);
 
-  // ─── SEC 05: THE PATTERN ───
-  const sec05 = buildSec05(combos, clusterScores);
-
-  // ─── SEC 06: FRAMEWORK ───
-  const sec06 = wrap(SEC06_CONNECTION[dom] || SEC06_CONNECTION["MIXED"]);
-
-  // ─── SEC 09: TEXT FIELD REFLECTION ───
-  let sec09 = "";
-  if (textField && textField.trim() !== "") {
-    sec09 = "<blockquote style='font-family:Inter,sans-serif;font-size:11pt;color:#1A1A2E;font-style:italic;border-left:3px solid #D4A843;padding-left:16px;margin:16px 0;line-height:1.7;'>"
-      + textField + "</blockquote>";
-    sec09 += wrap(SEC09_CONTEXT);
-  }
-
-  // ─── SEC 10: OPEN LOOP ───
-  const sec10 = wrap(SEC10[state] || "");
-
   // ─── RETURN ALL MERGE FIELDS ───
   return {
     sec01_html: sec01,
@@ -1006,10 +989,6 @@ function assembleReport(v) {
     gap_creating_reading: gap_creating_reading,
     gap_bridge: gap_bridge,
     sec04_html: sec04,
-    sec05_html: sec05,
-    sec06_html: sec06,
-    sec09_html: sec09,
-    sec10_html: sec10,
   };
 }
 
