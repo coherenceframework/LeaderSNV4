@@ -68,8 +68,8 @@ function buildTerritoryReading(territory, state, prose) {
   const stColor = stateStyle[state] || "color:#1A1A2E;font-weight:bold;";
   const subtitle = TERRITORY_SUBTITLES[territory][state];
   let out = "<h3 style='font-family:Montserrat,sans-serif;font-size:13pt;margin-top:22px;margin-bottom:4px;'>"
-    + "<span style='color:#D4A843;font-weight:bold;'>" + territory.toUpperCase() + "</span>"
-    + "<span style='color:#D4A843;font-weight:normal;'> \u2014 </span>"
+    + "<span style='color:#2E2E2C;font-weight:bold;'>" + territory.toUpperCase() + "</span>"
+    + "<span style='color:#2E2E2C;font-weight:normal;'> \u2014 </span>"
     + "<span style='" + stColor + "'>" + state.toUpperCase() + "</span>"
     + "</h3>";
   out += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>"
@@ -303,19 +303,18 @@ function buildSec04(combos, clusterScores) {
     if (!reading) continue;
 
     const stColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
-    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:12px;margin-bottom:4px;'>"
-      + "<span style='color:#D4A843;font-weight:bold;'>" + meta.name + "</span>"
-      + "<span style='color:#D4A843;font-weight:normal;'> \u2014 </span>"
+    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:13pt;margin-top:12px;margin-bottom:4px;'>"
+      + "<span style='color:#2E2E2C;font-weight:bold;'>" + meta.name + "</span>"
+      + "<span style='color:#2E2E2C;font-weight:normal;'> \u2014 </span>"
       + "<span style='" + stColor + "'>" + cState.toUpperCase() + "</span>"
       + "</h3>";
 
     sec04 += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:6px;'>"
       + meta.subtitle + "</p>";
 
-    sec04 += "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#1A1A2E;line-height:1.2;margin-bottom:8px;font-weight:bold;'>"
-      + reading.headline + "</p>";
-
-    sec04 += wrap(reading.body);
+    sec04 += "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:11px;'>"
+      + "<span style='font-weight:600;'>" + reading.headline + "</span> "
+      + reading.body + "</p>";
 
     if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
       const comboKey = cn + "_" + combo;
