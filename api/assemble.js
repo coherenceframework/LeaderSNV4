@@ -306,7 +306,7 @@ function buildSec04(combos, clusterScores) {
     sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:12px;margin-bottom:4px;'>"
       + "<span style='color:#D4A843;font-weight:bold;'>" + meta.name + "</span>"
       + "<span style='color:#D4A843;font-weight:normal;'> \u2014 </span>"
-      + "<span style='" + stColor + "'>" + state.toUpperCase() + "</span>"
+      + "<span style='" + stColor + "'>" + cstate.toUpperCase() + "</span>"
       + "</h3>";
 
     sec04 += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:6px;'>"
