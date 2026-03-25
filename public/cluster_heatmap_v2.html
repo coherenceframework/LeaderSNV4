@@ -249,14 +249,16 @@ territories.forEach(function(ter) {
     var count = parseInt(P.get('n' + cl.num) || '0');
     var c = SC[state] || SC.COHERENT;
 
-    var dots = '';
-    for (var i = 0; i < 3; i++) {
-      if (i < count) {
-        dots += '<div class="cell-indicator" style="background:' + c.dot + ';"></div>';
-      } else {
-        dots += '<div class="cell-indicator empty"></div>';
-      }
+var dots = '';
+if (state !== 'COHERENT') {
+  for (var i = 0; i < 3; i++) {
+    if (i < count) {
+      dots += '<div class="cell-indicator" style="background:' + c.dot + ';"></div>';
+    } else {
+      dots += '<div class="cell-indicator empty"></div>';
     }
+  }
+}
 
     var cell = document.createElement('div');
     cell.className = 'cluster-cell';
