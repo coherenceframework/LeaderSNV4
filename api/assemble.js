@@ -303,14 +303,14 @@ function buildSec04(combos, clusterScores) {
     if (!reading) continue;
 
     const stColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
-    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:16px;margin-bottom:4px;'>"
+    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:11pt;margin-top:16px;margin-bottom:0;'>"
       + "<span style='color:#D4A843;font-weight:bold;'>" + meta.name + "</span>"
-      + "<span style='color:#D4A843;font-weight:normal;'> \u2014 </span>"
-      + "<span style='" + stColor + "'>" + cState + ":</span>"
+      + "<span style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-weight:normal;font-style:italic;margin-left:8px;'>" + meta.subtitle + "</span>"
       + "</h3>";
 
-    sec04 += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:10px;'>"
-      + meta.subtitle + "</p>";
+    sec04 += "<p style='font-family:Inter,sans-serif;font-size:10pt;margin-top:2px;margin-bottom:10px;'>"
+      + "<span style='" + stColor + "'>" + cState + "</span>"
+      + "</p>";
 
     sec04 += "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#1A1A2E;line-height:1.2;margin-bottom:8px;font-weight:bold;'>"
       + reading.headline + "</p>";
