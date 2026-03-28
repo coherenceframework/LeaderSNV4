@@ -103,15 +103,15 @@
     <line x1="264" y1="16" x2="264" y2="58" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
     <line x1="436" y1="16" x2="436" y2="58" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
     <line x1="608" y1="16" x2="608" y2="58" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
-    <!-- Self-reported marker -->
-    <circle id="selfReportDot" cx="480" cy="25.5" r="7" fill="none" stroke="#7A756D" stroke-width="2"/>
-    <circle id="selfReportDotInner" cx="480" cy="25.5" r="3" fill="#7A756D"/>
-    <text id="selfReportLabel" x="480" y="8" text-anchor="middle" font-size="9" font-weight="600" fill="#7A756D" font-family="DM Sans, sans-serif">60% SELF-REPORTED</text>
-    <!-- Diagnostic needle -->
+    <!-- Diagnostic needle (rendered first so self-report sits on top) -->
     <line id="needleLine" x1="87" y1="12" x2="87" y2="38" stroke="#1A1A2E" stroke-width="2.5"/>
     <circle id="needleDot" cx="87" cy="25.5" r="5" fill="#1A1A2E"/>
-    <text x="0" y="55" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal arrives in the moment</text>
-    <text x="800" y="55" text-anchor="end" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal may never arrive</text>
+    <!-- Self-reported marker (rendered second so it sits on top) -->
+    <circle id="selfReportDot" cx="480" cy="25.5" r="9" fill="none" stroke="#7A756D" stroke-width="2.5"/>
+    <circle id="selfReportDotInner" cx="480" cy="25.5" r="4" fill="#7A756D"/>
+    <text id="selfReportLabel" x="480" y="8" text-anchor="middle" font-size="11" font-weight="700" fill="#7A756D" font-family="DM Sans, sans-serif">60% SELF-REPORTED</text>
+    <text x="0" y="55" font-size="12" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal arrives in the moment</text>
+    <text x="800" y="55" text-anchor="end" font-size="12" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal may never arrive</text>
     <text id="pctText" x="87" y="85" text-anchor="middle" font-size="32" font-weight="700" fill="#1A1A2E" font-family="DM Sans, sans-serif">17<tspan font-size="18" fill="#7A756D">%</tspan></text>
     <text id="diagLabel" x="87" y="98" text-anchor="middle" font-size="9" font-weight="600" fill="#1A1A2E" font-family="DM Sans, sans-serif">DIAGNOSTIC</text>
     <text id="resLine1" x="87" y="110" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">RESISTANCE TO</text>
