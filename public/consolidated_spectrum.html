@@ -109,7 +109,7 @@
     <!-- Self-reported marker (rendered second so it sits on top) -->
     <circle id="selfReportDot" cx="480" cy="25.5" r="9" fill="none" stroke="#7A756D" stroke-width="2.5"/>
     <circle id="selfReportDotInner" cx="480" cy="25.5" r="4" fill="#7A756D"/>
-    <text id="selfReportLabel" x="480" y="8" text-anchor="middle" font-size="11" font-weight="700" fill="#7A756D" font-family="DM Sans, sans-serif">60% SELF-REPORTED RESISTANCE</text>
+    <text id="selfReportLabel" x="480" y="8" text-anchor="middle" font-size="11" font-weight="700" fill="#7A756D" font-family="DM Sans, sans-serif">60% SELF-REPORTED</text>
     <text x="0" y="55" font-size="12" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal arrives in the moment</text>
     <text x="800" y="55" text-anchor="end" font-size="12" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal may never arrive</text>
     <text id="pctText" x="87" y="85" text-anchor="middle" font-size="32" font-weight="700" fill="#1A1A2E" font-family="DM Sans, sans-serif">17<tspan font-size="18" fill="#7A756D">%</tspan></text>
@@ -211,7 +211,7 @@
   
   var selfReportLabel = document.getElementById('selfReportLabel');
   selfReportLabel.setAttribute('x', selfReportX);
-  selfReportLabel.textContent = selfReportPct + '% SELF-REPORTED';
+  selfReportLabel.textContent = selfReportPct + '% SELF-REPORTED RESISTANCE';
   
   var selfTextAnchor = 'middle';
   if (selfReportPct <= 8) {
