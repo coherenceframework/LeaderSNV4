@@ -86,7 +86,7 @@
 <div class="wrapper">
   <div class="state-cards" id="stateCards"></div>
   
-  <svg viewBox="0 0 800 120" width="800" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 800 130" width="800" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="specGrad" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stop-color="#3A7D44"/>
@@ -103,13 +103,19 @@
     <line x1="264" y1="16" x2="264" y2="58" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
     <line x1="436" y1="16" x2="436" y2="58" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
     <line x1="608" y1="16" x2="608" y2="58" stroke="#D5D2CC" stroke-width="1" stroke-dasharray="3 3"/>
+    <!-- Self-reported marker -->
+    <circle id="selfReportDot" cx="480" cy="25.5" r="7" fill="none" stroke="#7A756D" stroke-width="2"/>
+    <circle id="selfReportDotInner" cx="480" cy="25.5" r="3" fill="#7A756D"/>
+    <text id="selfReportLabel" x="480" y="8" text-anchor="middle" font-size="9" font-weight="600" fill="#7A756D" font-family="DM Sans, sans-serif">60% SELF-REPORTED</text>
+    <!-- Diagnostic needle -->
     <line id="needleLine" x1="87" y1="12" x2="87" y2="38" stroke="#1A1A2E" stroke-width="2.5"/>
     <circle id="needleDot" cx="87" cy="25.5" r="5" fill="#1A1A2E"/>
     <text x="0" y="55" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal arrives in the moment</text>
     <text x="800" y="55" text-anchor="end" font-size="11" fill="#B5B0A8" font-family="DM Sans, sans-serif">Signal may never arrive</text>
     <text id="pctText" x="87" y="85" text-anchor="middle" font-size="32" font-weight="700" fill="#1A1A2E" font-family="DM Sans, sans-serif">17<tspan font-size="18" fill="#7A756D">%</tspan></text>
-    <text id="resLine1" x="87" y="102" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">RESISTANCE TO</text>
-    <text id="resLine2" x="87" y="113" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">COHERENT CORE</text>
+    <text id="diagLabel" x="87" y="98" text-anchor="middle" font-size="9" font-weight="600" fill="#1A1A2E" font-family="DM Sans, sans-serif">DIAGNOSTIC</text>
+    <text id="resLine1" x="87" y="110" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">RESISTANCE TO</text>
+    <text id="resLine2" x="87" y="121" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1.2" fill="#D4A843" font-family="DM Sans, sans-serif">COHERENT CORE</text>
   </svg>
 </div>
 
@@ -125,6 +131,7 @@
   var params = new URLSearchParams(window.location.search);
   var activeState = (params.get('state') || 'DRIVEN').toUpperCase();
   var diagGapPct = parseInt(params.get('pct') || '17');
+  var selfReportPct = parseInt(params.get('self') || '60');
 
   var stateCardsContainer = document.getElementById('stateCards');
 
@@ -173,6 +180,7 @@
   document.getElementById('needleDot').setAttribute('cx', needleX);
 
   var pctText = document.getElementById('pctText');
+  var diagLabel = document.getElementById('diagLabel');
   var resLine1 = document.getElementById('resLine1');
   var resLine2 = document.getElementById('resLine2');
 
@@ -189,10 +197,29 @@
 
   pctText.setAttribute('x', needleX);
   pctText.setAttribute('text-anchor', textAnchor);
+  diagLabel.setAttribute('x', needleX);
+  diagLabel.setAttribute('text-anchor', textAnchor);
   resLine1.setAttribute('x', needleX);
   resLine1.setAttribute('text-anchor', textAnchor);
   resLine2.setAttribute('x', needleX);
   resLine2.setAttribute('text-anchor', textAnchor);
+
+  // Position self-report marker
+  var selfReportX = Math.max(minN, Math.min(maxN, (selfReportPct / 100) * specW));
+  document.getElementById('selfReportDot').setAttribute('cx', selfReportX);
+  document.getElementById('selfReportDotInner').setAttribute('cx', selfReportX);
+  
+  var selfReportLabel = document.getElementById('selfReportLabel');
+  selfReportLabel.setAttribute('x', selfReportX);
+  selfReportLabel.textContent = selfReportPct + '% SELF-REPORTED';
+  
+  var selfTextAnchor = 'middle';
+  if (selfReportPct <= 8) {
+    selfTextAnchor = 'start';
+  } else if (selfReportPct >= 92) {
+    selfTextAnchor = 'end';
+  }
+  selfReportLabel.setAttribute('text-anchor', selfTextAnchor);
 </script>
 </body>
 </html>
