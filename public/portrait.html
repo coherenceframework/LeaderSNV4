@@ -138,7 +138,7 @@ svg.appendChild(svgEl('circle',{
 var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-7;
 svg.appendChild(svgEl('rect',{
-  x:cx-130,y:osLabelY-12,width:'260',height:'32',
+  x:cx-100,y:osLabelY-12,width:'200',height:'32',
   rx:'4',fill:'#FFFFFF',opacity:'0.9'
 }));
 svgTxt(cx, osLabelY, 'ADAPTED SELF', {
@@ -204,7 +204,7 @@ var neckH = headR * 0.4;
 var torsoH = figureHeight * 0.45;
 var legH = figureHeight * 0.3;
 var shoulderW = headR * 2.2;
-var waistW = headR * 2.8; // Widened from 2.5
+var waistW = headR * 3.6; // Widened from 3.2 for bigger buddha belly
 var hipW = headR * 1.8;
 
 // Calculate vertical positions
@@ -242,13 +242,13 @@ svg.appendChild(svgEl('path',{
 }));
 
 // COHERENT CORE text at belly/waist area
-svgTxt(cx, waistY+2, 'COHERENT', {
-  'text-anchor':'middle','font-size':'7','font-weight':'700',
-  'letter-spacing':'1.2',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
+svgTxt(cx, waistY+3, 'COHERENT', {
+  'text-anchor':'middle','font-size':'9','font-weight':'700',
+  'letter-spacing':'1.4',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
 });
-svgTxt(cx, waistY+10, 'CORE', {
-  'text-anchor':'middle','font-size':'7','font-weight':'700',
-  'letter-spacing':'1.2',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
+svgTxt(cx, waistY+13, 'CORE', {
+  'text-anchor':'middle','font-size':'9','font-weight':'700',
+  'letter-spacing':'1.4',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
 });
 
 // Arms - reaching to Operating Surface
