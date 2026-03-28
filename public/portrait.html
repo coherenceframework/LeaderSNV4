@@ -108,18 +108,16 @@ rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
 defs.appendChild(rg);
 svg.appendChild(defs);
 
-// ═══ OUTER STATE ZONE LINES — visible, normal weight ═══
+// OUTER STATE ZONE LINES
 for(var i=stateIndex+1;i<stateOrder.length;i++){
   var zIdx=i-stateIndex;
   var zR=zoneRadii[zIdx];
   var zName=stateOrder[i];
   var zSolid=SC[zName].solid;
-  // Solid colour dashed lines — clearly visible
   svg.appendChild(svgEl('circle',{
     cx:cx,cy:cy,r:zR,
     fill:'none',stroke:zSolid,'stroke-width':'1.2','stroke-dasharray':'5 4',opacity:'0.45'
   }));
-  // Zone label centred between this line and the one below
   var prevR=zoneRadii[zIdx-1];
   var labelR=(zR+prevR)/2;
   var labelY=cy-labelR;
@@ -131,16 +129,14 @@ for(var i=stateIndex+1;i<stateOrder.length;i++){
   }
 }
 
-// ═══ OPERATING SURFACE — bold, distinct from zone lines ═══
+// OPERATING SURFACE
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:outerR,
   fill:'none',stroke:SC[overallState].solid,
   'stroke-width':'3','stroke-dasharray':'8 4'
 }));
-// Label in gap band — white background for readability
 var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-7;
-// White rect behind text
 svg.appendChild(svgEl('rect',{
   x:cx-130,y:osLabelY-12,width:'260',height:'32',
   rx:'4',fill:'#FFFFFF',opacity:'0.9'
@@ -149,28 +145,20 @@ svgTxt(cx, osLabelY, 'ADAPTED SELF', {
   'text-anchor':'middle','font-size':'12','font-weight':'700',
   'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
-svgTxt(cx, osLabelY+15, overallState + ' \u2014 ' + overallPct + '% resistance', {
+svgTxt(cx, osLabelY+15, overallState + ' — ' + overallPct + '% resistance', {
   'text-anchor':'middle','font-size':'11','font-weight':'600',
   'letter-spacing':'0.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
 
-// ═══ TERRITORY RINGS ═══
+// TERRITORY RINGS
 [{r:cR,s:cState},{r:rR,s:rState},{r:bR,s:bState}].forEach(function(d){
   svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:d.r,fill:SC[d.s].ring,stroke:SC[d.s].border,'stroke-width':'1.5'}));
 });
 
-// ═══ CORE ═══
+// CORE
 svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
-svgTxt(cx, cy-6, 'COHERENT', {
-  'text-anchor':'middle','font-size':'9','font-weight':'700',
-  'letter-spacing':'1.8',fill:'rgba(255,255,255,0.9)','font-family':'DM Sans, sans-serif'
-});
-svgTxt(cx, cy+7, 'CORE', {
-  'text-anchor':'middle','font-size':'9','font-weight':'700',
-  'letter-spacing':'1.8',fill:'rgba(255,255,255,0.9)','font-family':'DM Sans, sans-serif'
-});
 
-// ═══ B/R/C LABELS ═══
+// B/R/C LABELS
 [
   {midR:(coreR+bR)/2, letter:'B', state:bState},
   {midR:(bR+rR)/2,    letter:'R', state:rState},
@@ -184,7 +172,7 @@ svgTxt(cx, cy+7, 'CORE', {
   });
 });
 
-// ═══ PASSED-THROUGH STATES ═══
+// PASSED-THROUGH STATES
 var passedStates=[];
 for(var i=1;i<=stateIndex;i++){
   passedStates.push(stateOrder[i]);
@@ -204,27 +192,90 @@ if(passedStates.length>0){
   }
 }
 
-// ═══ GAP ARROWS ═══
-var ac='#D4A843';
-function drawArrow(angleDeg){
-  var rad=(angleDeg*Math.PI)/180;
-  var iE=coreR+3, oE=cR-2;
-  var x1=cx+Math.cos(rad)*iE, y1=cy+Math.sin(rad)*iE;
-  var x2=cx+Math.cos(rad)*oE, y2=cy+Math.sin(rad)*oE;
-  svg.appendChild(svgEl('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:ac,'stroke-width':'2'}));
-  var hL=8, hA=24*Math.PI/180;
-  svg.appendChild(svgEl('polygon',{
-    points:x2+','+y2+' '+(x2-hL*Math.cos(rad-hA))+','+(y2-hL*Math.sin(rad-hA))+' '+(x2-hL*Math.cos(rad+hA))+','+(y2-hL*Math.sin(rad+hA)),
-    fill:ac
-  }));
-  svg.appendChild(svgEl('polygon',{
-    points:x1+','+y1+' '+(x1+hL*Math.cos(rad-hA))+','+(y1+hL*Math.sin(rad-hA))+' '+(x1+hL*Math.cos(rad+hA))+','+(y1+hL*Math.sin(rad+hA)),
-    fill:ac
-  }));
-}
-drawArrow(-60);
-drawArrow(-90);
-drawArrow(-120);
+// VITRUVIAN FIGURE
+// Figure extends from center (cy) to Operating Surface (outerR)
+var reachDistance = outerR - coreR;
+var figureHeight = reachDistance * 1.3; // Shortened from 1.8
+var figColor = 'rgba(255,255,255,0.75)';
+
+// Proportions
+var headR = figureHeight * 0.13;
+var neckH = headR * 0.4;
+var torsoH = figureHeight * 0.45;
+var legH = figureHeight * 0.3;
+var shoulderW = headR * 2.2;
+var waistW = headR * 1.6;
+var hipW = headR * 1.8;
+
+// Calculate vertical positions
+var headCy = cy - torsoH - neckH - headR;
+var neckTop = cy - torsoH - neckH;
+var neckBottom = cy - torsoH;
+var waistY = cy - (torsoH * 0.4);
+var hipY = cy;
+
+// Head
+svg.appendChild(svgEl('circle',{
+  cx:cx, cy:headCy, r:headR,
+  fill:figColor, stroke:'rgba(255,255,255,0.95)', 'stroke-width':'1.5'
+}));
+
+// Neck
+svg.appendChild(svgEl('rect',{
+  x:cx-(headR*0.35), y:neckTop, width:headR*0.7, height:neckH,
+  fill:figColor, stroke:'rgba(255,255,255,0.95)', 'stroke-width':'1.5'
+}));
+
+// Torso - path with shoulders, waist, hips
+var torsoPath = 
+  'M '+(cx-shoulderW/2)+','+neckBottom+' '+
+  'L '+(cx+shoulderW/2)+','+neckBottom+' '+
+  'L '+(cx+waistW/2)+','+waistY+' '+
+  'L '+(cx+hipW/2)+','+hipY+' '+
+  'L '+(cx-hipW/2)+','+hipY+' '+
+  'L '+(cx-waistW/2)+','+waistY+' Z';
+
+svg.appendChild(svgEl('path',{
+  d:torsoPath,
+  fill:figColor, stroke:'rgba(255,255,255,0.95)', 'stroke-width':'1.5',
+  'stroke-linejoin':'round'
+}));
+
+// COHERENT CORE text at belly/waist area
+svgTxt(cx, waistY+2, 'COHERENT', {
+  'text-anchor':'middle','font-size':'7','font-weight':'700',
+  'letter-spacing':'1.2',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
+});
+svgTxt(cx, waistY+10, 'CORE', {
+  'text-anchor':'middle','font-size':'7','font-weight':'700',
+  'letter-spacing':'1.2',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
+});
+
+// Arms - reaching to Operating Surface
+var armW = reachDistance * 2;
+var shoulderY = neckBottom + (torsoH * 0.1);
+var armThick = headR * 0.35;
+svg.appendChild(svgEl('line',{
+  x1:cx-shoulderW/2, y1:shoulderY, x2:cx-armW/2, y2:shoulderY-headR*0.5,
+  stroke:figColor, 'stroke-width':armThick, 'stroke-linecap':'round'
+}));
+svg.appendChild(svgEl('line',{
+  x1:cx+shoulderW/2, y1:shoulderY, x2:cx+armW/2, y2:shoulderY-headR*0.5,
+  stroke:figColor, 'stroke-width':armThick, 'stroke-linecap':'round'
+}));
+
+// Legs - V spread
+var legThick = headR * 0.4;
+var legSpread = headR * 2;
+svg.appendChild(svgEl('line',{
+  x1:cx-hipW/2, y1:hipY, x2:cx-legSpread, y2:cy+legH,
+  stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
+}));
+svg.appendChild(svgEl('line',{
+  x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
+  stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
+}));
+
 </script>
 </body>
 </html>
