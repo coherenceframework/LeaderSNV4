@@ -136,6 +136,26 @@ function buildGapSpectrumReading(state, diagPct) {
 // GAP TERRITORY READINGS
 // ════════════════════════════════════════════════════════════════
 
+const STATE_COLORS = {
+  "COHERENT": "#3A7D44",
+  "DRIVEN": "#4A6FA5",
+  "STRAINED": "#D4A843",
+  "DRIFTING": "#7B2D8E",
+  "FRACTURED": "#A82828"
+};
+
+function generateTerritoryBadge(letter, state) {
+  const color = STATE_COLORS[state] || "#3A7D44";
+  
+  return `<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="24" cy="24" r="22" fill="white" stroke="${color}" stroke-width="3"/>
+  <text x="24" y="24" text-anchor="middle" dominant-baseline="central" 
+        font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="${color}">
+    ${letter}
+  </text>
+</svg>`;
+}
+
 const GAP_BEING = {
   "Coherent": `In your relationship with yourself — your internal integrity, the capacity to know your own truth — the signal is arriving and you are responding. The friction here is minimal. What you know about yourself and what you act on are close enough that the gap is not generating measurable cost. This is alignment between your felt truth and your enacted reality.`,
   
@@ -171,9 +191,6 @@ const GAP_CREATING = {
   
   "Fractured": `Your relationship with what you are building has separated from your coherent core entirely. What you are producing in the world — the structures, the work, the legacy — is no longer connected to the signal that should be guiding it. The adapted self is building, but it is building from its own logic — from market pressure, from obligation, from the momentum of prior commitments — not from alignment with who you actually are. The output may still function. It may even succeed. But it will not sustain you, and at some level you already know that. The fracture in Creating is often the last to be felt and the first to be visible to others. The people around you may see the disconnection before you do — in the quality of what is being produced, in the decisions being made, in the gap between what you say the work is for and what it actually delivers.`,
 };
-
-const GAP_BRIDGE = `The sections that follow examine the specific operational domains the diagnostic read within each territory \u2014 the eight clusters that sit between your coherent core and your operating surface, each one a point where the signal is either passing through or being filtered.`;
-
 
 // ════════════════════════════════════════════════════════════════
 // SECTION 04: CLUSTER PROFILE — STATE-DRIVEN ARCHITECTURE
@@ -963,6 +980,10 @@ function assembleReport(v) {
   const rState = displayState(v.relating_state || 'COHERENT');
   const cState = displayState(v.creating_state || 'COHERENT');
   const diagPct = parseInt(v.overall_pct || '0');
+  // Generate territory badges
+const beingBadge = generateTerritoryBadge("B", data.being_state);
+const relatingBadge = generateTerritoryBadge("R", data.relating_state);
+const creatingBadge = generateTerritoryBadge("C", data.creating_state);
 
   const combos = {
     "01": v.c01_combo, "02": v.c02_combo, "03": v.c03_combo, "04": v.c04_combo,
@@ -1002,6 +1023,9 @@ function assembleReport(v) {
     gap_creating_reading: gap_creating_reading,
     gap_bridge: gap_bridge,
     sec04_html: sec04,
+    being_badge: beingBadge,
+relating_badge: relatingBadge,
+creating_badge: creatingBadge,
   };
 }
 
