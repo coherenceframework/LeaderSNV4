@@ -192,7 +192,7 @@ const GAP_CREATING = {
   "Fractured": `Your relationship with what you are building has separated from your coherent core entirely. What you are producing in the world — the structures, the work, the legacy — is no longer connected to the signal that should be guiding it. The adapted self is building, but it is building from its own logic — from market pressure, from obligation, from the momentum of prior commitments — not from alignment with who you actually are. The output may still function. It may even succeed. But it will not sustain you, and at some level you already know that. The fracture in Creating is often the last to be felt and the first to be visible to others. The people around you may see the disconnection before you do — in the quality of what is being produced, in the decisions being made, in the gap between what you say the work is for and what it actually delivers.`,
 };
 
-const GAP_BRIDGE = {`This pattern distributes across the three territories of your operating self — Being (B), Relating (R), and Creating (C) — shown in your Coherence Portrait above.`};
+const GAP_BRIDGE = `This pattern distributes across the three territories of your operating self — Being (B), Relating (R), and Creating (C) — shown in your Coherence Portrait above.`;
 
 // ════════════════════════════════════════════════════════════════
 // SECTION 04: CLUSTER PROFILE — STATE-DRIVEN ARCHITECTURE
