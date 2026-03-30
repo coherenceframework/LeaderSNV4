@@ -979,12 +979,25 @@ function assembleReport(v) {
   const bState = displayState(v.being_state || 'COHERENT');
   const rState = displayState(v.relating_state || 'COHERENT');
   const cState = displayState(v.creating_state || 'COHERENT');
-  const diagPct = parseInt(v.overall_pct || '0');
+const diagPct = parseInt(v.overall_pct || '0');
   
-  // Generate territory badges
-  const beingBadge = generateTerritoryBadge("B", v.being_state);
-  const relatingBadge = generateTerritoryBadge("R", v.relating_state);
-  const creatingBadge = generateTerritoryBadge("C", v.creating_state);
+  // Generate territory badges with error handling
+  let beingBadge = "";
+  let relatingBadge = "";
+  let creatingBadge = "";
+  
+  try {
+    console.log("being_state:", v.being_state);
+    console.log("relating_state:", v.relating_state);
+    console.log("creating_state:", v.creating_state);
+    
+    beingBadge = generateTerritoryBadge("B", v.being_state);
+    relatingBadge = generateTerritoryBadge("R", v.relating_state);
+    creatingBadge = generateTerritoryBadge("C", v.creating_state);
+  } catch (err) {
+    console.error("Badge generation error:", err.message);
+    throw new Error("Badge generation failed: " + err.message);
+  }
 
   const combos = {
     "01": v.c01_combo, "02": v.c02_combo, "03": v.c03_combo, "04": v.c04_combo,
