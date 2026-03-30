@@ -147,13 +147,17 @@ const STATE_COLORS = {
 function generateTerritoryBadge(letter, state) {
   const color = STATE_COLORS[state] || "#3A7D44";
   
-  return `<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  const svg = `<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
   <circle cx="24" cy="24" r="22" fill="white" stroke="${color}" stroke-width="3"/>
   <text x="24" y="24" text-anchor="middle" dominant-baseline="central" 
         font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="${color}">
     ${letter}
   </text>
 </svg>`;
+
+  // Convert to base64 data URL
+  const base64 = Buffer.from(svg).toString('base64');
+  return `<img src="data:image/svg+xml;base64,${base64}" width="48" height="48" />`;
 }
 
 const GAP_BEING = {
