@@ -980,10 +980,11 @@ function assembleReport(v) {
   const rState = displayState(v.relating_state || 'COHERENT');
   const cState = displayState(v.creating_state || 'COHERENT');
   const diagPct = parseInt(v.overall_pct || '0');
+  
   // Generate territory badges
-const beingBadge = generateTerritoryBadge("B", data.being_state);
-const relatingBadge = generateTerritoryBadge("R", data.relating_state);
-const creatingBadge = generateTerritoryBadge("C", data.creating_state);
+  const beingBadge = generateTerritoryBadge("B", v.being_state);
+  const relatingBadge = generateTerritoryBadge("R", v.relating_state);
+  const creatingBadge = generateTerritoryBadge("C", v.creating_state);
 
   const combos = {
     "01": v.c01_combo, "02": v.c02_combo, "03": v.c03_combo, "04": v.c04_combo,
