@@ -69,20 +69,6 @@ function buildPortraitFrame(state, diagPct) {
     + bld + diagPct + "%" + be + " resistance to your core signal. Your core signal is filtered through three territories of your whole operating self \u2014 Being, Relating, and Creating. The readings that follow show how each territory is carrying that resistance.");
 }
 
-function buildTerritoryReading(territory, state, prose) {
-  const stColor = stateStyle[state] || "color:#1A1A2E;font-weight:bold;";
-  const subtitle = TERRITORY_SUBTITLES[territory][state];
-  let out = "<h3 style='font-family:Montserrat,sans-serif;font-size:13pt;margin-top:22px;margin-bottom:4px;'>"
-    + "<span style='color:#2E2E2C;font-weight:bold;'>" + territory.toUpperCase() + "</span>"
-    + "<span style='color:#2E2E2C;font-weight:normal;'> \u2014 </span>"
-    + "<span style='" + stColor + "'>" + state.toUpperCase() + "</span>"
-    + "</h3>";
-  out += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>"
-    + subtitle + "</p>";
-  out += wrap(prose);
-  return out;
-}
-
 
 // ════════════════════════════════════════════════════════════════
 // SECTION 01: OPENING FRAME (6 versions)
@@ -985,9 +971,9 @@ function assembleReport(v) {
 
   // ─── PORTRAIT FRAME + TERRITORY READINGS ───
   const portrait_frame = buildPortraitFrame(state, diagPct);
-  const gap_being_reading = buildTerritoryReading("Being", bState, GAP_BEING[bState]);
-  const gap_relating_reading = buildTerritoryReading("Relating", rState, GAP_RELATING[rState]);
-  const gap_creating_reading = buildTerritoryReading("Creating", cState, GAP_CREATING[cState]);
+const gap_being_reading = wrap(GAP_BEING[bState]);
+const gap_relating_reading = wrap(GAP_RELATING[rState]);
+const gap_creating_reading = wrap(GAP_CREATING[cState]);
   const gap_bridge = wrap(GAP_BRIDGE);
 
   // ─── SEC 04: CLUSTER PROFILE ───
