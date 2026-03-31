@@ -21,11 +21,6 @@ const stateStyle = {
   'Fractured': "color:#A82828;font-weight:bold;",
 };
 
-// Territory states with color styling (new)
-  const beingStateStyled = "<span style='" + (stateStyle[bState] || "") + "'>" + bState.toUpperCase() + "</span>";
-  const relatingStateStyled = "<span style='" + (stateStyle[rState] || "") + "'>" + rState.toUpperCase() + "</span>";
-  const creatingStateStyled = "<span style='" + (stateStyle[cState] || "") + "'>" + cState.toUpperCase() + "</span>";
-
 function stSpan(state) {
   return "<span style='" + (stateStyle[state] || "") + "'>" + state + "</span>";
 }
@@ -954,6 +949,11 @@ function assembleReport(v) {
   const rState = displayState(v.relating_state || 'COHERENT');
   const cState = displayState(v.creating_state || 'COHERENT');
   const diagPct = parseInt(v.overall_pct || '0');
+
+  // Territory states with color styling (new)
+  const beingStateStyled = "<span style='" + (stateStyle[bState] || "") + "'>" + bState.toUpperCase() + "</span>";
+  const relatingStateStyled = "<span style='" + (stateStyle[rState] || "") + "'>" + rState.toUpperCase() + "</span>";
+  const creatingStateStyled = "<span style='" + (stateStyle[cState] || "") + "'>" + cState.toUpperCase() + "</span>";
 
   const combos = {
     "01": v.c01_combo, "02": v.c02_combo, "03": v.c03_combo, "04": v.c04_combo,
