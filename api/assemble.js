@@ -59,7 +59,7 @@ const TERRITORY_SUBTITLES = {
 
 function buildPortraitFrame(state, diagPct) {
   const ds = displayState(state);
-  return wrap("This is your Coherence Portrait \u2014 the Primal Gap as it exists in you right now. Your Coherent Core sits at the centre, always intact. Your Operating Surface \u2014 where you actually function in the world \u2014 sits at the "
+   wrap("This is your Coherence Portrait \u2014 the Primal Gap as it exists in you right now. Your Coherent Core sits at the centre, always intact. Your Operating Surface \u2014 where you actually function in the world \u2014 sits at the "
     + bld + stSpan(ds) + be + " threshold, indicated as a "
     + bld + diagPct + "%" + be + " resistance to your core signal. Your core signal is filtered through three territories of your whole operating self \u2014 Being, Relating, and Creating. The readings that follow show how each territory is carrying that resistance.");
 }
@@ -1002,6 +1002,10 @@ function assembleReport(v) {
     gap_creating_reading: gap_creating_reading,
     gap_bridge: gap_bridge,
     sec04_html: sec04,
+        // Territory states only (new)
+    being_state_name: bState.toUpperCase(),
+    relating_state_name: rState.toUpperCase(),
+    creating_state_name: cState.toUpperCase(),
   };
 }
 
