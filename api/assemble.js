@@ -21,6 +21,11 @@ const stateStyle = {
   'Fractured': "color:#A82828;font-weight:bold;",
 };
 
+// Territory states with color styling (new)
+  const beingStateStyled = "<span style='" + (stateStyle[bState] || "") + "'>" + bState.toUpperCase() + "</span>";
+  const relatingStateStyled = "<span style='" + (stateStyle[rState] || "") + "'>" + rState.toUpperCase() + "</span>";
+  const creatingStateStyled = "<span style='" + (stateStyle[cState] || "") + "'>" + cState.toUpperCase() + "</span>";
+
 function stSpan(state) {
   return "<span style='" + (stateStyle[state] || "") + "'>" + state + "</span>";
 }
@@ -1002,10 +1007,10 @@ function assembleReport(v) {
     gap_creating_reading: gap_creating_reading,
     gap_bridge: gap_bridge,
     sec04_html: sec04,
-        // Territory states only (new)
-    being_state_name: bState.toUpperCase(),
-    relating_state_name: rState.toUpperCase(),
-    creating_state_name: cState.toUpperCase(),
+    // Territory states with color (new)
+    being_state_name: beingStateStyled,
+    relating_state_name: relatingStateStyled,
+    creating_state_name: creatingStateStyled,
   };
 }
 
