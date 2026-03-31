@@ -975,11 +975,15 @@ const beingSubtitle = TERRITORY_SUBTITLES["Being"][bState];
 const relatingSubtitle = TERRITORY_SUBTITLES["Relating"][rState];
 const creatingSubtitle = TERRITORY_SUBTITLES["Creating"][cState];
 
-const gap_being_reading = "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>" + beingSubtitle + "</p>" + wrap(GAP_BEING[bState]);
+const beingSubtitleColor = stateStyle[bState] || "color:#1A1A2E;font-weight:bold;";
+const relatingSubtitleColor = stateStyle[rState] || "color:#1A1A2E;font-weight:bold;";
+const creatingSubtitleColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
 
-const gap_relating_reading = "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>" + relatingSubtitle + "</p>" + wrap(GAP_RELATING[rState]);
+const gap_being_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + beingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:7px;'>" + beingSubtitle + "</p>" + wrap(GAP_BEING[bState]);
 
-const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>" + creatingSubtitle + "</p>" + wrap(GAP_CREATING[cState]);
+const gap_relating_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + relatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:7px;'>" + relatingSubtitle + "</p>" + wrap(GAP_RELATING[rState]);
+
+const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + creatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:7px;'>" + creatingSubtitle + "</p>" + wrap(GAP_CREATING[cState]);
   const gap_bridge = wrap(GAP_BRIDGE);
 
   // ─── SEC 04: CLUSTER PROFILE ───
