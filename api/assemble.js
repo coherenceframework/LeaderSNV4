@@ -979,11 +979,11 @@ const beingSubtitleColor = stateStyle[bState] || "color:#1A1A2E;font-weight:bold
 const relatingSubtitleColor = stateStyle[rState] || "color:#1A1A2E;font-weight:bold;";
 const creatingSubtitleColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
 
-const gap_being_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + beingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:7px;'>" + beingSubtitle + "</p>" + wrap(GAP_BEING[bState]);
+const gap_being_reading = "<p style='font-family:Inter,sans-serif;font-size:10pt;" + beingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + beingSubtitle + "</p>" + wrap(GAP_BEING[bState]);
 
-const gap_relating_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + relatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:7px;'>" + relatingSubtitle + "</p>" + wrap(GAP_RELATING[rState]);
+const gap_relating_reading = "<p style='font-family:Inter,sans-serif;font-size:10pt;" + relatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + relatingSubtitle + "</p>" + wrap(GAP_RELATING[rState]);
 
-const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + creatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:7px;'>" + creatingSubtitle + "</p>" + wrap(GAP_CREATING[cState]);
+const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:10pt;" + creatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + creatingSubtitle + "</p>" + wrap(GAP_CREATING[cState]);
   const gap_bridge = wrap(GAP_BRIDGE);
 
   // ─── SEC 04: CLUSTER PROFILE ───
