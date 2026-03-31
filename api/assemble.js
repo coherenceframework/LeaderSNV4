@@ -971,9 +971,15 @@ function assembleReport(v) {
 
   // ─── PORTRAIT FRAME + TERRITORY READINGS ───
   const portrait_frame = buildPortraitFrame(state, diagPct);
-const gap_being_reading = wrap(GAP_BEING[bState]);
-const gap_relating_reading = wrap(GAP_RELATING[rState]);
-const gap_creating_reading = wrap(GAP_CREATING[cState]);
+const beingSubtitle = TERRITORY_SUBTITLES["Being"][bState];
+const relatingSubtitle = TERRITORY_SUBTITLES["Relating"][rState];
+const creatingSubtitle = TERRITORY_SUBTITLES["Creating"][cState];
+
+const gap_being_reading = "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>" + beingSubtitle + "</p>" + wrap(GAP_BEING[bState]);
+
+const gap_relating_reading = "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>" + relatingSubtitle + "</p>" + wrap(GAP_RELATING[rState]);
+
+const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:14px;'>" + creatingSubtitle + "</p>" + wrap(GAP_CREATING[cState]);
   const gap_bridge = wrap(GAP_BRIDGE);
 
   // ─── SEC 04: CLUSTER PROFILE ───
