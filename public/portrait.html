@@ -231,24 +231,30 @@ svgTxt(cx, osLabelY+15, overallState + ' — ' + overallPct + '% resistance', {
   });
 });
 
-// PASSED-THROUGH STATES
-var passedStates=[];
-for(var i=1;i<=stateIndex;i++){
-  passedStates.push(stateOrder[i]);
+// STATE PROGRESSION STRIP - shows all states up to and including current state
+var stripHeight = 20;
+var stripY = svgH - stripHeight - 4;
+var stripWidth = svgW;
+
+// Build array of states from Coherent through current state
+var progressionStates = [];
+for(var i=0; i<=stateIndex; i++){
+  progressionStates.push(stateOrder[i]);
 }
-if(passedStates.length>0){
-  var startX=16, spacing=60;
-  for(var i=0;i<passedStates.length;i++){
-    var ps=passedStates[i];
-    svg.appendChild(svgEl('circle',{
-      cx:startX+(i*spacing)+4, cy:svgH-8, r:'3',
-      fill:SC[ps].solid, opacity:'0.45'
-    }));
-    svgTxt(startX+(i*spacing)+12, svgH-5, ps, {
-      'text-anchor':'start','font-size':'8','font-weight':'500',
-      fill:SC[ps].solid, opacity:'0.45','font-family':'DM Sans, sans-serif'
-    });
-  }
+
+// Each state gets equal width
+var blockWidth = stripWidth / progressionStates.length;
+
+for(var i=0; i<progressionStates.length; i++){
+  var stateName = progressionStates[i];
+  svg.appendChild(svgEl('rect',{
+    x: i * blockWidth,
+    y: stripY,
+    width: blockWidth,
+    height: stripHeight,
+    fill: SC[stateName].solid,
+    opacity: '0.85'
+  }));
 }
 
 // VITRUVIAN FIGURE - FIXED SIZE
