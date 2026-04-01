@@ -160,11 +160,6 @@ const GAP_CREATING = {
 
 const GAP_BRIDGE = `The sections that follow examine the specific operational domains the diagnostic read within each territory \u2014 the eight clusters that sit between your coherent core and your operating surface, each one a point where the signal is either passing through or being filtered.`;
 
-
-// ════════════════════════════════════════════════════════════════
-// SECTION 04: CLUSTER PROFILE — STATE-DRIVEN ARCHITECTURE
-// ════════════════════════════════════════════════════════════════
-
 // ════════════════════════════════════════════════════════════════
 // SECTION 04: CLUSTER PROFILE — STATE-DRIVEN ARCHITECTURE (REVISED)
 // ════════════════════════════════════════════════════════════════
@@ -478,10 +473,42 @@ function buildSec04(combos, clusterScores) {
 
     if (!reading) continue;
 
-    // Build HTML block with state-coloured headline
-    const stateColor = stateColors[cState] || "#1A1A2E";
+// Build HTML block
     let html = "";
 
+    // Force page break before cluster 05
+    if (cn === "05") {
+      html += `<div style='page-break-before:always;'></div>`;
+    }
+
+    // Wrap in container
+    html += `<div style='margin-top:24px;margin-bottom:24px;page-break-inside:avoid;'>`;
+
+    // Headline (state-coloured)
+    html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.3;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
+
+    // Body (opening tag only - will close after combo)
+    html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.3;margin-bottom:10px;'>${reading.body}`;
+
+    // Combo (if present) - inline, no new paragraph
+    if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
+      const comboKey = cn + "_" + combo;
+      const comboText = SEC04_COMBO[comboKey];
+      if (comboText) {
+        html += ` ${comboText}`;
+      }
+    }
+
+    // Close body paragraph
+    html += `</p>`;
+
+    // Question
+    html += `<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.3;margin-bottom:14px;'>${reading.question}</p>`;
+
+    // Close container
+    html += `</div>`;
+
+    output[`sec04_${cn}`] = html;
     // Store state name
     output[`sec04_${cn}_state`] = `<span style='color:${stateColor};font-weight:bold;'>${cState.toUpperCase()}</span>`;
 
