@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=560, initial-scale=1.0">
+<meta name="viewport" content="width=640, initial-scale=1.0">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,7 +16,7 @@
     margin: 0;
   }
   .wrapper {
-    width: 560px;
+    width: 640px;
     background: #F3F1EC;
     text-align: center;
     overflow: hidden;
@@ -59,17 +59,17 @@ var stateIndex=stateOrder.indexOf(overallState);
 
 var svg=document.getElementById('portSvg');
 var coreR=36;
-var svgW=560, svgH=340;
+var svgW=640, svgH=360;
 var cx=svgW/2;
-var cy=svgH-18;
+var cy=svgH-48;
 
 // All five state zones at FIXED absolute positions
 var stateZoneRadii = {
   'Coherent': 138,
-  'Driven': 170,
-  'Strained': 202,
-  'Drifting': 234,
-  'Fractured': 266
+  'Driven': 180,
+  'Strained': 222,
+  'Drifting': 264,
+  'Fractured': 306
 };
 
 // Operating Surface scales between Coherent (0%) and Fractured (100%) positions
