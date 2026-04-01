@@ -165,117 +165,296 @@ const GAP_BRIDGE = `The sections that follow examine the specific operational do
 // SECTION 04: CLUSTER PROFILE — STATE-DRIVEN ARCHITECTURE
 // ════════════════════════════════════════════════════════════════
 
+// ════════════════════════════════════════════════════════════════
+// SECTION 04: CLUSTER PROFILE — STATE-DRIVEN ARCHITECTURE (REVISED)
+// ════════════════════════════════════════════════════════════════
+
 const clusterMeta = {
-  "01": { name: "OPENNESS", subtitle: "How you receive what is new" },
-  "02": { name: "STRUCTURE", subtitle: "How you hold your leadership" },
-  "03": { name: "DIRECTION", subtitle: "How you choose under competing demands" },
-  "04": { name: "VITALITY", subtitle: "What fuels you and what depletes you" },
-  "05": { name: "TRANSITION", subtitle: "What you are holding past its time" },
-  "06": { name: "EXPOSURE", subtitle: "Where you are trapped or fragile" },
-  "07": { name: "CLARITY", subtitle: "How accurately you see your situation" },
-  "08": { name: "INTEGRATION", subtitle: "Whether your changes have held" },
+  "01": { name: "OPENNESS" },
+  "02": { name: "STRUCTURE" },
+  "03": { name: "DIRECTION" },
+  "04": { name: "VITALITY" },
+  "05": { name: "TRANSITION" },
+  "06": { name: "EXPOSURE" },
+  "07": { name: "CLARITY" },
+  "08": { name: "INTEGRATION" },
+};
+
+const stateColors = {
+  "Coherent": "#3A7D44",
+  "Driven": "#4A6FA5",
+  "Strained": "#D4A843",
+  "Drifting": "#7B2D8E",
+  "Fractured": "#A82828"
 };
 
 const SEC04_STATE = {
-  "01_Coherent": { headline: `Your system is open to new information. Decisions are being shaped by what the situation is asking for, not filtered through what you already know.`, body: `This is what coherence in this domain feels like \u2014 new signal arrives and you respond to it without defending the current frame. The energy that would otherwise go into maintaining your existing position is available for the work itself.`, question: `What is sustaining this openness \u2014 and would you notice the early signs of it closing?` },
-  "01_Driven": { headline: `You experience yourself as open \u2014 receptive, adaptive, willing to take in new information. The diagnostic question is whether you are genuinely receiving what is new, or efficiently processing it through a frame you have not examined.`, body: `Driven in this domain often feels like clarity. Decisions are fast, positions are confident, information is absorbed quickly. But speed of processing is not the same as openness to what the information is actually saying. A leader operating from coherence here doesn\u2019t just process new information \u2014 they allow it to change the frame.`, question: `Are you receiving what is new \u2014 or defending what you already know?` },
-  "01_Strained": { headline: `You know you are filtering. New information is arriving and you are aware that your response to it is shaped more by what you are protecting than by what the situation requires.`, body: `The resistance is not hidden from you. You can see or feel or measure the cost of holding the current frame against what is trying to change it. A leader operating from coherence here lets new information reshape the frame. The energy you are spending to maintain yours is energy that could be going into the work.`, question: `What are you protecting that is no longer worth the cost of defending it?` },
-  "01_Drifting": { headline: `Your capacity to take in new information has become unreliable. You may not be able to distinguish between genuine signal and noise.`, body: `The frame through which you receive new information has loosened. This isn\u2019t resistance \u2014 it\u2019s a loss of the reference point that would tell you what is worth letting in. A leader operating from coherence here has a stable frame that bends when it needs to. What you are experiencing is a frame that has lost its shape.`, question: `What would it take to rebuild the reference point that tells you what is worth receiving?` },
-  "01_Fractured": { headline: `New information is no longer reaching your operating self in a usable form. The system has closed \u2014 not as a conscious choice, but as a structural consequence of the load it is carrying.`, body: `This is not stubbornness or rigidity. It is a system that has consumed its capacity to receive. A leader operating from coherence here is open because the system has capacity. Yours does not, and restoring that capacity is not a matter of willingness \u2014 it is a matter of reducing the load to a level where reception becomes possible again.`, question: `This domain does not resolve by trying to be more open. It resolves by addressing the load that closed the system.` },
-  "02_Coherent": { headline: `The way you hold your leadership fits. The structure supports the work rather than consuming it.`, body: `This is what coherence in this domain feels like \u2014 the design matches the conditions, and the energy flows outward into the work rather than upward into maintaining the arrangement. This reading is the reference point against which future shifts in this domain will be measured.`, question: `What is sustaining this alignment \u2014 and would you recognise the early signal if it began to shift?` },
-  "02_Driven": { headline: `The way you hold your leadership feels right \u2014 and it may be. The diagnostic question is whether the structure still matches the conditions, or whether it\u2019s performing well enough that you haven\u2019t needed to check.`, body: `A leader operating from coherence in this domain doesn\u2019t maintain the structure through effort. The structure maintains itself. The difference is invisible from inside Driven \u2014 but it\u2019s the difference between leading and managing your own leadership.`, question: `Is the structure serving you, or are you sustaining it?` },
-  "02_Strained": { headline: `The way you hold your leadership is no longer matching what the conditions require \u2014 and you know it.`, body: `The misfit is not hidden from you. You sense or see that the structure you built has been outgrown, but the cost of redesigning it feels larger than the cost of continuing. That calculation is the strain. A leader operating from coherence in this domain does not carry this weight \u2014 the structure fits, and the energy you are spending to sustain a misaligned design is simply not being consumed.`, question: `You already know this needs to change. What is the cost of another quarter without changing it?` },
-  "02_Drifting": { headline: `You are holding your leadership in a way that no longer connects to a clear reason \u2014 and you may not be able to tell whether the structure is right or wrong because the reference point has become unreliable.`, body: `The signal that would tell you whether the design fits has broken up. You may still be running things competently, but the link between how you hold your role and why you hold it that way has loosened. A leader operating from coherence in this domain knows why the structure exists and can feel when it stops fitting. That signal is what has faded.`, question: `If you redesigned how you hold your leadership from scratch today \u2014 would it look like what you currently have?` },
-  "02_Fractured": { headline: `The way you hold your leadership has separated from who you actually are. The structure is running, but it is running on its own logic \u2014 not yours.`, body: `What you are maintaining is not a design that serves your leadership. It is an arrangement that persists because dismantling it feels more dangerous than continuing. A leader operating from coherence in this domain experiences the structure as an extension of themselves. What you are experiencing is the opposite \u2014 a structure that has replaced the signal it was built to carry.`, question: `This domain does not resolve through optimisation. It requires rebuilding from the foundation.` },
-  "03_Coherent": { headline: `Your choices are clear. Competing demands exist but they are being navigated through genuine prioritisation, not deferred through avoidance.`, body: `This is what coherence in this domain feels like \u2014 the honest answer is available and you are giving it, even when it creates short-term discomfort. The energy that would otherwise go into holding incompatible commitments is available for execution.`, question: `What is making clear choice possible right now \u2014 and would you recognise the conditions that make it harder?` },
-  "03_Driven": { headline: `You experience yourself as decisive \u2014 moving fast, managing multiple commitments, keeping things in motion. The diagnostic question is whether you are choosing clearly, or moving fast enough that the deferred choice hasn\u2019t caught up with you yet.`, body: `Driven in this domain often feels like productivity. But pace is not the same as direction. A leader operating from coherence here is not moving faster \u2014 they are moving with less friction because the competing commitments have been resolved rather than held simultaneously.`, question: `Are you choosing \u2014 or are you moving fast enough to avoid choosing?` },
-  "03_Strained": { headline: `There is a choice you know needs to be made \u2014 and you are aware that you are deferring it. The cost of the deferral is real and you can feel it.`, body: `You know the honest answer. You know it would create disruption. The strain is in the gap between knowing and acting. A leader operating from coherence here has made the choice \u2014 and the energy you are spending to hold the contradiction is simply not being consumed.`, question: `You already know the honest answer. What is preventing you from giving it?` },
-  "03_Drifting": { headline: `The ability to distinguish between competing demands has become unreliable. You may not be certain which commitments are still aligned and which are residual.`, body: `Direction has become diffuse. You are still moving, but the basis for choosing one path over another has loosened. A leader operating from coherence here chooses from a clear reference point. That reference point is what has faded.`, question: `If you stopped everything and rebuilt your commitments from scratch \u2014 which ones would you choose again?` },
-  "03_Fractured": { headline: `Choice has been replaced by reaction. What is driving your decisions is not alignment \u2014 it is whichever demand has the most immediate consequence.`, body: `The capacity to step back and choose from a coherent position has been consumed by the load. A leader operating from coherence here makes decisions from centre. What you are experiencing is decisions being made by circumstances.`, question: `This domain does not resolve by making better choices. It resolves by rebuilding the conditions that make genuine choice possible.` },
-  "04_Coherent": { headline: `Your energy equation is balanced. More is coming back from the work than is going out to sustain it.`, body: `This is what coherence in this domain feels like \u2014 the connection between what you spend your days doing and what genuinely matters to you is intact. The work fuels the person doing it. This is not about workload \u2014 it is about alignment between effort and meaning.`, question: `What is sustaining this connection \u2014 and would you notice the early signal if it began to thin?` },
-  "04_Driven": { headline: `Your energy feels sustainable \u2014 and it may be. The diagnostic question is whether you are running on genuine connection to the work, or on discipline and momentum that have not yet shown their cost.`, body: `Driven in this domain often feels like stamina. You deliver, you recover, you deliver again. But there is a difference between energy that comes from alignment and energy that comes from habit. A leader operating from coherence here doesn\u2019t sustain their pace through discipline \u2014 they sustain it because the work itself replenishes what it consumes.`, question: `Is your energy coming from the work \u2014 or from the discipline you\u2019re applying to get through it?` },
-  "04_Strained": { headline: `The energy equation has tipped \u2014 and you know it. More is going out than is coming back, and the gap between effort and meaning has widened enough to register.`, body: `You are sustaining your pace through will rather than alignment. A leader operating from coherence here does not carry this cost \u2014 the work returns what it takes. What you are experiencing is the structural condition in which depletion becomes self-reinforcing: the less the work replenishes, the more discipline is required, and the more discipline is required, the less the work can replenish.`, question: `What would need to change for the work to give energy back instead of consuming it?` },
-  "04_Drifting": { headline: `The connection between your energy and your work has become unreliable. You may not be able to tell whether the depletion is coming from the volume, the content, or the loss of purpose underneath both.`, body: `The source of the drain has become diffuse. A leader operating from coherence here knows what fuels them and what depletes them with precision. That precision is what has faded.`, question: `If you removed everything from your week that depletes without replenishing \u2014 would you know what to keep?` },
-  "04_Fractured": { headline: `Your energy system has separated from the work. What you are running on is not connection or meaning \u2014 it is the residual force of commitments made before the disconnection occurred.`, body: `A leader operating from coherence here is sustained by the work. What you are experiencing is the opposite \u2014 the work is consuming you and there is nothing in the current arrangement that is putting energy back. This does not resolve through rest. It resolves through reconnection to the source \u2014 and that source may not be found inside the current structure.`, question: `This domain requires honest assessment of whether the work itself \u2014 not the pace of it \u2014 is still the right work.` },
-  "05_Coherent": { headline: `Nothing is being held past its time. Endings that needed to happen have happened, or are actively in progress.`, body: `This is what coherence in this domain feels like \u2014 the capacity to release what is finished without replacing it with something before the next thing is clear. The energy that goes into sustaining expired arrangements is not being consumed.`, question: `What made it possible to let go \u2014 and would you recognise the signal that something new has outstayed its relevance?` },
-  "05_Driven": { headline: `Everything feels current \u2014 and it may be. The diagnostic question is whether you have genuinely completed the transitions that need completing, or whether the pace of your operating life has made it unnecessary to confront what should have ended.`, body: `Driven in this domain is the state where things persist not because you\u2019ve decided to keep them, but because nothing has forced the question. A leader operating from coherence here has actively examined what stays and what goes. The absence of that examination is what Driven looks like in this domain.`, question: `Is everything you are carrying still current \u2014 or is something persisting because you haven\u2019t been forced to let it go?` },
-  "05_Strained": { headline: `Something should have ended by now \u2014 and you know it. The cost of the holding pattern is real and felt.`, body: `The transition is overdue. You can sense or see or measure what is being held past its time, but the cost of letting go \u2014 the void, the disruption, the uncertainty \u2014 feels larger than the cost of continuing. A leader operating from coherence here has crossed the threshold. The energy you are spending in the in-between is the strain.`, question: `What is the cost of another quarter in the holding pattern?` },
-  "05_Drifting": { headline: `Something is ending and you know it in your body before you know it in your plans \u2014 but you cannot name what it is or what comes next.`, body: `The transition has no object. The felt sense of a chapter closing is real, but it hasn\u2019t attached to anything specific enough to act on. A leader operating from coherence here can name what is ending and has begun to move. What you are carrying is the weight of a threshold you can feel but cannot yet cross.`, question: `What would need to become clear before you could begin the transition?` },
-  "05_Fractured": { headline: `Multiple things have been held past their time for so long that the holding pattern itself has become the structure. What should have ended is now what you are operating from.`, body: `The expired arrangements are no longer items to release \u2014 they are the architecture. A leader operating from coherence here operates from structures that are current. What you are experiencing is a life built on foundations that were meant to be temporary.`, question: `This domain does not resolve by releasing one thing. It requires examining which of the structures you are standing on were meant to be permanent \u2014 and which were meant to have been replaced by now.` },
-  "06_Coherent": { headline: `No structural dependencies or vulnerabilities were detected that carry disproportionate power over your decisions.`, body: `This is what coherence in this domain feels like \u2014 your position is stable, your direction is not being dictated by a single dependency, and the ground you are standing on supports the weight you are placing on it.`, question: `What is sustaining this stability \u2014 and would you recognise the signal if a new dependency began to form?` },
-  "06_Driven": { headline: `Your position feels stable \u2014 and it may be. The diagnostic question is whether your foundations are genuinely secure, or whether the pace of performance has made it unnecessary to look at what you are standing on.`, body: `Driven in this domain is the state where dependencies and structural vulnerabilities persist unexamined \u2014 not because they are hidden, but because everything is working well enough that looking underneath feels unnecessary. A leader operating from coherence here has examined the foundations. The absence of that examination is the risk.`, question: `Is your position genuinely stable \u2014 or has the pace of your performance made it unnecessary to check?` },
-  "06_Strained": { headline: `You know there is a structural vulnerability in your position \u2014 and the cost of navigating around it is real.`, body: `The dependency or fragility is not hidden. You are managing it, working around it, sustaining your position despite it. A leader operating from coherence here does not carry this weight \u2014 their foundations support them rather than constraining them. The energy you are spending to navigate the constraint is the strain.`, question: `What would need to change at the structural level for the constraint to dissolve rather than be managed?` },
-  "06_Drifting": { headline: `The ground underneath your position has become uncertain \u2014 and you may not be able to tell whether the instability is in the foundations or in your perception of them.`, body: `You sense vulnerability but cannot locate its source. A leader operating from coherence here knows what they are standing on. That knowledge is what has become unreliable.`, question: `What would it take to get an honest read on the stability of your current foundations?` },
-  "06_Fractured": { headline: `Your position is structurally trapped. The foundations are not holding, the constraints are real, and the direction you are moving in is dictated by what you are locked into rather than what you are choosing.`, body: `This is a crisis-level reading. A leader operating from coherence here is free to choose their direction. What you are experiencing is the absence of that freedom \u2014 sustained by force of will rather than by any conviction about where the movement leads.`, question: `This domain does not resolve through effort. It requires intervention at the level where the foundations are set.` },
-  "07_Coherent": { headline: `Your picture of reality is current. The assumptions you are operating from have been tested against present conditions.`, body: `This is what coherence in this domain feels like \u2014 your map matches the territory. The energy that would otherwise go into managing uncertainty or defending outdated positions is available for the work.`, question: `What is keeping your map current \u2014 and would you notice the moment it began to drift from the territory?` },
-  "07_Driven": { headline: `You experience your picture as clear \u2014 and it may be. The diagnostic question is whether your assumptions have been tested against current conditions, or whether your confidence in the picture is itself the thing that has not been tested.`, body: `Driven in this domain is the most consequential. A leader who is certain their map is accurate has no reason to update it. A leader operating from coherence here holds their picture of reality as provisional \u2014 accurate until tested, not accurate until proven wrong. The difference is invisible from inside Driven, but it determines whether you are navigating from a current map or a confident one.`, question: `Is your picture of reality current \u2014 or is your confidence in it the thing that needs examining?` },
-  "07_Strained": { headline: `Your picture of reality is incomplete \u2014 and you know it. The cost of operating on an unverified map is real.`, body: `You are aware that assumptions are stale or untested. A leader operating from coherence here has done the work of finding out what is true. The energy you are spending to manage uncertainty is the strain.`, question: `What would it cost to find out what is actually true \u2014 and is that cost larger or smaller than what you\u2019re spending to avoid finding out?` },
-  "07_Drifting": { headline: `Your picture of reality has become unreliable \u2014 and you may not be able to tell which parts are current and which are residual.`, body: `The map and the territory have diverged, but the divergence is diffuse rather than specific. A leader operating from coherence here knows where the distortions are. What you are experiencing is a loss of confidence in the picture without knowing where it\u2019s wrong.`, question: `What would a fresh, honest read of your actual situation reveal \u2014 and are you willing to find out?` },
-  "07_Fractured": { headline: `The picture of reality you are operating from may bear little resemblance to what is actually happening. The map has separated from the territory.`, body: `This is not a failure of intelligence. It is a structural consequence of operating under comprehensive load \u2014 the system has consumed its capacity to update. A leader operating from coherence here sees clearly because the system has capacity. Yours does not.`, question: `This domain requires external perspective \u2014 someone who can see the territory you are standing in but cannot see from inside it.` },
-  "08_Coherent": { headline: `Changes you have made are holding. New patterns have become embedded in how you operate rather than reverting when attention moves elsewhere.`, body: `This is what coherence in this domain feels like \u2014 the ground holds what you plant in it. The energy that would go into re-initiating changes that didn\u2019t stick is not being consumed.`, question: `What conditions made integration possible \u2014 and would you recognise the signal if a new change was failing to hold?` },
-  "08_Driven": { headline: `Your changes feel embedded \u2014 and they may be. The diagnostic question is whether the new patterns have genuinely taken root, or whether your sustained attention is what\u2019s keeping them in place.`, body: `Driven in this domain is the state where changes persist because the leader is still actively maintaining them \u2014 not because they have become structural. A leader operating from coherence here can move their attention elsewhere and the change holds. The test of integration is not whether the change is present while you\u2019re watching \u2014 it\u2019s whether it\u2019s present when you stop.`, question: `Are your changes holding because they\u2019ve taken root \u2014 or because you haven\u2019t stopped watching them yet?` },
-  "08_Strained": { headline: `Changes you\u2019ve made are not holding \u2014 and you know it. The cycle of initiating, reverting, and re-initiating is consuming real energy.`, body: `The non-integration is visible. A leader operating from coherence here plants changes in ground that holds them. The strain is in the circularity \u2014 repeating the same shift because the conditions required for permanence are not yet in place.`, question: `What conditions would need to exist for the change to hold without your sustained effort?` },
-  "08_Drifting": { headline: `You are no longer certain which changes held and which didn\u2019t \u2014 the line between your old patterns and the new ones you intended has blurred.`, body: `The non-integration has become diffuse. A leader operating from coherence here can clearly distinguish between what changed and what reverted. That clarity is what has faded.`, question: `If you assessed your operating patterns against your intentions from six months ago \u2014 how many of the intended changes would you actually find?` },
-  "08_Fractured": { headline: `The capacity for change to hold has been structurally compromised. Changes do not fail because they are wrong \u2014 they fail because the system cannot currently sustain anything new.`, body: `This is not a failure of commitment. It is a system operating at a level of load where integration is structurally impossible. A leader operating from coherence here has capacity for new patterns to take root. Your system does not \u2014 and restoring that capacity is the precondition for any change to hold.`, question: `This domain does not resolve by trying harder. It resolves by reducing the load to a level where the system can absorb something new.` },
+  "01_Coherent": {
+    headline: "Your system is open to new information. Decisions are being shaped by what the situation is asking for, not filtered through what you already know.",
+    body: "This is what coherence in this domain feels like — new signal arrives and you respond to it without defending the current frame. The energy that would otherwise go into maintaining your existing position is available for the work itself.",
+    question: "What is sustaining this openness — and would you notice the early signs of it closing?"
+  },
+  "01_Driven": {
+    headline: "You experience yourself as open — receptive, adaptive, willing to take in new information. The diagnostic question is whether you are genuinely receiving what is new, or efficiently processing it through a frame you have not examined.",
+    body: "Driven in this domain often feels like clarity. Decisions are fast, positions are confident, information is absorbed quickly. But speed of processing is not the same as openness to what the information is actually saying. A leader operating from coherence here doesn't just process new information — they allow it to change the frame.",
+    question: "Are you receiving what is new — or defending what you already know?"
+  },
+  "01_Strained": {
+    headline: "You know you are filtering. New information is arriving and you are aware that your response to it is shaped more by what you are protecting than by what the situation requires.",
+    body: "The resistance is not hidden from you. You can see or feel the cost of holding the current frame against what is trying to change it. A leader operating from coherence here lets new information reshape the frame. The energy you are spending to maintain yours is energy that could be going into the work.",
+    question: "What are you protecting that is no longer worth the cost of defending it?"
+  },
+  "01_Drifting": {
+    headline: "Your capacity to take in new information has become unreliable. You may not be able to distinguish between genuine signal and noise.",
+    body: "The frame through which you receive new information has loosened. This isn't resistance — it's loss of the reference point that tells you what's worth letting in. A leader operating from coherence here has a stable frame that bends when needed. What you're experiencing is a frame that has lost its shape.",
+    question: "What would it take to rebuild the reference point that tells you what is worth receiving?"
+  },
+  "01_Fractured": {
+    headline: "New information is no longer reaching your operating self in a usable form. The system has closed — not as a conscious choice, but as a structural consequence of the load it is carrying.",
+    body: "This is not stubbornness or rigidity. It is a system that has consumed its capacity to receive. A leader operating from coherence here is open because the system has capacity. Yours does not, and restoring that capacity is not a matter of willingness — it is a matter of reducing the load to a level where reception becomes possible again.",
+    question: "This domain does not resolve by trying to be more open. It resolves by addressing the load that closed the system."
+  },
+
+  "02_Coherent": {
+    headline: "The way you hold your leadership fits. The structure supports the work rather than consuming it.",
+    body: "This is what coherence in this domain feels like — the design matches the conditions, and the energy flows outward into the work rather than upward into maintaining the arrangement. This reading is the reference point against which future shifts in this domain will be measured.",
+    question: "What is sustaining this alignment — and would you recognise the early signal if it began to shift?"
+  },
+  "02_Driven": {
+    headline: "The way you hold your leadership feels right — and it may be. The diagnostic question is whether the structure still matches the conditions, or whether it's performing well enough that you haven't needed to check.",
+    body: "A leader operating from coherence in this domain doesn't maintain the structure through effort. The structure maintains itself. The difference is invisible from inside Driven — but it's the difference between leading and managing your own leadership.",
+    question: "Is the structure serving you, or are you sustaining it?"
+  },
+  "02_Strained": {
+    headline: "The way you hold your leadership is no longer matching what the conditions require — and you know it.",
+    body: "The misfit is not hidden from you. You sense the structure you built has been outgrown, but the cost of redesigning it feels larger than the cost of continuing. That calculation is the strain. A leader operating from coherence here does not carry this weight — the structure fits, and the energy you are spending to sustain a misaligned design is simply not being consumed.",
+    question: "You already know this needs to change. What is the cost of another quarter without changing it?"
+  },
+  "02_Drifting": {
+    headline: "You are holding your leadership in a way that no longer connects to a clear reason — and you may not be able to tell whether the structure is right or wrong because the reference point has become unreliable.",
+    body: "The signal that would tell you whether the design fits has broken up. You may still be running things competently, but the link between how you hold your role and why you hold it that way has loosened. A leader operating from coherence here knows why the structure exists and can feel when it stops fitting. That signal is what has faded.",
+    question: "If you redesigned how you hold your leadership from scratch today — would it look like what you currently have?"
+  },
+  "02_Fractured": {
+    headline: "The way you hold your leadership has separated from who you actually are. The structure is running, but it is running on its own logic — not yours.",
+    body: "What you are maintaining is not a design that serves your leadership. It is an arrangement that persists because dismantling it feels more dangerous than continuing. A leader operating from coherence here experiences the structure as an extension of themselves. What you are experiencing is the opposite — a structure that has replaced the signal it was built to carry.",
+    question: "This domain does not resolve through optimisation. It requires rebuilding from the foundation."
+  },
+
+  "03_Coherent": {
+    headline: "Your choices are clear. Competing demands exist but they are being navigated through genuine prioritisation, not deferred through avoidance.",
+    body: "This is what coherence in this domain feels like — the honest answer is available and you are giving it, even when it creates short-term discomfort. The energy that would otherwise go into holding incompatible commitments is available for execution.",
+    question: "What is making clear choice possible right now — and would you recognise the conditions that make it harder?"
+  },
+  "03_Driven": {
+    headline: "You experience yourself as decisive — moving fast, managing multiple commitments, keeping things in motion. The diagnostic question is whether you are choosing clearly, or moving fast enough that the deferred choice hasn't caught up with you yet.",
+    body: "Driven in this domain often feels like productivity. But pace is not the same as direction. A leader operating from coherence here moves with less friction because competing commitments have been resolved rather than held simultaneously.",
+    question: "Are you choosing — or moving fast enough to avoid choosing?"
+  },
+  "03_Strained": {
+    headline: "There is a choice you know needs to be made — and you are aware that you are deferring it. The cost of the deferral is real and you can feel it.",
+    body: "You know the honest answer. You know it would create disruption. The strain is in the gap between knowing and acting. A leader operating from coherence here has made the choice — and the energy you are spending to hold the contradiction is simply not being consumed.",
+    question: "You already know the honest answer. What is preventing you from giving it?"
+  },
+  "03_Drifting": {
+    headline: "The ability to distinguish between competing demands has become unreliable. You may not be certain which commitments are still aligned and which are residual.",
+    body: "Direction has become diffuse. You are still moving, but the basis for choosing one path over another has loosened. A leader operating from coherence here chooses from a clear reference point. That reference point is what has faded.",
+    question: "If you stopped everything and rebuilt your commitments from scratch — which ones would you choose again?"
+  },
+  "03_Fractured": {
+    headline: "Choice has been replaced by reaction. What is driving your decisions is not alignment — it is whichever demand has the most immediate consequence.",
+    body: "The capacity to step back and choose from a coherent position has been consumed by the load. A leader operating from coherence here makes decisions from centre. What you are experiencing is decisions being made by circumstances.",
+    question: "This domain does not resolve by making better choices. It resolves by rebuilding the conditions that make genuine choice possible."
+  },
+
+  "04_Coherent": {
+    headline: "Your energy equation is balanced. More is coming back from the work than is going out to sustain it.",
+    body: "This is what coherence in this domain feels like — the connection between what you spend your days doing and what genuinely matters to you is intact. The work fuels the person doing it. This is not about workload — it is about alignment between effort and meaning.",
+    question: "What is sustaining this connection — and would you notice the early signal if it began to thin?"
+  },
+  "04_Driven": {
+    headline: "Your energy feels sustainable — and it may be. The diagnostic question is whether you are running on genuine connection to the work, or on discipline and momentum that have not yet shown their cost.",
+    body: "Driven in this domain often feels like stamina. You deliver, you recover, you deliver again. But there is a difference between energy that comes from alignment and energy that comes from habit. A leader operating from coherence here doesn't sustain their pace through discipline — they sustain it because the work itself replenishes what it consumes.",
+    question: "Is your energy coming from the work — or from the discipline you're applying to get through it?"
+  },
+  "04_Strained": {
+    headline: "The energy equation has tipped — and you know it. More is going out than is coming back, and the gap between effort and meaning has widened enough to register.",
+    body: "You are sustaining your pace through will rather than alignment. A leader operating from coherence here does not carry this cost — the work returns what it takes. What you are experiencing is the structural condition in which depletion becomes self-reinforcing: the less the work replenishes, the more discipline is required, and the more discipline is required, the less the work can replenish.",
+    question: "What would need to change for the work to give energy back instead of consuming it?"
+  },
+  "04_Drifting": {
+    headline: "The connection between your energy and your work has become unreliable. You may not be able to tell whether the depletion is coming from the volume, the content, or the loss of purpose underneath both.",
+    body: "The source of the drain has become diffuse. A leader operating from coherence here knows what fuels them and what depletes them with precision. That precision is what has faded.",
+    question: "If you removed everything from your week that depletes without replenishing — would you know what to keep?"
+  },
+  "04_Fractured": {
+    headline: "Your energy system has separated from the work. What you are running on is not connection or meaning — it is the residual force of commitments made before the disconnection occurred.",
+    body: "A leader operating from coherence here is sustained by the work. What you are experiencing is the opposite — the work is consuming you and there is nothing in the current arrangement that is putting energy back. This does not resolve through rest. It resolves through reconnection to the source — and that source may not be found inside the current structure.",
+    question: "This domain requires honest assessment of whether the work itself — not the pace of it — is still the right work."
+  },
+
+  "05_Coherent": {
+    headline: "Nothing is being held past its time. Endings that needed to happen have happened, or are actively in progress.",
+    body: "This is what coherence in this domain feels like — the capacity to release what is finished without replacing it with something before the next thing is clear. The energy that goes into sustaining expired arrangements is not being consumed.",
+    question: "What made it possible to let go — and would you recognise the signal that something new has outstayed its relevance?"
+  },
+  "05_Driven": {
+    headline: "Everything feels current — and it may be. The diagnostic question is whether you have genuinely completed the transitions that need completing, or whether the pace of your operating life has made it unnecessary to confront what should have ended.",
+    body: "Driven in this domain is the state where things persist not because you've decided to keep them, but because nothing has forced the question. A leader operating from coherence here has actively examined what stays and what goes. The absence of that examination is what Driven looks like in this domain.",
+    question: "Is everything you are carrying still current — or is something persisting because you haven't been forced to let it go?"
+  },
+  "05_Strained": {
+    headline: "Something should have ended by now — and you know it. The cost of the holding pattern is real and felt.",
+    body: "The transition is overdue. You can sense what is being held past its time, but the cost of letting go — the void, the disruption, the uncertainty — feels larger than the cost of continuing. A leader operating from coherence here has crossed the threshold. The energy you are spending in the in-between is the strain.",
+    question: "What is the cost of another quarter in the holding pattern?"
+  },
+  "05_Drifting": {
+    headline: "Something is ending and you know it in your body before you know it in your plans — but you cannot name what it is or what comes next.",
+    body: "The transition has no object. The felt sense of a chapter closing is real, but it hasn't attached to anything specific enough to act on. A leader operating from coherence here can name what is ending and has begun to move. What you are carrying is the weight of a threshold you can feel but cannot yet cross.",
+    question: "What would need to become clear before you could begin the transition?"
+  },
+  "05_Fractured": {
+    headline: "Multiple things have been held past their time for so long that the holding pattern itself has become the structure. What should have ended is now what you are operating from.",
+    body: "The expired arrangements are no longer items to release — they are the architecture. A leader operating from coherence here operates from structures that are current. What you are experiencing is a life built on foundations that were meant to be temporary.",
+    question: "This domain does not resolve by releasing one thing. It requires examining which of the structures you are standing on were meant to be permanent — and which were meant to have been replaced by now."
+  },
+
+  "06_Coherent": {
+    headline: "No structural dependencies or vulnerabilities were detected that carry disproportionate power over your decisions.",
+    body: "This is what coherence in this domain feels like — your position is stable, your direction is not being dictated by a single dependency, and the ground you are standing on supports the weight you are placing on it.",
+    question: "What is sustaining this stability — and would you recognise the signal if a new dependency began to form?"
+  },
+  "06_Driven": {
+    headline: "Your position feels stable — and it may be. The diagnostic question is whether your foundations are genuinely secure, or whether the pace of performance has made it unnecessary to look at what you are standing on.",
+    body: "Driven in this domain is the state where dependencies and structural vulnerabilities persist unexamined — not because they are hidden, but because everything is working well enough that looking underneath feels unnecessary. A leader operating from coherence here has examined the foundations. The absence of that examination is the risk.",
+    question: "Is your position genuinely stable — or has the pace of your performance made it unnecessary to check?"
+  },
+  "06_Strained": {
+    headline: "You know there is a structural vulnerability in your position — and the cost of navigating around it is real.",
+    body: "The dependency or fragility is not hidden. You are managing it, working around it, sustaining your position despite it. A leader operating from coherence here does not carry this weight — their foundations support them rather than constraining them. The energy you are spending to navigate the constraint is the strain.",
+    question: "What would need to change at the structural level for the constraint to dissolve rather than be managed?"
+  },
+  "06_Drifting": {
+    headline: "The ground underneath your position has become uncertain — and you may not be able to tell whether the instability is in the foundations or in your perception of them.",
+    body: "You sense vulnerability but cannot locate its source. A leader operating from coherence here knows what they are standing on. That knowledge is what has become unreliable.",
+    question: "What would it take to get an honest read on the stability of your current foundations?"
+  },
+  "06_Fractured": {
+    headline: "Your position is structurally trapped. The foundations are not holding, the constraints are real, and the direction you are moving in is dictated by what you are locked into rather than what you are choosing.",
+    body: "This is a crisis-level reading. A leader operating from coherence here is free to choose their direction. What you are experiencing is the absence of that freedom — sustained by force of will rather than by any conviction about where the movement leads.",
+    question: "This domain does not resolve through effort. It requires intervention at the level where the foundations are set."
+  },
+
+  "07_Coherent": {
+    headline: "Your picture of reality is current. The assumptions you are operating from have been tested against present conditions.",
+    body: "This is what coherence in this domain feels like — your map matches the territory. The energy that would otherwise go into managing uncertainty or defending outdated positions is available for the work.",
+    question: "What is keeping your map current — and would you notice the moment it began to drift from the territory?"
+  },
+  "07_Driven": {
+    headline: "You experience your picture as clear — and it may be. The diagnostic question is whether your assumptions have been tested against current conditions, or whether your confidence in the picture is itself the thing that has not been tested.",
+    body: "Driven in this domain is the most consequential. A leader who is certain their map is accurate has no reason to update it. A leader operating from coherence here holds their picture of reality as provisional — accurate until tested, not accurate until proven wrong. The difference is invisible from inside Driven, but it determines whether you are navigating from a current map or a confident one.",
+    question: "Is your picture of reality current — or is your confidence in it the thing that needs examining?"
+  },
+  "07_Strained": {
+    headline: "Your picture of reality is incomplete — and you know it. The cost of operating on an unverified map is real.",
+    body: "You are aware that assumptions are stale or untested. A leader operating from coherence here has done the work of finding out what is true. The energy you are spending to manage uncertainty is the strain.",
+    question: "What would it cost to find out what is actually true — and is that cost larger or smaller than what you're spending to avoid finding out?"
+  },
+  "07_Drifting": {
+    headline: "Your picture of reality has become unreliable — and you may not be able to tell which parts are current and which are residual.",
+    body: "The map and the territory have diverged, but the divergence is diffuse rather than specific. A leader operating from coherence here knows where the distortions are. What you are experiencing is a loss of confidence in the picture without knowing where it's wrong.",
+    question: "What would a fresh, honest read of your actual situation reveal — and are you willing to find out?"
+  },
+  "07_Fractured": {
+    headline: "The picture of reality you are operating from may bear little resemblance to what is actually happening. The map has separated from the territory.",
+    body: "This is not a failure of intelligence. It is a structural consequence of operating under comprehensive load — the system has consumed its capacity to update. A leader operating from coherence here sees clearly because the system has capacity. Yours does not.",
+    question: "This domain requires external perspective — someone who can see the territory you are standing in but cannot see from inside it."
+  },
+
+  "08_Coherent": {
+    headline: "Changes you have made are holding. New patterns have become embedded in how you operate rather than reverting when attention moves elsewhere.",
+    body: "This is what coherence in this domain feels like — the ground holds what you plant in it. The energy that would go into re-initiating changes that didn't stick is not being consumed.",
+    question: "What conditions made integration possible — and would you recognise the signal if a new change was failing to hold?"
+  },
+  "08_Driven": {
+    headline: "Your changes feel embedded — and they may be. The diagnostic question is whether the new patterns have genuinely taken root, or whether your sustained attention is what's keeping them in place.",
+    body: "Driven in this domain is the state where changes persist because the leader is still actively maintaining them — not because they have become structural. A leader operating from coherence here can move their attention elsewhere and the change holds. The test of integration is not whether the change is present while you're watching — it's whether it's present when you stop.",
+    question: "Are your changes holding because they've taken root — or because you haven't stopped watching them yet?"
+  },
+  "08_Strained": {
+    headline: "Changes you've made are not holding — and you know it. The cycle of initiating, reverting, and re-initiating is consuming real energy.",
+    body: "The non-integration is visible. A leader operating from coherence here plants changes in ground that holds them. The strain is in the circularity — repeating the same shift because the conditions required for permanence are not yet in place.",
+    question: "What conditions would need to exist for the change to hold without your sustained effort?"
+  },
+  "08_Drifting": {
+    headline: "You are no longer certain which changes held and which didn't — the line between your old patterns and the new ones you intended has blurred.",
+    body: "The non-integration has become diffuse. A leader operating from coherence here can clearly distinguish between what changed and what reverted. That clarity is what has faded.",
+    question: "If you assessed your operating patterns against your intentions from six months ago — how many of the intended changes would you actually find?"
+  },
+  "08_Fractured": {
+    headline: "The capacity for change to hold has been structurally compromised. Changes do not fail because they are wrong — they fail because the system cannot currently sustain anything new.",
+    body: "This is not a failure of commitment. It is a system operating at a level of load where integration is structurally impossible. A leader operating from coherence here has capacity for new patterns to take root. Your system does not — and restoring that capacity is the precondition for any change to hold.",
+    question: "This domain does not resolve by trying harder. It resolves by reducing the load to a level where the system can absorb something new."
+  },
 };
 
 const SEC04_COMBO = {
-  "01_A": `You can see the filtering \u2014 decisions shaped by what you already know rather than what is arriving. It hasn\u2019t registered as a problem because the filtering is producing good results.`,
-  "01_B": `Something is resisting what is trying to enter \u2014 a new direction, a shift \u2014 but you cannot point to where it shows up in your decisions. The resistance is felt, not visible.`,
-  "01_C": `Energy is being consumed defending the current frame, but you haven\u2019t connected the cost to a specific pattern or felt it directly. The drain is real. The source is below the surface.`,
-  "01_AB": `The filtering is visible and the resistance is felt. What hasn\u2019t arrived is the cost \u2014 which is why this doesn\u2019t feel urgent.`,
-  "01_AC": `The filtering is visible and the cost is real. But the felt experience of what you are resisting hasn\u2019t landed \u2014 you\u2019re managing this analytically.`,
-  "01_BC": `You feel the resistance and you\u2019re paying for it \u2014 but you cannot see where it\u2019s showing up in your decisions. A filtering process you cannot see but can feel and are paying for is one operating below your current line of sight.`,
-  "01_ABC": `The full pattern is present. You can see the filtering, feel the resistance, and measure the cost. The question is not awareness \u2014 it is whether you will let what is trying to enter actually change the frame.`,
-  "02_A": `You can see that more energy is going into managing the structure than into the work itself \u2014 but it hasn\u2019t registered as a problem.`,
-  "02_B": `You sense something in this domain but cannot point to where it shows up. The misfit exists in the felt register only.`,
-  "02_C": `The energy cost of maintaining the current arrangement is real, though you haven\u2019t connected it to a specific cause.`,
-  "02_AB": `You can see the overhead and you sense the misfit. Both signals are present. What hasn\u2019t arrived is the cost.`,
-  "02_AC": `The overhead is visible and the energy cost is real. But the deeper question of whether the structure fits hasn\u2019t become a felt experience.`,
-  "02_BC": `You feel something is off and it\u2019s costing you energy \u2014 but you cannot name the specific structural problem. The cost of a problem you cannot identify cannot be addressed through effort \u2014 only through diagnosis.`,
-  "02_ABC": `You can see the overhead, feel the misfit, and measure the cost. Nothing is hidden here. The question is whether you will redesign the structure or continue operating inside one you can fully see has been outgrown.`,
-  "03_A": `You can see that momentum is substituting for direction \u2014 activity is high but steering is unclear.`,
-  "03_B": `You know there is a specific choice you are deferring \u2014 one where the honest answer would create discomfort.`,
-  "03_C": `Energy is being consumed holding incompatible commitments in place, but you haven\u2019t identified the specific choice or connected to the felt experience of carrying it.`,
-  "03_AB": `The unsteered momentum is visible and the deferred choice is felt. The cost hasn\u2019t been counted.`,
-  "03_AC": `The pattern is visible and the cost is clear, but the specific deferred decision hasn\u2019t surfaced as a felt experience.`,
-  "03_BC": `You feel the deferred choice and you\u2019re paying for it, but the pattern isn\u2019t visible in your behaviour yet.`,
-  "03_ABC": `Full visibility. You can see, feel, and measure the cost of the deferred choice. What remains is the decision itself.`,
-  "04_A": `The effort required to sustain output has quietly increased \u2014 you can see it in the hours and recovery time. It hasn\u2019t registered as a disconnection from the work.`,
-  "04_B": `A growing distance between what you spend your days doing and what you believe actually matters. The gap is felt, not structural.`,
-  "04_C": `The energy equation has inverted \u2014 more going out than coming back \u2014 but you haven\u2019t connected this to a specific pattern or felt sense.`,
-  "04_AB": `The increasing effort and the distance from meaning are both present. The cost hasn\u2019t been counted.`,
-  "04_AC": `The trend is visible and the drain is real, but the deeper question of whether the work still means what it once meant hasn\u2019t become felt.`,
-  "04_BC": `You feel the disconnection and you\u2019re paying for it, but from the outside the evidence hasn\u2019t appeared. This is where the risk of continuing without intervention is highest.`,
-  "04_ABC": `Full visibility. The effort is increasing, the connection to purpose is thinning, and you know it. The question is what it would take to reconnect the daily reality to the thing that made it worth doing.`,
-  "05_A": `You can name something that should have ended by now. It hasn\u2019t registered as costing you.`,
-  "05_B": `You feel a broader shift \u2014 a chapter closing \u2014 but you haven\u2019t named it or begun the transition.`,
-  "05_C": `The energy cost of sustaining something past its time is real, but you can\u2019t see what comes next, so you maintain the status quo.`,
-  "05_AB": `The specific and the diffuse are both present \u2014 a nameable item and a deeper felt shift. The cost hasn\u2019t been counted.`,
-  "05_AC": `You can name what should have ended and you know the cost \u2014 but the embodied willingness to let go hasn\u2019t arrived.`,
-  "05_BC": `You feel the ending and you\u2019re paying for the suspended state \u2014 but you can\u2019t name what needs to change. This is the most consequential combination here.`,
-  "05_ABC": `Full visibility. You can see it, feel it, and measure the cost of the holding pattern. What remains is crossing the threshold.`,
-  "06_A": `You can identify a specific dependency that has disproportionate power. It hasn\u2019t registered as a vulnerability.`,
-  "06_B": `The ground feels less stable than it appears from the outside. You can\u2019t point to why.`,
-  "06_C": `Energy is going into forward motion driven by the absence of an alternative rather than the presence of clarity.`,
-  "06_AB": `The dependency is visible and the instability is felt. The combined cost hasn\u2019t been counted.`,
-  "06_AC": `The dependency is visible and the cost is real, but the felt vulnerability hasn\u2019t registered.`,
-  "06_BC": `You feel the instability and you\u2019re paying for it, but you can\u2019t name what\u2019s generating it. This combination carries the most weight in this domain.`,
-  "06_ABC": `Full visibility. The dependency, the vulnerability, and the cost are all present. What is needed is not more awareness \u2014 it is structural intervention at the foundation.`,
-  "07_A": `You can see that decisions are based on untested assumptions. It hasn\u2019t registered as a risk.`,
-  "07_B": `Something about how you see your situation feels partial or provisional \u2014 but you can\u2019t point to the specific distortion.`,
-  "07_C": `Energy is being spent managing anxiety about what might be true rather than finding out what is.`,
-  "07_AB": `The untested assumptions are visible and the incompleteness is felt. The cost hasn\u2019t been counted.`,
-  "07_AC": `The assumptions are visible and the anxiety cost is real, but the deeper sense that the frame might need updating hasn\u2019t landed.`,
-  "07_BC": `You sense the incompleteness and you\u2019re paying for it, but you can\u2019t identify the specific distortions. The corrections you are making may themselves be based on the flawed map.`,
-  "07_ABC": `Full visibility. You can identify the distortions, sense the incompleteness, and measure the cost. The question is whether you will find out what is actually true \u2014 even if it challenges your current picture.`,
-  "08_A": `You can point to specific changes that reverted once the urgency passed.`,
-  "08_B": `You feel that the changes never truly took hold \u2014 a quiet sense that what you intended to become has not yet become.`,
-  "08_C": `The energy cost of re-initiating the same changes is the clearest signal. The circularity is the drain.`,
-  "08_AB": `The reversions are visible and the non-integration is felt. The cost of the cycle hasn\u2019t been counted.`,
-  "08_AC": `The reversions are visible and the re-initiation cost is real, but the deeper sense that something foundational was missing hasn\u2019t landed.`,
-  "08_BC": `You feel the non-integration and you\u2019re paying for it, but you can\u2019t point to where the changes failed. This suggests the conditions for integration \u2014 not the changes themselves \u2014 may be the missing element.`,
-  "08_ABC": `Full visibility. The reversions, the non-integration, and the circular cost are all present. This is the capstone of the entire diagnostic \u2014 because everything else holds or doesn\u2019t based on whether change can become permanent in your system.`,
+  "01_A": "You can see the filtering — decisions shaped by what you already know rather than what is arriving. It hasn't registered as a problem because the filtering is producing good results.",
+  "01_B": "Something is resisting what is trying to enter — a new direction, a shift — but you cannot point to where it shows up in your decisions. The resistance is felt, not visible.",
+  "01_C": "Energy is being consumed defending the current frame, but you haven't connected the cost to a specific pattern or felt it directly. The drain is real. The source is below the surface.",
+  "01_AB": "The filtering is visible and the resistance is felt. What hasn't arrived is the cost — which is why this doesn't feel urgent.",
+  "01_AC": "The filtering is visible and the cost is real. But the felt experience of what you are resisting hasn't landed — you're managing this analytically.",
+  "01_BC": "You feel the resistance and you're paying for it — but you cannot see where it's showing up in your decisions. A filtering process you cannot see but can feel and are paying for is one operating below your current line of sight.",
+  "01_ABC": "The full pattern is present. You can see the filtering, feel the resistance, and measure the cost. The question is not awareness — it is whether you will let what is trying to enter actually change the frame.",
+  "02_A": "You can see that more energy is going into managing the structure than into the work itself — but it hasn't registered as a problem.",
+  "02_B": "You sense something in this domain but cannot point to where it shows up. The misfit exists in the felt register only.",
+  "02_C": "The energy cost of maintaining the current arrangement is real, though you haven't connected it to a specific cause.",
+  "02_AB": "You can see the overhead and you sense the misfit. Both signals are present. What hasn't arrived is the cost.",
+  "02_AC": "The overhead is visible and the energy cost is real. But the deeper question of whether the structure fits hasn't become a felt experience.",
+  "02_BC": "You feel something is off and it's costing you energy — but you cannot name the specific structural problem. The cost of a problem you cannot identify cannot be addressed through effort — only through diagnosis.",
+  "02_ABC": "You can see the overhead, feel the misfit, and measure the cost. Nothing is hidden here. The question is whether you will redesign the structure or continue operating inside one you can fully see has been outgrown.",
+  "03_A": "You can see that momentum is substituting for direction — activity is high but steering is unclear.",
+  "03_B": "You know there is a specific choice you are deferring — one where the honest answer would create discomfort.",
+  "03_C": "Energy is being consumed holding incompatible commitments in place, but you haven't identified the specific choice or connected to the felt experience of carrying it.",
+  "03_AB": "The unsteered momentum is visible and the deferred choice is felt. The cost hasn't been counted.",
+  "03_AC": "The pattern is visible and the cost is clear, but the specific deferred decision hasn't surfaced as a felt experience.",
+  "03_BC": "You feel the deferred choice and you're paying for it, but the pattern isn't visible in your behaviour yet.",
+  "03_ABC": "Full visibility. You can see, feel, and measure the cost of the deferred choice. What remains is the decision itself.",
+  "04_A": "The effort required to sustain output has quietly increased — you can see it in the hours and recovery time. It hasn't registered as a disconnection from the work.",
+  "04_B": "A growing distance between what you spend your days doing and what you believe actually matters. The gap is felt, not structural.",
+  "04_C": "The energy equation has inverted — more going out than coming back — but you haven't connected this to a specific pattern or felt sense.",
+  "04_AB": "The increasing effort and the distance from meaning are both present. The cost hasn't been counted.",
+  "04_AC": "The trend is visible and the drain is real, but the deeper question of whether the work still means what it once meant hasn't become felt.",
+  "04_BC": "You feel the disconnection and you're paying for it, but from the outside the evidence hasn't appeared. This is where the risk of continuing without intervention is highest.",
+  "04_ABC": "Full visibility. The effort is increasing, the connection to purpose is thinning, and you know it. The question is what it would take to reconnect the daily reality to the thing that made it worth doing.",
+  "05_A": "You can name something that should have ended by now. It hasn't registered as costing you.",
+  "05_B": "You feel a broader shift — a chapter closing — but you haven't named it or begun the transition.",
+  "05_C": "The energy cost of sustaining something past its time is real, but you can't see what comes next, so you maintain the status quo.",
+  "05_AB": "The specific and the diffuse are both present — a nameable item and a deeper felt shift. The cost hasn't been counted.",
+  "05_AC": "You can name what should have ended and you know the cost — but the embodied willingness to let go hasn't arrived.",
+  "05_BC": "You feel the ending and you're paying for the suspended state — but you can't name what needs to change. This is the most consequential combination here.",
+  "05_ABC": "Full visibility. You can see it, feel it, and measure the cost of the holding pattern. What remains is crossing the threshold.",
+  "06_A": "You can identify a specific dependency that has disproportionate power. It hasn't registered as a vulnerability.",
+  "06_B": "The ground feels less stable than it appears from the outside. You can't point to why.",
+  "06_C": "Energy is going into forward motion driven by the absence of an alternative rather than the presence of clarity.",
+  "06_AB": "The dependency is visible and the instability is felt. The combined cost hasn't been counted.",
+  "06_AC": "The dependency is visible and the cost is real, but the felt vulnerability hasn't registered.",
+  "06_BC": "You feel the instability and you're paying for it, but you can't name what's generating it. This combination carries the most weight in this domain.",
+  "06_ABC": "Full visibility. The dependency, the vulnerability, and the cost are all present. What is needed is not more awareness — it is structural intervention at the foundation.",
+  "07_A": "You can see that decisions are based on untested assumptions. It hasn't registered as a risk.",
+  "07_B": "Something about how you see your situation feels partial or provisional — but you can't point to the specific distortion.",
+  "07_C": "Energy is being spent managing anxiety about what might be true rather than finding out what is.",
+  "07_AB": "The untested assumptions are visible and the incompleteness is felt. The cost hasn't been counted.",
+  "07_AC": "The assumptions are visible and the anxiety cost is real, but the deeper sense that the frame might need updating hasn't landed.",
+  "07_BC": "You sense the incompleteness and you're paying for it, but you can't identify the specific distortions. The corrections you are making may themselves be based on the flawed map.",
+  "07_ABC": "Full visibility. You can identify the distortions, sense the incompleteness, and measure the cost. The question is whether you will find out what is actually true — even if it challenges your current picture.",
+  "08_A": "You can point to specific changes that reverted once the urgency passed.",
+  "08_B": "You feel that the changes never truly took hold — a quiet sense that what you intended to become has not yet become.",
+  "08_C": "The energy cost of re-initiating the same changes is the clearest signal. The circularity is the drain.",
+  "08_AB": "The reversions are visible and the non-integration is felt. The cost of the cycle hasn't been counted.",
+  "08_AC": "The reversions are visible and the re-initiation cost is real, but the deeper sense that something foundational was missing hasn't landed.",
+  "08_BC": "You feel the non-integration and you're paying for it, but you can't point to where the changes failed. This suggests the conditions for integration — not the changes themselves — may be the missing element.",
+  "08_ABC": "Full visibility. The reversions, the non-integration, and the circular cost are all present. This is the capstone of the entire diagnostic — because everything else holds or doesn't based on whether change can become permanent in your system.",
 };
 
 function clusterState(score) {
@@ -288,47 +467,46 @@ function clusterState(score) {
 }
 
 function buildSec04(combos, clusterScores) {
-  let sec04 = "";
+  const output = {};
 
   for (const cn of ["01","02","03","04","05","06","07","08"]) {
     const combo = combos[cn];
     const score = clusterScores[cn];
     const cState = clusterState(score);
-    const meta = clusterMeta[cn];
     const stateKey = cn + "_" + cState;
     const reading = SEC04_STATE[stateKey];
 
     if (!reading) continue;
-    if (cn === "05") {
-      sec04 += "<p style='page-break-before:always;margin:0;padding:0;line-height:0;font-size:0;'>&nbsp;</p>";
-    }
-    const stColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
-    sec04 += "<h3 style='font-family:Montserrat,sans-serif;font-size:13pt;margin-top:12px;margin-bottom:4px;'>"
-      + "<span style='color:#2E2E2C;font-weight:bold;'>" + meta.name + "</span>"
-      + "<span style='color:#2E2E2C;font-weight:normal;'> \u2014 </span>"
-      + "<span style='" + stColor + "'>" + cState.toUpperCase() + "</span>"
-      + "</h3>";
 
-    sec04 += "<p style='font-family:Inter,sans-serif;font-size:9pt;color:#8A8A9A;font-style:italic;margin-top:0;margin-bottom:6px;'>"
-      + meta.subtitle + "</p>";
+    // Store state name
+    output[`sec04_${cn}_state`] = cState;
 
-    sec04 += "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:11px;'>"
-      + "<span style='font-weight:600;'>" + reading.headline + "</span> "
-      + reading.body + "</p>";
+    // Build HTML block with state-coloured headline
+    const stateColor = stateColors[cState] || "#1A1A2E";
+    let html = "";
 
+    // Headline (state-coloured)
+    html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.3;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
+
+    // Body
+    html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.3;margin-bottom:10px;'>${reading.body}</p>`;
+
+    // Combo (if present)
     if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
       const comboKey = cn + "_" + combo;
       const comboText = SEC04_COMBO[comboKey];
       if (comboText) {
-        sec04 += wrap(comboText);
+        html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.3;margin-bottom:10px;'>${comboText}</p>`;
       }
     }
 
-    sec04 += "<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.2;margin-bottom:12px;'>"
-      + reading.question + "</p>";
+    // Question
+    html += `<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.3;margin-bottom:14px;'>${reading.question}</p>`;
+
+    output[`sec04_${cn}`] = html;
   }
 
-  return sec04;
+  return output;
 }
 
 
