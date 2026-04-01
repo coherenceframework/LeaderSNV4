@@ -154,10 +154,18 @@ svg.appendChild(svgEl('circle',{
   'stroke-width':'3','stroke-dasharray':'8 4'
 }));
 
-// TERRITORY RINGS
-[{r:cR,s:cState},{r:rR,s:rState},{r:bR,s:bState}].forEach(function(d){
-  svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:d.r,fill:SC[d.s].ring,stroke:SC[d.s].border,'stroke-width':'1.5'}));
-});
+// TERRITORY RINGS - drawn as annular rings (no overlap)
+// Being ring (innermost)
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:bR,fill:'none',stroke:SC[bState].border,'stroke-width':bT*2}));
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:(coreR+bR)/2,fill:'none',stroke:SC[bState].ring,'stroke-width':bT*2,opacity:'0.6'}));
+
+// Relating ring (middle)
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:rR,fill:'none',stroke:SC[rState].border,'stroke-width':relTh*2}));
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:(bR+rR)/2,fill:'none',stroke:SC[rState].ring,'stroke-width':relTh*2,opacity:'0.6'}));
+
+// Creating ring (outermost)
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:cR,fill:'none',stroke:SC[cState].border,'stroke-width':creTh*2}));
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:(rR+cR)/2,fill:'none',stroke:SC[cState].ring,'stroke-width':creTh*2,opacity:'0.6'}));
 
 // CORE
 svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
