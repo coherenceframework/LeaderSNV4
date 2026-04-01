@@ -513,56 +513,6 @@ if (!reading) continue;
 
     output[`sec04_${cn}`] = html;
 
-// Wrap entire cluster in a container to prevent page breaks
-html += `<div style='page-break-inside:avoid;'>`;
-
-// Headline (state-coloured)
-html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.3;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
-
-// Body (opening tag only - will close after combo)
-html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.3;margin-bottom:10px;'>${reading.body}`;
-
-// Combo (if present) - inline, no new paragraph
-if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
-  const comboKey = cn + "_" + combo;
-  const comboText = SEC04_COMBO[comboKey];
-  if (comboText) {
-    html += ` ${comboText}`;
-  }
-}
-
-// Close body paragraph after combo
-html += `</p>`;
-
-// Question
-html += `<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.3;margin-bottom:14px;'>${reading.question}</p>`;
-
-// Close container
-html += `</div>`;
-
-output[`sec04_${cn}`] = html;
-    
-    // Body (opening tag only - will close after combo)
-html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:10px;'>${reading.body}`;
-
-// Combo (if present) - inline, no new paragraph
-if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
-  const comboKey = cn + "_" + combo;
-  const comboText = SEC04_COMBO[comboKey];
-  if (comboText) {
-    html += ` ${comboText}`;
-  }
-}
-
-// Close body paragraph after combo
-html += `</p>`;
-
-    // Question
-    html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;font-style:italic;line-height:1.2;margin-bottom:14px;'>${reading.question}</p>`;
-
-    output[`sec04_${cn}`] = html;
-  }
-
   return output;
 }
 
