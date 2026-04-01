@@ -479,29 +479,32 @@ function buildSec04(combos, clusterScores) {
     if (!reading) continue;
 
     // Store state name
-    output[`sec04_${cn}_state`] = cState;
+    output[`sec04_${cn}_state`] = `<span style='color:${stateColor};font-weight:bold;'>${cState.toUpperCase()}</span>`;
 
     // Build HTML block with state-coloured headline
     const stateColor = stateColors[cState] || "#1A1A2E";
     let html = "";
 
     // Headline (state-coloured)
-    html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.3;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
+    html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.2;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
 
-    // Body
-    html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.3;margin-bottom:10px;'>${reading.body}</p>`;
+    // Body (opening tag only - will close after combo)
+html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:10px;'>${reading.body}`;
 
-    // Combo (if present)
-    if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
-      const comboKey = cn + "_" + combo;
-      const comboText = SEC04_COMBO[comboKey];
-      if (comboText) {
-        html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.3;margin-bottom:10px;'>${comboText}</p>`;
-      }
-    }
+// Combo (if present) - inline, no new paragraph
+if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
+  const comboKey = cn + "_" + combo;
+  const comboText = SEC04_COMBO[comboKey];
+  if (comboText) {
+    html += ` ${comboText}`;
+  }
+}
+
+// Close body paragraph after combo
+html += `</p>`;
 
     // Question
-    html += `<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.3;margin-bottom:14px;'>${reading.question}</p>`;
+    html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;font-style:italic;line-height:1.2;margin-bottom:14px;'>${reading.question}</p>`;
 
     output[`sec04_${cn}`] = html;
   }
