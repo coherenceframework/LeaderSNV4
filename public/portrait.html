@@ -67,22 +67,23 @@ function ringT(score,maxScore){return minT+(score/maxScore)*(maxT-minT);}
 
 var bT=ringT(beingScore,27), relTh=ringT(relatingScore,27), creTh=ringT(creatingScore,18);
 var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
-// Gap expands with resistance - minimum 12px at Coherent, maximum 48px at Fractured
-var resistancePct = parseFloat(overallPct) || 0;
-var outerR = 160 + (resistancePct / 100) * 60;
 
 var svgW=520, svgH=340;
 var cx=svgW/2;
 var cy=svgH-18;
 
-var maxZoneR=cy-12;
-var remainingStates=stateOrder.length-1-stateIndex;
-var zoneStep=remainingStates>0?(maxZoneR-outerR)/remainingStates:0;
+// All five state zones at FIXED positions on canvas
+var stateZoneRadii = {
+  'Coherent': 138,
+  'Driven': 170,
+  'Strained': 202,
+  'Drifting': 234,
+  'Fractured': 266
+};
 
-var zoneRadii=[outerR];
-for(var i=1;i<=remainingStates;i++){
-  zoneRadii.push(outerR+(zoneStep*i));
-}
+// Operating Surface scales between Coherent (0%) and Fractured (100%) positions
+var resistancePct = parseFloat(overallPct) || 0;
+var outerR = 138 + (resistancePct / 100) * (266 - 138);
 
 svg.setAttribute('viewBox','0 0 '+svgW+' '+svgH);
 svg.setAttribute('height',svgH);
@@ -109,19 +110,22 @@ rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
 defs.appendChild(rg);
 svg.appendChild(defs);
 
-// OUTER STATE ZONE LINES
+// STATE ZONE LINES - show zones beyond current state
 for(var i=stateIndex+1;i<stateOrder.length;i++){
-  var zIdx=i-stateIndex;
-  var zR=zoneRadii[zIdx];
   var zName=stateOrder[i];
+  var zR=stateZoneRadii[zName];
   var zSolid=SC[zName].solid;
+  
   svg.appendChild(svgEl('circle',{
     cx:cx,cy:cy,r:zR,
     fill:'none',stroke:zSolid,'stroke-width':'1.2','stroke-dasharray':'5 4',opacity:'0.45'
   }));
-  var prevR=zoneRadii[zIdx-1];
+  
+  var prevName=stateOrder[i-1];
+  var prevR=stateZoneRadii[prevName];
   var labelR=(zR+prevR)/2;
   var labelY=cy-labelR;
+  
   if(labelY>10 && labelY<svgH-10){
     svgTxt(cx, labelY+4, zName, {
       'text-anchor':'middle','font-size':'10','font-weight':'600',
@@ -194,8 +198,9 @@ if(passedStates.length>0){
 }
 
 // VITRUVIAN FIGURE
-// Figure stays constant size regardless of gap
-var figureHeight = 120; // Fixed height
+// Figure is fixed size - reaches to minimum Operating Surface (138px from center)
+var fixedReach = 138 - coreR; // 102px
+var figureHeight = fixedReach * 1.3; // ~133px
 var figColor = 'rgba(255,255,255,0.75)';
 
 // Proportions
@@ -251,8 +256,8 @@ svgTxt(cx, waistY+13, 'CORE', {
   'letter-spacing':'1.4',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
 });
 
-// Arms - reaching to Operating Surface
-var armW = reachDistance * 2;
+// Arms - reaching based on fixed figure size
+var armW = fixedReach * 2;
 var shoulderY = neckBottom + (torsoH * 0.1);
 var armThick = headR * 0.35;
 svg.appendChild(svgEl('line',{
