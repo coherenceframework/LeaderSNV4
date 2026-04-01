@@ -480,7 +480,7 @@ if (!reading) continue;
     let html = "";
     
     // Wrap in container
-    html += `<div style='margin-top:24px;margin-bottom:24px;page-break-inside:avoid;'>`;
+    html += `<div style='page-break-inside:avoid;'>`;
     
     // Headline (state-coloured)
     html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.3;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
