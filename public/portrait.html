@@ -312,34 +312,33 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
-// STATE ZONE STRIP - horizontal representation of the five state territories
-var stripHeight = 20;
-var stripY = svgH - stripHeight;
-var maxRadius = 266; // Fractured zone radius
+// STATE PROGRESSION INDICATORS - show only states where rings exist
+var indicatorY = svgH - 8;
+var startX = 20;
+var spacing = 100;
 
-// Each state zone gets a segment proportional to its radius span
-var zones = [
-  {name: 'Coherent', start: 0, end: stateZoneRadii['Coherent']},
-  {name: 'Driven', start: stateZoneRadii['Coherent'], end: stateZoneRadii['Driven']},
-  {name: 'Strained', start: stateZoneRadii['Driven'], end: stateZoneRadii['Strained']},
-  {name: 'Drifting', start: stateZoneRadii['Strained'], end: stateZoneRadii['Drifting']},
-  {name: 'Fractured', start: stateZoneRadii['Drifting'], end: stateZoneRadii['Fractured']}
-];
-
-zones.forEach(function(zone){
-  var startX = (zone.start / maxRadius) * svgW;
-  var endX = (zone.end / maxRadius) * svgW;
-  var width = endX - startX;
+// Show states from Coherent up to current state
+for(var i = 0; i <= stateIndex; i++) {
+  var stateName = stateOrder[i];
+  var xPos = startX + (i * spacing);
   
-  svg.appendChild(svgEl('rect',{
-    x: startX,
-    y: stripY,
-    width: width,
-    height: stripHeight,
-    fill: SC[zone.name].solid,
-    opacity: '0.85'
+  // Colored dot
+  svg.appendChild(svgEl('circle',{
+    cx: xPos,
+    cy: indicatorY,
+    r: 4,
+    fill: SC[stateName].solid
   }));
-});
+  
+  // State name
+  svgTxt(xPos + 10, indicatorY + 4, stateName, {
+    'text-anchor': 'start',
+    'font-size': '9',
+    'font-weight': '600',
+    fill: SC[stateName].solid,
+    'font-family': 'DM Sans, sans-serif'
+  });
+}
 </script>
 </body>
 </html>
