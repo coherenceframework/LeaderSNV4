@@ -84,11 +84,24 @@ var outerR = 138 + (resistancePct / 100) * (266 - 138);
 var visualGap = 3;
 var availableSpace = outerR - coreR - visualGap;
 
-// Rings fill available space proportionally
-var totalNorm = (beingScore/27) + (relatingScore/27) + (creatingScore/18);
-var bT = availableSpace * (beingScore/27) / totalNorm;
-var relTh = availableSpace * (relatingScore/27) / totalNorm;
-var creTh = availableSpace * (creatingScore/18) / totalNorm;
+// Rings ALWAYS fill entire available space, sized proportionally to each other
+// Normalize the three territory scores
+var bNorm = beingScore / 27;
+var rNorm = relatingScore / 27;
+var cNorm = creatingScore / 18;
+var totalNorm = bNorm + rNorm + cNorm;
+
+// If all scores are zero, distribute evenly
+if (totalNorm === 0) {
+  var bT = availableSpace / 3;
+  var relTh = availableSpace / 3;
+  var creTh = availableSpace / 3;
+} else {
+  // Distribute space proportionally
+  var bT = availableSpace * (bNorm / totalNorm);
+  var relTh = availableSpace * (rNorm / totalNorm);
+  var creTh = availableSpace * (cNorm / totalNorm);
+}
 
 var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
 
