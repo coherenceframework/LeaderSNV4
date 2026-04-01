@@ -483,7 +483,7 @@ if (!reading) continue;
     html += `<div style='page-break-inside:avoid;'>`;
     
     // Headline (state-coloured)
-    html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.2;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
+    html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
 
     // Body (opening tag only - will close after combo)
     html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:10px;'>${reading.body}`;
