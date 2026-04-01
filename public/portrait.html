@@ -314,31 +314,46 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
-// STATE LABELS - positioned to the right of where dashed lines hit bottom
-var labelY = svgH - 12;
+// STATE LABELS - Vertical, left-aligned along chart edge
+var leftEdge = 48; // Distance from left edge of SVG
 
-// Show labels for all future states (beyond current state)
-for(var i = stateIndex + 1; i < stateOrder.length; i++) {
-  var stateName = stateOrder[i];
+// Show labels for all states with their zone positions
+stateOrder.forEach(function(stateName, idx) {
   var stateR = stateZoneRadii[stateName];
+  var labelY = cy - stateR;
   
-  // Calculate where circle intersects bottom edge
-  var dy = svgH - cy;
-  if(dy < stateR) {
-    var dx = Math.sqrt(stateR * stateR - dy * dy);
-    var intersectX = cx - dx; // Left intersection point
-    
-    // State name positioned to the right of the line
-    svgTxt(intersectX + 8, labelY, stateName, {
+  // Only show labels for states beyond current (including current state line)
+  if(idx >= stateIndex) {
+    // Vertical state name on the left
+    var textEl = svgEl('text', {
+      x: leftEdge,
+      y: labelY,
       'text-anchor': 'start',
       'font-size': '10',
       'font-weight': '600',
+      'font-family': 'DM Sans, sans-serif',
       fill: SC[stateName].solid,
-      opacity: '0.6',
-      'font-family': 'DM Sans, sans-serif'
+      opacity: idx === stateIndex ? '1' : '0.5'
     });
+    textEl.textContent = stateName.toUpperCase();
+    svg.appendChild(textEl);
+    
+    // Extend dashed line to label (if not current state)
+    if(idx > stateIndex) {
+      var lineEndX = leftEdge - 8;
+      svg.appendChild(svgEl('line', {
+        x1: cx - stateR,
+        y1: labelY,
+        x2: lineEndX,
+        y2: labelY,
+        stroke: SC[stateName].solid,
+        'stroke-width': '1',
+        'stroke-dasharray': '3 2',
+        opacity: '0.4'
+      }));
+    }
   }
-}
+});
 </script>
 </body>
 </html>
