@@ -342,7 +342,34 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
+// STATE ZONE STRIP - horizontal representation of the five state territories
+var stripHeight = 20;
+var stripY = svgH - stripHeight;
+var maxRadius = 266; // Fractured zone radius
 
+// Each state zone gets a segment proportional to its radius span
+var zones = [
+  {name: 'Coherent', start: 0, end: stateZoneRadii['Coherent']},
+  {name: 'Driven', start: stateZoneRadii['Coherent'], end: stateZoneRadii['Driven']},
+  {name: 'Strained', start: stateZoneRadii['Driven'], end: stateZoneRadii['Strained']},
+  {name: 'Drifting', start: stateZoneRadii['Strained'], end: stateZoneRadii['Drifting']},
+  {name: 'Fractured', start: stateZoneRadii['Drifting'], end: stateZoneRadii['Fractured']}
+];
+
+zones.forEach(function(zone){
+  var startX = (zone.start / maxRadius) * svgW;
+  var endX = (zone.end / maxRadius) * svgW;
+  var width = endX - startX;
+  
+  svg.appendChild(svgEl('rect',{
+    x: startX,
+    y: stripY,
+    width: width,
+    height: stripHeight,
+    fill: SC[zone.name].solid,
+    opacity: '0.85'
+  }));
+});
 </script>
 </body>
 </html>
