@@ -479,30 +479,9 @@ if (!reading) continue;
 // Build HTML block
     let html = "";
     
-    // Add territory headers
-    if (cn === "01") {
-      html += `<h2 style='font-family:Montserrat,sans-serif;font-size:14pt;color:#2E2E2C;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;margin-top:0;margin-bottom:16px;'>BEING</h2>`;
-    }
-    if (cn === "04") {
-      html += `<h2 style='font-family:Montserrat,sans-serif;font-size:14pt;color:#2E2E2C;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;margin-top:0;margin-bottom:16px;'>RELATING</h2>`;
-    }
-    if (cn === "07") {
-      html += `<h2 style='font-family:Montserrat,sans-serif;font-size:14pt;color:#2E2E2C;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;margin-top:0;margin-bottom:16px;'>CREATING</h2>`;
-    }
-
-// Close container
-    html += `</div>`;
-    
-    // Force page breaks for 3-3-2 layout
-    if (cn === "03" || cn === "06") {
-      html += `<p style='page-break-after:always;margin:0;padding:0;line-height:0;font-size:0;'>&nbsp;</p>`;
-    }
-
-    output[`sec04_${cn}`] = html;
-
     // Wrap in container
     html += `<div style='margin-top:24px;margin-bottom:24px;page-break-inside:avoid;'>`;
-
+    
     // Headline (state-coloured)
     html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.3;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
 
@@ -524,9 +503,14 @@ if (!reading) continue;
     // Question
     html += `<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.3;margin-bottom:14px;'>${reading.question}</p>`;
 
-    // Close container
+// Close container
     html += `</div>`;
-
+    
+    // Force page breaks for 3-3-2 layout
+    if (cn === "03" || cn === "06") {
+      html += `<p style='page-break-after:always;margin:0;padding:0;line-height:0;font-size:0;'>&nbsp;</p>`;
+    }
+    
     output[`sec04_${cn}`] = html;
   }
   
