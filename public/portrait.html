@@ -45,11 +45,11 @@ var rState=stateMap[P.get('rstate')||'COHERENT']||'Coherent';
 var cState=stateMap[P.get('cstate')||'COHERENT']||'Coherent';
 
 var SC={
-  Coherent:{ring:'rgba(42,107,106,0.25)',border:'rgba(42,107,106,0.55)',solid:'#3A7D44'},
-  Driven:{ring:'rgba(74,111,165,0.22)',border:'rgba(74,111,165,0.5)',solid:'#4A6FA5'},
-  Strained:{ring:'rgba(212,168,67,0.25)',border:'rgba(212,168,67,0.55)',solid:'#D4A843'},
-  Drifting:{ring:'rgba(123,45,142,0.22)',border:'rgba(123,45,142,0.45)',solid:'#7B2D8E'},
-  Fractured:{ring:'rgba(168,40,40,0.25)',border:'rgba(168,40,40,0.55)',solid:'#A82828'}
+  Coherent:{fill:'rgba(58,125,68,0.35)',border:'rgba(58,125,68,0.65)',solid:'#3A7D44'},
+  Driven:{fill:'rgba(74,111,165,0.35)',border:'rgba(74,111,165,0.65)',solid:'#4A6FA5'},
+  Strained:{fill:'rgba(212,168,67,0.35)',border:'rgba(212,168,67,0.65)',solid:'#D4A843'},
+  Drifting:{fill:'rgba(123,45,142,0.35)',border:'rgba(123,45,142,0.65)',solid:'#7B2D8E'},
+  Fractured:{fill:'rgba(168,40,40,0.35)',border:'rgba(168,40,40,0.65)',solid:'#A82828'}
 };
 
 var stateOrder=['Coherent','Driven','Strained','Drifting','Fractured'];
@@ -61,7 +61,7 @@ var svgW=520, svgH=340;
 var cx=svgW/2;
 var cy=svgH-18;
 
-// All five state zones at FIXED positions on canvas
+// All five state zones at FIXED absolute positions
 var stateZoneRadii = {
   'Coherent': 138,
   'Driven': 170,
@@ -96,7 +96,10 @@ if (totalNorm === 0) {
   var creTh = availableSpace * (cNorm / totalNorm);
 }
 
-var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
+// Ring boundaries
+var bR = coreR + bT;
+var rR = bR + relTh;
+var cR = rR + creTh;
 
 svg.setAttribute('viewBox','0 0 '+svgW+' '+svgH);
 svg.setAttribute('height',svgH);
@@ -117,13 +120,35 @@ function svgTxt(x,y,text,attrs){
 
 // Defs
 var defs=svgEl('defs',{});
+
+// Radial gradient for core
 var rg=svgEl('radialGradient',{id:'cg',cx:'40%',cy:'38%',r:'60%'});
 rg.appendChild(svgEl('stop',{offset:'0%','stop-color':'#3A7D44'}));
 rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
 defs.appendChild(rg);
+
+// Clip paths for rings (so they don't overlap)
+var clipBeing = svgEl('clipPath',{id:'clipB'});
+clipBeing.appendChild(svgEl('circle',{cx:cx,cy:cy,r:bR}));
+var maskBCore = svgEl('circle',{cx:cx,cy:cy,r:coreR});
+clipBeing.appendChild(maskBCore);
+defs.appendChild(clipBeing);
+
+var clipRelating = svgEl('clipPath',{id:'clipR'});
+clipRelating.appendChild(svgEl('circle',{cx:cx,cy:cy,r:rR}));
+var maskRInner = svgEl('circle',{cx:cx,cy:cy,r:bR});
+clipRelating.appendChild(maskRInner);
+defs.appendChild(clipRelating);
+
+var clipCreating = svgEl('clipPath',{id:'clipC'});
+clipCreating.appendChild(svgEl('circle',{cx:cx,cy:cy,r:cR}));
+var maskCInner = svgEl('circle',{cx:cx,cy:cy,r:rR});
+clipCreating.appendChild(maskCInner);
+defs.appendChild(clipCreating);
+
 svg.appendChild(defs);
 
-// STATE ZONE LINES - show zones beyond current state
+// STATE ZONE LINES - FIXED positions, show zones beyond current state
 for(var i=stateIndex+1;i<stateOrder.length;i++){
   var zName=stateOrder[i];
   var zR=stateZoneRadii[zName];
@@ -147,30 +172,36 @@ for(var i=stateIndex+1;i<stateOrder.length;i++){
   }
 }
 
-// OPERATING SURFACE
+// OPERATING SURFACE - dashed line
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:outerR,
   fill:'none',stroke:SC[overallState].solid,
   'stroke-width':'3','stroke-dasharray':'8 4'
 }));
 
-// TERRITORY RINGS - drawn as annular rings (no overlap)
-// Being ring (innermost)
-svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:bR,fill:'none',stroke:SC[bState].border,'stroke-width':bT*2}));
-svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:(coreR+bR)/2,fill:'none',stroke:SC[bState].ring,'stroke-width':bT*2,opacity:'0.6'}));
+// TERRITORY RINGS - drawn from inside out, each fills only its band
+// Being ring (innermost, around core)
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:bR,
+  fill:SC[bState].fill,stroke:SC[bState].border,'stroke-width':'1.5'
+}));
 
-// Relating ring (middle)
-svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:rR,fill:'none',stroke:SC[rState].border,'stroke-width':relTh*2}));
-svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:(bR+rR)/2,fill:'none',stroke:SC[rState].ring,'stroke-width':relTh*2,opacity:'0.6'}));
+// Relating ring (middle band)
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:rR,
+  fill:SC[rState].fill,stroke:SC[rState].border,'stroke-width':'1.5'
+}));
 
-// Creating ring (outermost)
-svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:cR,fill:'none',stroke:SC[cState].border,'stroke-width':creTh*2}));
-svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:(rR+cR)/2,fill:'none',stroke:SC[cState].ring,'stroke-width':creTh*2,opacity:'0.6'}));
+// Creating ring (outer band)
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:cR,
+  fill:SC[cState].fill,stroke:SC[cState].border,'stroke-width':'1.5'
+}));
 
-// CORE
+// CORE - drawn on top so it covers inner rings
 svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
 
-// ADAPTED SELF LABEL (in front of rings)
+// ADAPTED SELF LABEL
 var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-7;
 svg.appendChild(svgEl('rect',{
