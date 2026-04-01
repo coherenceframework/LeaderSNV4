@@ -71,10 +71,11 @@ var outerR = 138 + (resistancePct / 100) * (266 - 138);
 // Total space available for rings
 var totalRingSpace = outerR - coreR;
 
-// Each territory gets 1/3 of space, scaled by its percentage
-var bT = (totalRingSpace / 3) * (beingScore / 27);
-var relTh = (totalRingSpace / 3) * (relatingScore / 27);
-var creTh = (totalRingSpace / 3) * (creatingScore / 18);
+// Rings fill entire space, sized proportionally to their scores
+var totalScore = (beingScore/27) + (relatingScore/27) + (creatingScore/18);
+var bT = totalRingSpace * (beingScore/27) / totalScore;
+var relTh = totalRingSpace * (relatingScore/27) / totalScore;
+var creTh = totalRingSpace * (creatingScore/18) / totalScore;
 
 var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
 
