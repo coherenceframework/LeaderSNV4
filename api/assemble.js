@@ -476,13 +476,29 @@ if (!reading) continue;
     const stateColor = stateColors[cState] || "#1A1A2E";
     output[`sec04_${cn}_state`] = `<span style='color:${stateColor};font-weight:bold;'>${cState.toUpperCase()}</span>`;
 
-    // Build HTML block
+// Build HTML block
     let html = "";
-
-    // Force page break before cluster 05
-    if (cn === "05") {
-      html += `<div style='page-break-before:always;'></div>`;
+    
+    // Add territory headers
+    if (cn === "01") {
+      html += `<h2 style='font-family:Montserrat,sans-serif;font-size:14pt;color:#2E2E2C;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;margin-top:0;margin-bottom:16px;'>BEING</h2>`;
     }
+    if (cn === "04") {
+      html += `<h2 style='font-family:Montserrat,sans-serif;font-size:14pt;color:#2E2E2C;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;margin-top:0;margin-bottom:16px;'>RELATING</h2>`;
+    }
+    if (cn === "07") {
+      html += `<h2 style='font-family:Montserrat,sans-serif;font-size:14pt;color:#2E2E2C;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;margin-top:0;margin-bottom:16px;'>CREATING</h2>`;
+    }
+
+// Close container
+    html += `</div>`;
+    
+    // Force page breaks for 3-3-2 layout
+    if (cn === "03" || cn === "06") {
+      html += `<p style='page-break-after:always;margin:0;padding:0;line-height:0;font-size:0;'>&nbsp;</p>`;
+    }
+
+    output[`sec04_${cn}`] = html;
 
     // Wrap in container
     html += `<div style='margin-top:24px;margin-bottom:24px;page-break-inside:avoid;'>`;
