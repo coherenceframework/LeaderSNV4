@@ -478,12 +478,12 @@ function buildSec04(combos, clusterScores) {
 
     if (!reading) continue;
 
-    // Store state name
-    output[`sec04_${cn}_state`] = `<span style='color:${stateColor};font-weight:bold;'>${cState.toUpperCase()}</span>`;
-
     // Build HTML block with state-coloured headline
     const stateColor = stateColors[cState] || "#1A1A2E";
     let html = "";
+
+    // Store state name
+    output[`sec04_${cn}_state`] = `<span style='color:${stateColor};font-weight:bold;'>${cState.toUpperCase()}</span>`;
 
     // Headline (state-coloured)
     html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1.2;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
