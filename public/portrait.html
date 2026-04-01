@@ -12,6 +12,8 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    padding: 0;
+    margin: 0;
   }
   .wrapper {
     width: 560px;
@@ -312,36 +314,30 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
-// STATE LABELS AT BOTTOM - positioned under each dashed state zone circle
-var labelY = svgH - 8;
+// STATE LABELS - positioned to the right of where dashed lines hit bottom
+var labelY = svgH - 12;
 
-// Show label for each state from Coherent through current state
-for(var i = 0; i <= stateIndex; i++) {
+// Show labels for all future states (beyond current state)
+for(var i = stateIndex + 1; i < stateOrder.length; i++) {
   var stateName = stateOrder[i];
   var stateR = stateZoneRadii[stateName];
   
-  // Position at bottom of this state's dashed circle
-  // Circle intersects bottom at cx ± sqrt(r² - (svgH - cy)²)
+  // Calculate where circle intersects bottom edge
   var dy = svgH - cy;
-  var dx = Math.sqrt(stateR * stateR - dy * dy);
-  var labelX = cx - dx; // Left intersection point
-  
-  // Colored dot
-  svg.appendChild(svgEl('circle',{
-    cx: labelX,
-    cy: labelY,
-    r: 4,
-    fill: SC[stateName].solid
-  }));
-  
-  // State name
-  svgTxt(labelX + 10, labelY + 4, stateName, {
-    'text-anchor': 'start',
-    'font-size': '9',
-    'font-weight': '600',
-    fill: SC[stateName].solid,
-    'font-family': 'DM Sans, sans-serif'
-  });
+  if(dy < stateR) {
+    var dx = Math.sqrt(stateR * stateR - dy * dy);
+    var intersectX = cx - dx; // Left intersection point
+    
+    // State name positioned to the right of the line
+    svgTxt(intersectX + 8, labelY, stateName, {
+      'text-anchor': 'start',
+      'font-size': '10',
+      'font-weight': '600',
+      fill: SC[stateName].solid,
+      opacity: '0.6',
+      'font-family': 'DM Sans, sans-serif'
+    });
+  }
 }
 </script>
 </body>
