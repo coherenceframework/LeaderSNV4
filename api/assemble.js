@@ -501,7 +501,7 @@ if (!reading) continue;
     html += `</p>`;
 
     // Question
-    html += `<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.3;margin-bottom:14px;'>${reading.question}</p>`;
+    html += `<p style='font-family:Inter,sans-serif;font-size:9.5pt;color:#7A756D;font-style:italic;line-height:1.3;margin-bottom:0px;'>${reading.question}</p>`;
 
 // Close container
     html += `</div>`;
