@@ -29,16 +29,10 @@
 <script>
 var P=new URLSearchParams(window.location.search);
 
-var b01=parseInt(P.get('b01')||'0'),b02=parseInt(P.get('b02')||'0'),b04=parseInt(P.get('b04')||'0');
-var ba01=parseInt(P.get('ba01')||'0'),ba02=parseInt(P.get('ba02')||'0'),ba04=parseInt(P.get('ba04')||'0');
-var r03=parseInt(P.get('r03')||'0'),r05=parseInt(P.get('r05')||'0'),r06=parseInt(P.get('r06')||'0');
-var ra03=parseInt(P.get('ra03')||'0'),ra05=parseInt(P.get('ra05')||'0'),ra06=parseInt(P.get('ra06')||'0');
-var c07=parseInt(P.get('c07')||'0'),c08=parseInt(P.get('c08')||'0');
-var ca07=parseInt(P.get('ca07')||'0'),ca08=parseInt(P.get('ca08')||'0');
-
-var beingScore=(b01*ba01)+(b02*ba02)+(b04*ba04);
-var relatingScore=(r03*ra03)+(r05*ra05)+(r06*ra06);
-var creatingScore=(c07*ca07)+(c08*ca08);
+// Territory scores from scoring engine
+var beingScore=parseInt(P.get('bscore')||'0');
+var relatingScore=parseInt(P.get('rscore')||'0');
+var creatingScore=parseInt(P.get('cscore')||'0');
 
 var stateMap={
   'COHERENT':'Coherent','DRIVEN':'Driven','STRAINED':'Strained',
@@ -85,7 +79,6 @@ var visualGap = 3;
 var availableSpace = outerR - coreR - visualGap;
 
 // Rings ALWAYS fill entire available space, sized proportionally to each other
-// Normalize the three territory scores
 var bNorm = beingScore / 27;
 var rNorm = relatingScore / 27;
 var cNorm = creatingScore / 18;
@@ -220,7 +213,7 @@ if(passedStates.length>0){
 }
 
 // VITRUVIAN FIGURE - FIXED SIZE
-var figureHeight = 133; // Fixed height, does not scale
+var figureHeight = 133;
 var figColor = 'rgba(255,255,255,0.75)';
 
 // Proportions
@@ -277,7 +270,7 @@ svgTxt(cx, waistY+13, 'CORE', {
 });
 
 // Arms - fixed reach
-var armW = 204; // Fixed arm span
+var armW = 204;
 var shoulderY = neckBottom + (torsoH * 0.1);
 var armThick = headR * 0.35;
 svg.appendChild(svgEl('line',{
