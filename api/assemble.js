@@ -471,9 +471,12 @@ function buildSec04(combos, clusterScores) {
     const stateKey = cn + "_" + cState;
     const reading = SEC04_STATE[stateKey];
 
-    if (!reading) continue;
+if (!reading) continue;
 
-// Build HTML block
+    const stateColor = stateColors[cState] || "#1A1A2E";
+    output[`sec04_${cn}_state`] = `<span style='color:${stateColor};font-weight:bold;'>${cState.toUpperCase()}</span>`;
+
+    // Build HTML block
     let html = "";
 
     // Force page break before cluster 05
@@ -509,8 +512,6 @@ function buildSec04(combos, clusterScores) {
     html += `</div>`;
 
     output[`sec04_${cn}`] = html;
-    // Store state name
-    output[`sec04_${cn}_state`] = `<span style='color:${stateColor};font-weight:bold;'>${cState.toUpperCase()}</span>`;
 
 // Wrap entire cluster in a container to prevent page breaks
 html += `<div style='page-break-inside:avoid;'>`;
