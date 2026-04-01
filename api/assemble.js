@@ -1169,7 +1169,7 @@ const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:1
     "01": v.c01_score, "02": v.c02_score, "03": v.c03_score, "04": v.c04_score,
     "05": v.c05_score, "06": v.c06_score, "07": v.c07_score, "08": v.c08_score,
   };
-  const sec04 = buildSec04(combos, clusterScores);
+  const sec04Output = buildSec04(combos, clusterScores);
 
   // ─── RETURN ALL MERGE FIELDS ───
   return {
@@ -1180,7 +1180,22 @@ const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:1
     gap_relating_reading: gap_relating_reading,
     gap_creating_reading: gap_creating_reading,
     gap_bridge: gap_bridge,
-    sec04_html: sec04,
+    sec04_01_state: sec04Output.sec04_01_state,
+sec04_01: sec04Output.sec04_01,
+sec04_02_state: sec04Output.sec04_02_state,
+sec04_02: sec04Output.sec04_02,
+sec04_03_state: sec04Output.sec04_03_state,
+sec04_03: sec04Output.sec04_03,
+sec04_04_state: sec04Output.sec04_04_state,
+sec04_04: sec04Output.sec04_04,
+sec04_05_state: sec04Output.sec04_05_state,
+sec04_05: sec04Output.sec04_05,
+sec04_06_state: sec04Output.sec04_06_state,
+sec04_06: sec04Output.sec04_06,
+sec04_07_state: sec04Output.sec04_07_state,
+sec04_07: sec04Output.sec04_07,
+sec04_08_state: sec04Output.sec04_08_state,
+sec04_08: sec04Output.sec04_08,
     // Territory states with color (new)
     being_state_name: beingStateStyled,
     relating_state_name: relatingStateStyled,
