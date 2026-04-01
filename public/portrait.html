@@ -312,26 +312,30 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
-// STATE PROGRESSION INDICATORS - show only states where rings exist
-var indicatorY = svgH - 8;
-var startX = 20;
-var spacing = 100;
+// STATE LABELS AT BOTTOM - positioned under each dashed state zone circle
+var labelY = svgH - 8;
 
-// Show states from Coherent up to current state
+// Show label for each state from Coherent through current state
 for(var i = 0; i <= stateIndex; i++) {
   var stateName = stateOrder[i];
-  var xPos = startX + (i * spacing);
+  var stateR = stateZoneRadii[stateName];
+  
+  // Position at bottom of this state's dashed circle
+  // Circle intersects bottom at cx ± sqrt(r² - (svgH - cy)²)
+  var dy = svgH - cy;
+  var dx = Math.sqrt(stateR * stateR - dy * dy);
+  var labelX = cx - dx; // Left intersection point
   
   // Colored dot
   svg.appendChild(svgEl('circle',{
-    cx: xPos,
-    cy: indicatorY,
+    cx: labelX,
+    cy: labelY,
     r: 4,
     fill: SC[stateName].solid
   }));
   
   // State name
-  svgTxt(xPos + 10, indicatorY + 4, stateName, {
+  svgTxt(labelX + 10, labelY + 4, stateName, {
     'text-anchor': 'start',
     'font-size': '9',
     'font-weight': '600',
