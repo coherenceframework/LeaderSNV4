@@ -69,8 +69,7 @@ var bT=ringT(beingScore,27), relTh=ringT(relatingScore,27), creTh=ringT(creating
 var bR=coreR+bT, rR=bR+relTh, cR=rR+creTh;
 // Gap expands with resistance - minimum 12px at Coherent, maximum 48px at Fractured
 var resistancePct = parseFloat(overallPct) || 0;
-var gapBand = 12 + (resistancePct / 100) * 36;  // Linear scale from 12 to 48
-var outerR = cR + gapBand;
+var outerR = 160 + (resistancePct / 100) * 60;
 
 var svgW=520, svgH=340;
 var cx=svgW/2;
