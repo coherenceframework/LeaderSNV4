@@ -231,31 +231,35 @@ svgTxt(cx, osLabelY+15, overallState + ' — ' + overallPct + '% resistance', {
   });
 });
 
-// STATE PROGRESSION STRIP - shows all states up to and including current state
+// STATE ZONE STRIP - horizontal representation of the five state territories
 var stripHeight = 20;
-var stripY = svgH - stripHeight - 4;
-var stripWidth = svgW;
+var stripY = svgH - stripHeight;
+var maxRadius = 266; // Fractured zone radius
 
-// Build array of states from Coherent through current state
-var progressionStates = [];
-for(var i=0; i<=stateIndex; i++){
-  progressionStates.push(stateOrder[i]);
-}
+// Each state zone gets a segment proportional to its radius span
+// Coherent: 0 to 138, Driven: 138 to 170, Strained: 170 to 202, etc.
+var zones = [
+  {name: 'Coherent', start: 0, end: stateZoneRadii['Coherent']},
+  {name: 'Driven', start: stateZoneRadii['Coherent'], end: stateZoneRadii['Driven']},
+  {name: 'Strained', start: stateZoneRadii['Driven'], end: stateZoneRadii['Strained']},
+  {name: 'Drifting', start: stateZoneRadii['Strained'], end: stateZoneRadii['Drifting']},
+  {name: 'Fractured', start: stateZoneRadii['Drifting'], end: stateZoneRadii['Fractured']}
+];
 
-// Each state gets equal width
-var blockWidth = stripWidth / progressionStates.length;
-
-for(var i=0; i<progressionStates.length; i++){
-  var stateName = progressionStates[i];
+zones.forEach(function(zone){
+  var startX = (zone.start / maxRadius) * svgW;
+  var endX = (zone.end / maxRadius) * svgW;
+  var width = endX - startX;
+  
   svg.appendChild(svgEl('rect',{
-    x: i * blockWidth,
+    x: startX,
     y: stripY,
-    width: blockWidth,
+    width: width,
     height: stripHeight,
-    fill: SC[stateName].solid,
+    fill: SC[zone.name].solid,
     opacity: '0.85'
   }));
-}
+});
 
 // VITRUVIAN FIGURE - FIXED SIZE
 var figureHeight = 133;
