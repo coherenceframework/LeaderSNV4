@@ -150,6 +150,28 @@ defs.appendChild(clipCreating);
 
 svg.appendChild(defs);
 
+// TERRITORY RINGS - drawn from inside out, each fills only its band
+// Being ring (innermost, around core)
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:bR,
+  fill:SC[bState].fill,stroke:SC[bState].border,'stroke-width':'1.5'
+}));
+
+// Relating ring (middle band)
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:rR,
+  fill:SC[rState].fill,stroke:SC[rState].border,'stroke-width':'1.5'
+}));
+
+// Creating ring (outer band)
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:cR,
+  fill:SC[cState].fill,stroke:SC[cState].border,'stroke-width':'1.5'
+}));
+
+// CORE - drawn on top so it covers inner rings
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
+
 // STATE ZONE LINES - FIXED positions, show zones beyond current state
 for(var i=stateIndex+1;i<stateOrder.length;i++){
   var zName=stateOrder[i];
@@ -173,36 +195,14 @@ for(var i=stateIndex+1;i<stateOrder.length;i++){
     });
   }
 }
-
+  
 // OPERATING SURFACE - dashed line
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:outerR,
   fill:'none',stroke:SC[overallState].solid,
   'stroke-width':'3','stroke-dasharray':'8 4'
 }));
-
-// TERRITORY RINGS - drawn from inside out, each fills only its band
-// Being ring (innermost, around core)
-svg.appendChild(svgEl('circle',{
-  cx:cx,cy:cy,r:bR,
-  fill:SC[bState].fill,stroke:SC[bState].border,'stroke-width':'1.5'
-}));
-
-// Relating ring (middle band)
-svg.appendChild(svgEl('circle',{
-  cx:cx,cy:cy,r:rR,
-  fill:SC[rState].fill,stroke:SC[rState].border,'stroke-width':'1.5'
-}));
-
-// Creating ring (outer band)
-svg.appendChild(svgEl('circle',{
-  cx:cx,cy:cy,r:cR,
-  fill:SC[cState].fill,stroke:SC[cState].border,'stroke-width':'1.5'
-}));
-
-// CORE - drawn on top so it covers inner rings
-svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
-
+  
 // ADAPTED SELF LABEL
 var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-7;
