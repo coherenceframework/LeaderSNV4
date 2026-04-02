@@ -171,20 +171,16 @@ svg.appendChild(svgEl('circle',{
 var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-25;
 svg.appendChild(svgEl('rect',{
-  x:cx-100,y:osLabelY-12,width:'200',height:'45',
+  x:cx-100,y:osLabelY-12,width:'230',height:'35',
   rx:'4',fill:'#FFFFFF',opacity:'0.9'
 }));
-svgTxt(cx, osLabelY, 'ADAPTED SELF', {
+svgTxt(cx, osLabelY, 'YOUR ADAPTED SELF - OPERATING SURFACE', {
   'text-anchor':'middle','font-size':'12','font-weight':'700',
   'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
-svgTxt(cx, osLabelY+15, overallState.toUpperCase() + ' — ' + overallPct + '% resistance', {
-  'text-anchor':'middle','font-size':'11','font-weight':'600',
+svgTxt(cx, osLabelY+20, overallState.toUpperCase() + ' — ' + overallPct + '% resistance', {
+  'text-anchor':'middle','font-size':'12','font-weight':'600',
   'letter-spacing':'0.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
-});
-  svgTxt(cx, osLabelY+30, 'Your Operating Surface', {
-  'text-anchor':'middle','font-size':'12','font-weight':'700',
-  'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
 
 // B/R/C LABELS
