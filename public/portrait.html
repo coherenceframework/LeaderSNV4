@@ -78,26 +78,6 @@ var stateZoneRadii = {
   'Fractured': maxRadius                          // 100%
 };
 
-// Debug output - remove after checking
-svgTxt(10, 20, 'Coherent: ' + stateZoneRadii['Coherent'].toFixed(2), {
-  'text-anchor':'start','font-size':'10',fill:'#000','font-family':'monospace'
-});
-svgTxt(10, 35, 'Driven: ' + stateZoneRadii['Driven'].toFixed(2), {
-  'text-anchor':'start','font-size':'10',fill:'#000','font-family':'monospace'
-});
-svgTxt(10, 50, 'Strained: ' + stateZoneRadii['Strained'].toFixed(2), {
-  'text-anchor':'start','font-size':'10',fill:'#000','font-family':'monospace'
-});
-svgTxt(10, 65, 'Drifting: ' + stateZoneRadii['Drifting'].toFixed(2), {
-  'text-anchor':'start','font-size':'10',fill:'#000','font-family':'monospace'
-});
-svgTxt(10, 80, 'Fractured: ' + stateZoneRadii['Fractured'].toFixed(2), {
-  'text-anchor':'start','font-size':'10',fill:'#000','font-family':'monospace'
-});
-svgTxt(10, 95, 'outerR: ' + outerR.toFixed(2), {
-  'text-anchor':'start','font-size':'10',fill:'#000','font-family':'monospace'
-});
-
 // Operating Surface scales from Coherent boundary (0%) to Fractured boundary (100%)
 var resistancePct = parseFloat(overallPct) || 0;
 var outerR = stateZoneRadii['Coherent'] + (resistancePct / 100) * (stateZoneRadii['Fractured'] - stateZoneRadii['Coherent']);
