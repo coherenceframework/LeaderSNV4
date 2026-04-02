@@ -64,12 +64,18 @@ var cx=svgW/2;
 var cy=svgH-48;
 
 // All five state zones at FIXED absolute positions
+// State zone radii based on percentage thresholds from scoring engine
+// Coherent: 0-11%, Driven: 12-28%, Strained: 29-50%, Drifting: 51-72%, Fractured: 73-100%
+var minRadius = 138;  // Coherent boundary (0% resistance)
+var maxRadius = 306;  // Fractured boundary (100% resistance)
+var totalRange = maxRadius - minRadius;
+
 var stateZoneRadii = {
-  'Coherent': 138,
-  'Driven': 180,
-  'Strained': 222,
-  'Drifting': 264,
-  'Fractured': 306
+  'Coherent': minRadius + (0.11 * totalRange),  // 11% threshold
+  'Driven': minRadius + (0.28 * totalRange),     // 28% threshold
+  'Strained': minRadius + (0.50 * totalRange),   // 50% threshold
+  'Drifting': minRadius + (0.72 * totalRange),   // 72% threshold
+  'Fractured': maxRadius                          // 100%
 };
 
 // Operating Surface scales from Coherent boundary (0%) to Fractured boundary (100%)
