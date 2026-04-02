@@ -269,13 +269,13 @@ svg.appendChild(svgEl('line',{
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
 
-// STATE LABELS AND DASHED LINES - drawn AFTER everything so they stay visible
-for(var i = stateIndex; i < stateOrder.length; i++) {
+// STATE ZONE BOUNDARIES - draw ALL five state zones as fixed reference markers
+for(var i = 0; i < stateOrder.length; i++) {
   var stateName = stateOrder[i];
   var stateR = stateZoneRadii[stateName];
   var stateColor = SC[stateName].solid;
   
-  // Draw dashed circle (for all states including current)
+  // Draw dashed circle for this state boundary
   svg.appendChild(svgEl('circle', {
     cx: cx,
     cy: cy,
@@ -287,11 +287,10 @@ for(var i = stateIndex; i < stateOrder.length; i++) {
     opacity: i === stateIndex ? '0.6' : '0.4'
   }));
   
-  // Position label INSIDE chart, left of the ring boundary
-  var labelX = cx - stateR + 30; // Just inside the left edge of this ring
+  // Position label on left side, rotated vertically
+  var labelX = cx - stateR + 30;
   var labelY = cy - 10;
   
-  // Use a group with transform
   var g = svgEl('g', {
     transform: 'translate(' + labelX + ',' + labelY + ') rotate(-90)'
   });
