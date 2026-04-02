@@ -277,27 +277,42 @@ svg.appendChild(svgEl('line',{
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
 
-// STATE LABELS - left side, rotated 90°
+// STATE LABELS AND DASHED LINES - drawn AFTER everything so they stay visible
 var leftEdge = 42;
+
 for(var i = stateIndex; i < stateOrder.length; i++) {
   var stateName = stateOrder[i];
   var stateR = stateZoneRadii[stateName];
   var stateColor = SC[stateName].solid;
+  
+  // Draw dashed circle (for all states including current)
+  svg.appendChild(svgEl('circle', {
+    cx: cx,
+    cy: cy,
+    r: stateR,
+    fill: 'none',
+    stroke: stateColor,
+    'stroke-width': '1.2',
+    'stroke-dasharray': '5 4',
+    opacity: i === stateIndex ? '0.6' : '0.4'
+  }));
+  
+  // Position label on LEFT side at ring height
   var labelY = cy - stateR;
   
   if(labelY > 25) {
-    var textEl = svgEl('text', {
-      x: leftEdge,
-      y: labelY + 5,
-      'text-anchor': 'start',
-      'font-size': '9',
-      'font-weight': '600',
-      'font-family': 'DM Sans, sans-serif',
-      'letter-spacing': '1',
-      fill: stateColor,
-      opacity: i === stateIndex ? '0.8' : '0.5',
-      transform: 'rotate(-90 ' + leftEdge + ' ' + (labelY + 5) + ')'
-    });
+    // Create text element
+    var textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textEl.setAttribute('x', leftEdge);
+    textEl.setAttribute('y', labelY);
+    textEl.setAttribute('text-anchor', 'middle');
+    textEl.setAttribute('font-size', '9');
+    textEl.setAttribute('font-weight', '600');
+    textEl.setAttribute('font-family', 'DM Sans, sans-serif');
+    textEl.setAttribute('letter-spacing', '1');
+    textEl.setAttribute('fill', stateColor);
+    textEl.setAttribute('opacity', i === stateIndex ? '0.8' : '0.5');
+    textEl.setAttribute('transform', 'rotate(-90, ' + leftEdge + ', ' + labelY + ')');
     textEl.textContent = stateName.toUpperCase();
     svg.appendChild(textEl);
   }
