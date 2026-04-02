@@ -74,7 +74,10 @@ var stateZoneRadii = {
 
 // Operating Surface scales between Coherent (0%) and Fractured (100%) positions
 var resistancePct = parseFloat(overallPct) || 0;
-var outerR = 138 + (resistancePct / 100) * (266 - 138);
+// Scale 0-100% resistance across full range: 0% at core, 100% at Fractured outer edge
+var minR = coreR;  // 0% = core radius (36)
+var maxR = stateZoneRadii['Fractured'];  // 100% = Fractured boundary (306)
+var outerR = minR + (resistancePct / 100) * (maxR - minR);
 
 // Small visual gap between outermost ring and Operating Surface
 var visualGap = 3;
