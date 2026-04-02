@@ -314,16 +314,34 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
-// STATE LABELS - Rotated 90°, left-aligned with ring boundaries
-var leftEdge = 30;
+// STATE LABELS - Rotated 90°, positioned at left side aligned with dashed rings
+var leftEdge = 45;
 
-stateOrder.forEach(function(stateName, idx) {
+// Draw state zone dashed circles AND labels together
+for(var i = stateIndex; i < stateOrder.length; i++) {
+  var stateName = stateOrder[i];
   var stateR = stateZoneRadii[stateName];
+  var stateColor = SC[stateName].solid;
+  
+  // Draw dashed circle (for states beyond current)
+  if(i > stateIndex) {
+    svg.appendChild(svgEl('circle', {
+      cx: cx,
+      cy: cy,
+      r: stateR,
+      fill: 'none',
+      stroke: stateColor,
+      'stroke-width': '1.2',
+      'stroke-dasharray': '5 4',
+      opacity: '0.45'
+    }));
+  }
+  
+  // Calculate where the circle intersects the left edge of viewable area
   var labelY = cy - stateR;
   
-  // Only show labels for states beyond current (including current state)
-  if(idx >= stateIndex) {
-    // Create rotated text element
+  // Only show label if it's in visible range
+  if(labelY > 20 && labelY < svgH - 20) {
     var textEl = svgEl('text', {
       x: leftEdge,
       y: labelY,
@@ -331,15 +349,15 @@ stateOrder.forEach(function(stateName, idx) {
       'font-size': '10',
       'font-weight': '600',
       'font-family': 'DM Sans, sans-serif',
-      'letter-spacing': '0.5',
-      fill: SC[stateName].solid,
-      opacity: idx === stateIndex ? '1' : '0.5',
+      'letter-spacing': '0.8',
+      fill: stateColor,
+      opacity: i === stateIndex ? '1' : '0.5',
       transform: 'rotate(-90 ' + leftEdge + ' ' + labelY + ')'
     });
     textEl.textContent = stateName.toUpperCase();
     svg.appendChild(textEl);
   }
-});
+}
 </script>
 </body>
 </html>
