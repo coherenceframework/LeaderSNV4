@@ -322,36 +322,30 @@ stateOrder.forEach(function(stateName, idx) {
   var stateR = stateZoneRadii[stateName];
   var labelY = cy - stateR;
   
-  // Only show labels for states beyond current (including current state line)
+// STATE LABELS - Rotated 90°, left-aligned with ring boundaries
+var leftEdge = 30;
+
+stateOrder.forEach(function(stateName, idx) {
+  var stateR = stateZoneRadii[stateName];
+  var labelY = cy - stateR;
+  
+  // Only show labels for states beyond current (including current state)
   if(idx >= stateIndex) {
-    // Vertical state name on the left
+    // Create rotated text element
     var textEl = svgEl('text', {
       x: leftEdge,
       y: labelY,
-      'text-anchor': 'start',
+      'text-anchor': 'middle',
       'font-size': '10',
       'font-weight': '600',
       'font-family': 'DM Sans, sans-serif',
+      'letter-spacing': '0.5',
       fill: SC[stateName].solid,
-      opacity: idx === stateIndex ? '1' : '0.5'
+      opacity: idx === stateIndex ? '1' : '0.5',
+      transform: 'rotate(-90 ' + leftEdge + ' ' + labelY + ')'
     });
     textEl.textContent = stateName.toUpperCase();
     svg.appendChild(textEl);
-    
-    // Extend dashed line to label (if not current state)
-    if(idx > stateIndex) {
-      var lineEndX = leftEdge - 8;
-      svg.appendChild(svgEl('line', {
-        x1: cx - stateR,
-        y1: labelY,
-        x2: lineEndX,
-        y2: labelY,
-        stroke: SC[stateName].solid,
-        'stroke-width': '1',
-        'stroke-dasharray': '3 2',
-        opacity: '0.4'
-      }));
-    }
   }
 });
 </script>
