@@ -66,8 +66,12 @@ var cy=svgH-48;
 // All five state zones at FIXED absolute positions
 // State zone radii based on percentage thresholds from scoring engine
 // Coherent: 0-11%, Driven: 12-28%, Strained: 29-50%, Drifting: 51-72%, Fractured: 73-100%
-var minRadius = 138;  // Coherent boundary (0% resistance)
-var maxRadius = 306;  // Fractured boundary (100% resistance)
+var minOperatingRadius = 120;  // Minimum Operating Surface (0% resistance)
+var maxOperatingRadius = 306;   // Maximum Operating Surface (100% resistance)
+
+// State zone boundaries based on resistance thresholds
+var minRadius = minOperatingRadius;
+var maxRadius = maxOperatingRadius;
 var totalRange = maxRadius - minRadius;
 
 var stateZoneRadii = {
@@ -80,7 +84,7 @@ var stateZoneRadii = {
 
 // Operating Surface scales from Coherent boundary (0%) to Fractured boundary (100%)
 var resistancePct = parseFloat(overallPct) || 0;
-var outerR = stateZoneRadii['Coherent'] + (resistancePct / 100) * (stateZoneRadii['Fractured'] - stateZoneRadii['Coherent']);
+var outerR = minOperatingRadius + (resistancePct / 100) * (maxOperatingRadius - minOperatingRadius);
 
 // Small visual gap between outermost ring and Operating Surface
 var visualGap = 3;
