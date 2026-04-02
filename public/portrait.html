@@ -94,6 +94,9 @@ svgTxt(10, 65, 'Drifting: ' + stateZoneRadii['Drifting'].toFixed(2), {
 svgTxt(10, 80, 'Fractured: ' + stateZoneRadii['Fractured'].toFixed(2), {
   'text-anchor':'start','font-size':'10',fill:'#000','font-family':'monospace'
 });
+  svgTxt(10, 95, 'outerR: ' + outerR.toFixed(2), {
+  'text-anchor':'start','font-size':'10',fill:'#000','font-family':'monospace'
+});
 
 // Operating Surface scales from Coherent boundary (0%) to Fractured boundary (100%)
 var resistancePct = parseFloat(overallPct) || 0;
