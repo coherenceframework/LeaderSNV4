@@ -156,24 +156,6 @@ svg.appendChild(svgEl('circle',{
 // CORE
 svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
 
-// STATE DASHED LINES - drawn AFTER rings so they stay visible
-for(var i = stateIndex; i < stateOrder.length; i++) {
-  var stateName = stateOrder[i];
-  var stateR = stateZoneRadii[stateName];
-  var stateColor = SC[stateName].solid;
-  
-  svg.appendChild(svgEl('circle', {
-    cx: cx,
-    cy: cy,
-    r: stateR,
-    fill: 'none',
-    stroke: stateColor,
-    'stroke-width': '1.2',
-    'stroke-dasharray': '5 4',
-    opacity: i === stateIndex ? '0.6' : '0.4'
-  }));
-}
-
 // OPERATING SURFACE
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:outerR,
