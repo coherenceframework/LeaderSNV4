@@ -171,30 +171,6 @@ svg.appendChild(svgEl('circle',{
 
 // CORE - drawn on top so it covers inner rings
 svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
-
-// STATE ZONE LINES - FIXED positions, show zones beyond current state
-for(var i=stateIndex+1;i<stateOrder.length;i++){
-  var zName=stateOrder[i];
-  var zR=stateZoneRadii[zName];
-  var zSolid=SC[zName].solid;
-  
-  svg.appendChild(svgEl('circle',{
-    cx:cx,cy:cy,r:zR,
-    fill:'none',stroke:zSolid,'stroke-width':'1.2','stroke-dasharray':'5 4',opacity:'0.45'
-  }));
-  
-  var prevName=stateOrder[i-1];
-  var prevR=stateZoneRadii[prevName];
-  var labelR=(zR+prevR)/2;
-  var labelY=cy-labelR;
-  
-  if(labelY>10 && labelY<svgH-10){
-    svgTxt(cx, labelY+4, zName, {
-      'text-anchor':'middle','font-size':'10','font-weight':'600',
-      fill:zSolid,opacity:'0.45','font-family':'DM Sans, sans-serif'
-    });
-  }
-}
   
 // OPERATING SURFACE - dashed line
 svg.appendChild(svgEl('circle',{
@@ -314,28 +290,46 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
-// STATE LABELS - Rotated 90°, positioned at left side aligned with dashed rings
-var leftEdge = 45;
+// STATE LABELS AND DASHED LINES - drawn AFTER everything so they stay visible
+var leftEdge = 42;
 
-// Draw state zone dashed circles AND labels together
 for(var i = stateIndex; i < stateOrder.length; i++) {
   var stateName = stateOrder[i];
   var stateR = stateZoneRadii[stateName];
   var stateColor = SC[stateName].solid;
   
-  // Draw dashed circle (for states beyond current)
-  if(i > stateIndex) {
-    svg.appendChild(svgEl('circle', {
-      cx: cx,
-      cy: cy,
-      r: stateR,
-      fill: 'none',
-      stroke: stateColor,
-      'stroke-width': '1.2',
-      'stroke-dasharray': '5 4',
-      opacity: '0.45'
-    }));
+  // Draw dashed circle (for all states including current)
+  svg.appendChild(svgEl('circle', {
+    cx: cx,
+    cy: cy,
+    r: stateR,
+    fill: 'none',
+    stroke: stateColor,
+    'stroke-width': '1.2',
+    'stroke-dasharray': '5 4',
+    opacity: i === stateIndex ? '0.6' : '0.4'
+  }));
+  
+  // Position label on LEFT side at ring height
+  var labelY = cy - stateR;
+  
+  if(labelY > 25) {
+    var textEl = svgEl('text', {
+      x: leftEdge,
+      y: labelY + 5,  // Slight offset for visual alignment
+      'text-anchor': 'start',
+      'font-size': '9',
+      'font-weight': '600',
+      'font-family': 'DM Sans, sans-serif',
+      'letter-spacing': '1',
+      fill: stateColor,
+      opacity: i === stateIndex ? '0.8' : '0.5',
+      transform: 'rotate(-90 ' + leftEdge + ' ' + (labelY + 5) + ')'
+    });
+    textEl.textContent = stateName.toUpperCase();
+    svg.appendChild(textEl);
   }
+}
   
   // Calculate where the circle intersects the left edge of viewable area
   var labelY = cy - stateR;
