@@ -278,8 +278,6 @@ svg.appendChild(svgEl('line',{
 }));
 
 // STATE LABELS AND DASHED LINES - drawn AFTER everything so they stay visible
-var leftEdge = 42;
-
 for(var i = stateIndex; i < stateOrder.length; i++) {
   var stateName = stateOrder[i];
   var stateR = stateZoneRadii[stateName];
@@ -297,30 +295,29 @@ for(var i = stateIndex; i < stateOrder.length; i++) {
     opacity: i === stateIndex ? '0.6' : '0.4'
   }));
   
-  // Position label on LEFT side at ring height
-  var labelY = cy - stateR;
+  // Position label INSIDE chart, left of the ring boundary
+  var labelX = cx - stateR + 30; // Just inside the left edge of this ring
+  var labelY = cy - 10;
   
-  if(labelY > 25) {
-    // Use a group with transform
-    var g = svgEl('g', {
-      transform: 'translate(' + leftEdge + ',' + labelY + ') rotate(-90)'
-    });
-    
-    var textEl = svgEl('text', {
-      x: 0,
-      y: 0,
-      'text-anchor': 'middle',
-      'font-size': '9',
-      'font-weight': '600',
-      'font-family': 'DM Sans, sans-serif',
-      'letter-spacing': '1',
-      fill: stateColor,
-      opacity: i === stateIndex ? '0.8' : '0.5'
-    });
-    textEl.textContent = stateName.toUpperCase();
-    g.appendChild(textEl);
-    svg.appendChild(g);
-  }
+  // Use a group with transform
+  var g = svgEl('g', {
+    transform: 'translate(' + labelX + ',' + labelY + ') rotate(-90)'
+  });
+  
+  var textEl = svgEl('text', {
+    x: 0,
+    y: 0,
+    'text-anchor': 'middle',
+    'font-size': '10',
+    'font-weight': '600',
+    'font-family': 'DM Sans, sans-serif',
+    'letter-spacing': '1',
+    fill: stateColor,
+    opacity: i === stateIndex ? '0.8' : '0.5'
+  });
+  textEl.textContent = stateName.toUpperCase();
+  g.appendChild(textEl);
+  svg.appendChild(g);
 }
 </script>
 </body>
