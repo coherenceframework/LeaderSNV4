@@ -301,20 +301,25 @@ for(var i = stateIndex; i < stateOrder.length; i++) {
   var labelY = cy - stateR;
   
   if(labelY > 25) {
-    // Create text element
-    var textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    textEl.setAttribute('x', leftEdge);
-    textEl.setAttribute('y', labelY);
-    textEl.setAttribute('text-anchor', 'middle');
-    textEl.setAttribute('font-size', '9');
-    textEl.setAttribute('font-weight', '600');
-    textEl.setAttribute('font-family', 'DM Sans, sans-serif');
-    textEl.setAttribute('letter-spacing', '1');
-    textEl.setAttribute('fill', stateColor);
-    textEl.setAttribute('opacity', i === stateIndex ? '0.8' : '0.5');
-    textEl.setAttribute('transform', 'rotate(-90, ' + leftEdge + ', ' + labelY + ')');
+    // Use a group with transform
+    var g = svgEl('g', {
+      transform: 'translate(' + leftEdge + ',' + labelY + ') rotate(-90)'
+    });
+    
+    var textEl = svgEl('text', {
+      x: 0,
+      y: 0,
+      'text-anchor': 'middle',
+      'font-size': '9',
+      'font-weight': '600',
+      'font-family': 'DM Sans, sans-serif',
+      'letter-spacing': '1',
+      fill: stateColor,
+      opacity: i === stateIndex ? '0.8' : '0.5'
+    });
     textEl.textContent = stateName.toUpperCase();
-    svg.appendChild(textEl);
+    g.appendChild(textEl);
+    svg.appendChild(g);
   }
 }
 </script>
