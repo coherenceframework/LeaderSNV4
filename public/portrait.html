@@ -129,56 +129,52 @@ rg.appendChild(svgEl('stop',{offset:'0%','stop-color':'#3A7D44'}));
 rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
 defs.appendChild(rg);
 
-// Clip paths for rings (so they don't overlap)
-var clipBeing = svgEl('clipPath',{id:'clipB'});
-clipBeing.appendChild(svgEl('circle',{cx:cx,cy:cy,r:bR}));
-var maskBCore = svgEl('circle',{cx:cx,cy:cy,r:coreR});
-clipBeing.appendChild(maskBCore);
-defs.appendChild(clipBeing);
-
-var clipRelating = svgEl('clipPath',{id:'clipR'});
-clipRelating.appendChild(svgEl('circle',{cx:cx,cy:cy,r:rR}));
-var maskRInner = svgEl('circle',{cx:cx,cy:cy,r:bR});
-clipRelating.appendChild(maskRInner);
-defs.appendChild(clipRelating);
-
-var clipCreating = svgEl('clipPath',{id:'clipC'});
-clipCreating.appendChild(svgEl('circle',{cx:cx,cy:cy,r:cR}));
-var maskCInner = svgEl('circle',{cx:cx,cy:cy,r:rR});
-clipCreating.appendChild(maskCInner);
-defs.appendChild(clipCreating);
-
 svg.appendChild(defs);
 
-// TERRITORY RINGS - drawn from inside out, each fills only its band
-// Being ring (innermost, around core)
+// TERRITORY RINGS - drawn from inside out
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:bR,
   fill:SC[bState].fill,stroke:SC[bState].border,'stroke-width':'1.5'
 }));
 
-// Relating ring (middle band)
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:rR,
   fill:SC[rState].fill,stroke:SC[rState].border,'stroke-width':'1.5'
 }));
 
-// Creating ring (outer band)
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:cR,
   fill:SC[cState].fill,stroke:SC[cState].border,'stroke-width':'1.5'
 }));
 
-// CORE - drawn on top so it covers inner rings
+// CORE
 svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
+
+// STATE DASHED LINES - drawn AFTER rings so they stay visible
+for(var i = stateIndex; i < stateOrder.length; i++) {
+  var stateName = stateOrder[i];
+  var stateR = stateZoneRadii[stateName];
+  var stateColor = SC[stateName].solid;
   
-// OPERATING SURFACE - dashed line
+  svg.appendChild(svgEl('circle', {
+    cx: cx,
+    cy: cy,
+    r: stateR,
+    fill: 'none',
+    stroke: stateColor,
+    'stroke-width': '1.2',
+    'stroke-dasharray': '5 4',
+    opacity: i === stateIndex ? '0.6' : '0.4'
+  }));
+}
+
+// OPERATING SURFACE
 svg.appendChild(svgEl('circle',{
   cx:cx,cy:cy,r:outerR,
   fill:'none',stroke:SC[overallState].solid,
   'stroke-width':'3','stroke-dasharray':'8 4'
 }));
-  
+
 // ADAPTED SELF LABEL
 var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-7;
@@ -209,11 +205,9 @@ svgTxt(cx, osLabelY+15, overallState + ' — ' + overallPct + '% resistance', {
   });
 });
 
-// VITRUVIAN FIGURE - FIXED SIZE
+// VITRUVIAN FIGURE
 var figureHeight = 133;
 var figColor = 'rgba(255,255,255,0.75)';
-
-// Proportions
 var headR = figureHeight * 0.13;
 var neckH = headR * 0.4;
 var torsoH = figureHeight * 0.45;
@@ -221,27 +215,22 @@ var legH = figureHeight * 0.3;
 var shoulderW = headR * 2.2;
 var waistW = headR * 3.6;
 var hipW = headR * 1.8;
-
-// Calculate vertical positions
 var headCy = cy - torsoH - neckH - headR;
 var neckTop = cy - torsoH - neckH;
 var neckBottom = cy - torsoH;
 var waistY = cy - (torsoH * 0.4);
 var hipY = cy;
 
-// Head
 svg.appendChild(svgEl('circle',{
   cx:cx, cy:headCy, r:headR,
   fill:figColor, stroke:'rgba(255,255,255,0.95)', 'stroke-width':'1.5'
 }));
 
-// Neck
 svg.appendChild(svgEl('rect',{
   x:cx-(headR*0.35), y:neckTop, width:headR*0.7, height:neckH,
   fill:figColor, stroke:'rgba(255,255,255,0.95)', 'stroke-width':'1.5'
 }));
 
-// Torso
 var torsoPath = 
   'M '+(cx-shoulderW/2)+','+neckBottom+' '+
   'L '+(cx+shoulderW/2)+','+neckBottom+' '+
@@ -256,7 +245,6 @@ svg.appendChild(svgEl('path',{
   'stroke-linejoin':'round'
 }));
 
-// COHERENT CORE text
 svgTxt(cx, waistY+3, 'COHERENT', {
   'text-anchor':'middle','font-size':'9','font-weight':'700',
   'letter-spacing':'1.4',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
@@ -266,7 +254,6 @@ svgTxt(cx, waistY+13, 'CORE', {
   'letter-spacing':'1.4',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
 });
 
-// Arms - fixed reach
 var armW = 204;
 var shoulderY = neckBottom + (torsoH * 0.1);
 var armThick = headR * 0.35;
@@ -279,7 +266,6 @@ svg.appendChild(svgEl('line',{
   stroke:figColor, 'stroke-width':armThick, 'stroke-linecap':'round'
 }));
 
-// Legs
 var legThick = headR * 0.4;
 var legSpread = headR * 2;
 svg.appendChild(svgEl('line',{
@@ -290,33 +276,19 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
-// STATE LABELS AND DASHED LINES - drawn AFTER everything so they stay visible
-var leftEdge = 42;
 
+// STATE LABELS - left side, rotated 90°
+var leftEdge = 42;
 for(var i = stateIndex; i < stateOrder.length; i++) {
   var stateName = stateOrder[i];
   var stateR = stateZoneRadii[stateName];
   var stateColor = SC[stateName].solid;
-  
-  // Draw dashed circle (for all states including current)
-  svg.appendChild(svgEl('circle', {
-    cx: cx,
-    cy: cy,
-    r: stateR,
-    fill: 'none',
-    stroke: stateColor,
-    'stroke-width': '1.2',
-    'stroke-dasharray': '5 4',
-    opacity: i === stateIndex ? '0.6' : '0.4'
-  }));
-  
-  // Position label on LEFT side at ring height
   var labelY = cy - stateR;
   
   if(labelY > 25) {
     var textEl = svgEl('text', {
       x: leftEdge,
-      y: labelY + 5,  // Slight offset for visual alignment
+      y: labelY + 5,
       'text-anchor': 'start',
       'font-size': '9',
       'font-weight': '600',
@@ -325,28 +297,6 @@ for(var i = stateIndex; i < stateOrder.length; i++) {
       fill: stateColor,
       opacity: i === stateIndex ? '0.8' : '0.5',
       transform: 'rotate(-90 ' + leftEdge + ' ' + (labelY + 5) + ')'
-    });
-    textEl.textContent = stateName.toUpperCase();
-    svg.appendChild(textEl);
-  }
-}
-  
-  // Calculate where the circle intersects the left edge of viewable area
-  var labelY = cy - stateR;
-  
-  // Only show label if it's in visible range
-  if(labelY > 20 && labelY < svgH - 20) {
-    var textEl = svgEl('text', {
-      x: leftEdge,
-      y: labelY,
-      'text-anchor': 'middle',
-      'font-size': '10',
-      'font-weight': '600',
-      'font-family': 'DM Sans, sans-serif',
-      'letter-spacing': '0.8',
-      fill: stateColor,
-      opacity: i === stateIndex ? '1' : '0.5',
-      transform: 'rotate(-90 ' + leftEdge + ' ' + labelY + ')'
     });
     textEl.textContent = stateName.toUpperCase();
     svg.appendChild(textEl);
