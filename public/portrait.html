@@ -314,14 +314,6 @@ svg.appendChild(svgEl('line',{
   x1:cx+hipW/2, y1:hipY, x2:cx+legSpread, y2:cy+legH,
   stroke:figColor, 'stroke-width':legThick, 'stroke-linecap':'round'
 }));
-// STATE LABELS - Vertical, left-aligned along chart edge
-var leftEdge = 48; // Distance from left edge of SVG
-
-// Show labels for all states with their zone positions
-stateOrder.forEach(function(stateName, idx) {
-  var stateR = stateZoneRadii[stateName];
-  var labelY = cy - stateR;
-  
 // STATE LABELS - Rotated 90°, left-aligned with ring boundaries
 var leftEdge = 30;
 
@@ -348,6 +340,9 @@ stateOrder.forEach(function(stateName, idx) {
     svg.appendChild(textEl);
   }
 });
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
