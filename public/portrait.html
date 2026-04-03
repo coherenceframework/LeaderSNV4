@@ -170,6 +170,9 @@ svg.appendChild(svgEl('circle',{
 // ADAPTED SELF LABEL
 var osMidR=(outerR+cR)/2;
 var osLabelY=cy-osMidR-35;
+var minLabelY = 50; // Minimum Y position (stay at least 50px from top)
+if (osLabelY < minLabelY) {
+osLabelY = minLabelY;}
 svg.appendChild(svgEl('rect',{
   x:cx-175,y:osLabelY-18,width:'350',height:'45',
   rx:'4',fill:'#FFFFFF',opacity:'0.9'
