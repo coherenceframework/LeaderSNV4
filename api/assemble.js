@@ -67,11 +67,14 @@ const PORTRAIT_FRAME_SUBTYPE = {
   "UNVERIFIED": "A gap this size, at this reading, sits at the boundary of what the instrument can determine. The number is real. What it cannot confirm is whether the low resistance reflects expanding development, stable maintenance, correct-container alignment, or normalised conditions that no longer register as friction. The primal gap remains the most important single signal in this reading — and it requires more than this instrument can generate on its own to account for fully.",
 };
 
-function buildPortraitFrame(state, diagPct, coherentSubtype, definingFlag) {
+function buildPortraitFrame(state, diagPct, coherentSubtype, definingFlag, breadthOverride) {
   const ds = displayState(state);
+  const closingSentence = (breadthOverride && breadthOverride !== "NONE")
+    ? "The readings that follow show how each territory is carrying that resistance — in your case, it is the spread across territories, not any single cluster, that shaped this reading."
+    : "The readings that follow show how each territory is carrying that resistance.";
   let out = wrap("This is your Coherence Portrait — the Primal Gap as it exists in you right now. Your Coherent Core sits at the centre, always intact. Your Operating Surface — where you actually function in the world — sits at the "
     + bld + stSpan(ds) + be + " threshold, indicated as a "
-    + bld + diagPct + "%" + be + " resistance to your core signal. Your core signal is filtered through three territories of your whole operating self — Being, Relating, and Creating. The readings that follow show how each territory is carrying that resistance.");
+    + bld + diagPct + "%" + be + " resistance to your core signal. Your core signal is filtered through three territories of your whole operating self — Being, Relating, and Creating. " + closingSentence);
   // v8: append subtype-sensitive primal gap prose when a subtype has been resolved
   if (state === "COHERENT" && coherentSubtype && PORTRAIT_FRAME_SUBTYPE[coherentSubtype]) {
     out += wrap(PORTRAIT_FRAME_SUBTYPE[coherentSubtype]);
@@ -1135,14 +1138,19 @@ function assembleReport(v) {
   const gap_spectrum_reading = buildGapSpectrumReading(state, diagPct, isZeroAmp);
 
   // ─── PORTRAIT FRAME + TERRITORY READINGS ───
-  const portrait_frame = buildPortraitFrame(state, diagPct, null, definingFlag);
+  const portrait_frame = buildPortraitFrame(state, diagPct, null, definingFlag, breadthOverride);
   const beingSubtitle = TERRITORY_SUBTITLES["Being"][bState];
   const relatingSubtitle = TERRITORY_SUBTITLES["Relating"][rState];
   const creatingSubtitle = TERRITORY_SUBTITLES["Creating"][cState];
   const beingSubtitleColor = stateStyle[bState] || "color:#1A1A2E;font-weight:bold;";
   const relatingSubtitleColor = stateStyle[rState] || "color:#1A1A2E;font-weight:bold;";
   const creatingSubtitleColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
-  const gap_being_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + beingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + beingSubtitle + "</p><p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-top:0;margin-bottom:11px;'>" + GAP_BEING[bState] + "</p>";
+  // v8: breadth override expanded note — prepended to Territories page (before Being)
+  let breadthOverrideNote = "";
+  if (breadthOverride && breadthOverride !== "NONE") {
+    breadthOverrideNote = wrap("A note on how to read this section: your overall state was shaped by breadth as well as depth. When load is distributed across enough domains simultaneously, the framework adjusts the overall state upward — because distributed friction compounds in ways that a single concentrated cluster does not. What follows reads each territory for what it is specifically carrying. The pattern across all three is what the overall state is measuring.");
+  }
+  const gap_being_reading = breadthOverrideNote + "<p style='font-family:Inter,sans-serif;font-size:11pt;" + beingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + beingSubtitle + "</p><p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-top:0;margin-bottom:11px;'>" + GAP_BEING[bState] + "</p>";
   const gap_relating_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + relatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + relatingSubtitle + "</p><p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-top:0;margin-bottom:11px;'>" + GAP_RELATING[rState] + "</p>";
   const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + creatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + creatingSubtitle + "</p><p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-top:0;margin-bottom:11px;'>" + GAP_CREATING[cState] + "</p>";
   const gap_bridge = wrap(GAP_BRIDGE);
