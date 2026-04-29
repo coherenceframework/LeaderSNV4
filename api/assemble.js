@@ -1068,6 +1068,7 @@ const SEC10 = {
 };
 
 const SEC10_ZERO_AMP = `This reading has named two possibilities and cannot determine which one is correct. That is not a limitation specific to this instrument — it is a structural property of any diagnostic that depends on self-report to generate its signal. What can be said is this: a zero-amplitude result that sits alongside a clear, accountable explanation for why this state was produced is a different reading from one that sits alongside uncertainty. If the first is true, the relevant question is what sustains this alignment and whether you would recognise the early signal of a shift. If the second is closer to the truth, the honest recognition of that — however uncomfortable — is itself the beginning of access. The deeper layers of the Coherence Framework are designed to read at a level that does not require your self-report to produce the signal.`;
+const SEC10_DRIVEN_BLIND = `The distance between what you feel and what the instrument measured is the primary finding in this report. At this level of divergence, the absence of a felt signal is not evidence that the load is absent — it is evidence that the adapted self has become sufficiently capable of carrying it that the signal no longer reaches the surface. What you are sustaining and what you are feeling are not the same thing. The question this reading cannot answer: what would have to change for the cost of the current arrangement to become visible to you before it becomes visible to everyone else.`;
 
 // ════════════════════════════════════════════════════════════════
 // ASSEMBLY FUNCTION
@@ -1086,7 +1087,10 @@ function assembleReport(v) {
 
   // ─── ZERO-AMPLITUDE DETECTION ───
   const isZeroAmp = parseInt(v.zero_amplitude_clusters || 0) >= ZERO_AMP_THRESHOLD && state === "COHERENT";
-
+  const delta = parseFloat(v.self_vs_instrument_delta || 0);
+  const divMag = v.divergence_magnitude || "SMALL";
+  const isSignificantContradiction = divMag === "SIGNIFICANT" && gap !== "ALIGNED";
+  
   const beingStateStyled = "<span style='" + (stateStyle[bState] || "") + "'>" + bState.toUpperCase() + "</span>";
   const relatingStateStyled = "<span style='" + (stateStyle[rState] || "") + "'>" + rState.toUpperCase() + "</span>";
   const creatingStateStyled = "<span style='" + (stateStyle[cState] || "") + "'>" + cState.toUpperCase() + "</span>";
@@ -1129,7 +1133,14 @@ function assembleReport(v) {
   const sec05_html = buildSec05(combos, clusterScores, isZeroAmp);
 
   // ─── SEC 10: THE OPEN LOOP ───
-  const sec10_html = isZeroAmp ? wrap(SEC10_ZERO_AMP) : wrap(SEC10[state] || "");
+  let sec10_html;
+  if (isZeroAmp) {
+    sec10_html = wrap(SEC10_ZERO_AMP);
+  } else if (isSignificantContradiction && state === "DRIVEN" && gap === "CONTRADICTION_DRIVEN") {
+    sec10_html = wrap(SEC10_DRIVEN_BLIND);
+  } else {
+    sec10_html = wrap(SEC10[state] || "");
+  }
 
   // ─── RETURN ALL MERGE FIELDS ───
   return {
