@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// LEADER COHERENCE SNAPSHOT — CONTENT ASSEMBLY ENGINE v3
+// LEADER COHERENCE SNAPSHOT — CONTENT ASSEMBLY ENGINE v4
 // Vercel Serverless Function (api/assemble.js)
 // Zero-amplitude patch integrated.
 // ════════════════════════════════════════════════════════════════
