@@ -2,7 +2,7 @@
 // LEADER COHERENCE SNAPSHOT — CONTENT ASSEMBLY ENGINE v6
 // Vercel Serverless Function (api/assemble.js)
 // Zero-amplitude patch integrated.
-// v8 scoring engine: defining_flag, breadth_override, PORTRAIT_FRAME_SUBTYPE,
+// v6 scoring engine: defining_flag, breadth_override, PORTRAIT_FRAME_SUBTYPE,
 //   SEC01/SEC10 COHERENT updates, COHERENT subtype routing (UNVERIFIED interim default).
 // ════════════════════════════════════════════════════════════════
 
