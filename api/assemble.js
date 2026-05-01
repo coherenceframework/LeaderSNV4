@@ -1090,7 +1090,7 @@ function assembleReport(v) {
   const isZeroAmp = parseInt(v.zero_amplitude_clusters || 0) >= ZERO_AMP_THRESHOLD && state === "COHERENT";
   const delta = parseFloat(v.self_vs_instrument_delta || 0);
   const divMag = v.divergence_magnitude || "SMALL";
-  const isSignificantContradiction = divMag === "SIGNIFICANT" && gap !== "ALIGNED";
+  const isSignificantContradiction = divMag === "SIGNIFICANT";
 
   // ─── v8 FIELDS ───
   const definingFlag = v.defining_flag || "NONE";
@@ -1167,7 +1167,7 @@ function assembleReport(v) {
   let closing_frame;
   if (isZeroAmp) {
     closing_frame = wrap(SEC10_ZERO_AMP);
-  } else if (isSignificantContradiction && state === "DRIVEN" && gap === "CONTRADICTION_DRIVEN") {
+  } else if (isSignificantContradiction && gap === "CONTRADICTION_DRIVEN") {
     closing_frame = wrap(SEC10_DRIVEN_BLIND);
   } else {
     closing_frame = wrap(SEC10[state] || "");
