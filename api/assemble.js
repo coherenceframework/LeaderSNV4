@@ -1080,7 +1080,6 @@ function assembleReport(v) {
   const dom = v.pattern_dominance;
   const name = v.leader_name;
   const date = v.snapshot_date;
-  const textField = v.text_field_response || "";
   const bState = displayState(v.being_state || 'COHERENT');
   const rState = displayState(v.relating_state || 'COHERENT');
   const cState = displayState(v.creating_state || 'COHERENT');
@@ -1120,7 +1119,10 @@ function assembleReport(v) {
   let coherent_qualifier = "";
   if (state === "COHERENT") {
     const coherentSubtype = "UNVERIFIED";
-    if (PORTRAIT_FRAME_SUBTYPE[coherentSubtype]) {
+    // UNVERIFIED returns empty — gap_spectrum_reading covers the COHERENT ambiguity
+    // narrative. coherent_qualifier fires only for named subtypes (EXPANDING /
+    // SUSTAINING / ROLE_FIT) once v2 Phase 1b subtype routing is implemented.
+    if (coherentSubtype !== "UNVERIFIED" && PORTRAIT_FRAME_SUBTYPE[coherentSubtype]) {
       coherent_qualifier = wrap(PORTRAIT_FRAME_SUBTYPE[coherentSubtype]);
     }
   }
