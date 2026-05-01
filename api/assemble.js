@@ -2,7 +2,7 @@
 // LEADER COHERENCE SNAPSHOT — CONTENT ASSEMBLY ENGINE v6
 // Vercel Serverless Function (api/assemble.js)
 // Zero-amplitude patch integrated.
-// v6 scoring engine: defining_flag, breadth_override, PORTRAIT_FRAME_SUBTYPE,
+// v8 scoring engine: defining_flag, breadth_override, PORTRAIT_FRAME_SUBTYPE,
 //   SEC01/SEC10 COHERENT updates, COHERENT subtype routing (UNVERIFIED interim default).
 // ════════════════════════════════════════════════════════════════
 
@@ -1088,7 +1088,6 @@ function assembleReport(v) {
 
   // ─── ZERO-AMPLITUDE DETECTION ───
   const isZeroAmp = parseInt(v.zero_amplitude_clusters || 0) >= ZERO_AMP_THRESHOLD && state === "COHERENT";
-  const delta = parseFloat(v.self_vs_instrument_delta || 0);
   const divMag = v.divergence_magnitude || "SMALL";
   const isSignificantContradiction = divMag === "SIGNIFICANT";
 
