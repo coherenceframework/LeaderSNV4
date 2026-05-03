@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=640, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #F3F1EC;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+  }
+  .wrapper {
+    width: 640px;
+    background: #F3F1EC;
+    text-align: center;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <svg id="portSvg" width="640" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+<script>
+var P=new URLSearchParams(window.location.search);
+var beingScore=parseInt(P.get('bscore')||'0');
+var relatingScore=parseInt(P.get('rscore')||'0');
+var creatingScore=parseInt(P.get('cscore')||'0');
+var stateMap={
+  'COHERENT':'Coherent','DRIVEN':'Driven','STRAINED':'Strained',
+  'DRIFTING':'Drifting','FRACTURED':'Fractured','QUALIFIED':'Coherent'
+};
+var overallState=stateMap[P.get('state')||'COHERENT']||'Coherent';
+var overallPct=P.get('pct')||'0';
+var bState=stateMap[P.get('bstate')||'COHERENT']||'Coherent';
+var rState=stateMap[P.get('rstate')||'COHERENT']||'Coherent';
+var cState=stateMap[P.get('cstate')||'COHERENT']||'Coherent';
+var SC={
+  Coherent:{fill:'rgba(58,125,68,0.35)',border:'rgba(58,125,68,0.65)',solid:'#3A7D44'},
+  Driven:{fill:'rgba(74,111,165,0.35)',border:'rgba(74,111,165,0.65)',solid:'#4A6FA5'},
+  Strained:{fill:'rgba(212,168,67,0.35)',border:'rgba(212,168,67,0.65)',solid:'#D4A843'},
+  Drifting:{fill:'rgba(123,45,142,0.35)',border:'rgba(123,45,142,0.65)',solid:'#7B2D8E'},
+  Fractured:{fill:'rgba(168,40,40,0.35)',border:'rgba(168,40,40,0.65)',solid:'#A82828'}
+};
+var stateOrder=['Coherent','Driven','Strained','Drifting','Fractured'];
+var stateIndex=stateOrder.indexOf(overallState);
+var svg=document.getElementById('portSvg');
+var coreR=36;
+var svgW=640, svgH=360;
+var cx=svgW/2;
+var cy=svgH-48;
+var minOperatingRadius=120;
+var maxOperatingRadius=306;
+var minRadius=minOperatingRadius;
+var maxRadius=maxOperatingRadius;
+var totalRange=maxRadius-minRadius;
+var stateZoneRadii={
+  'Coherent':minRadius+(0.11*totalRange),
+  'Driven':minRadius+(0.28*totalRange),
+  'Strained':minRadius+(0.50*totalRange),
+  'Drifting':minRadius+(0.72*totalRange),
+  'Fractured':maxRadius
+};
+var resistancePct=parseFloat(overallPct)||0;
+var outerR=minOperatingRadius+(resistancePct/100)*(maxOperatingRadius-minOperatingRadius);
+var visualGap=3;
+var availableSpace=outerR-coreR-visualGap;
+
+// FIX: Correct territory max denominators to match FIX 9 (was 27/27/18)
+var bNorm=beingScore/21;
+var rNorm=relatingScore/21;
+var cNorm=creatingScore/14;
+var totalNorm=bNorm+rNorm+cNorm;
+
+// Minimum ring thickness ensures label circle (r=14) always fits and
+// adjacent labels never overlap. minThickness caps at availableSpace/3
+// so we never exceed available space when all three rings are at minimum.
+var minThickness=Math.min(32, availableSpace/3);
+
+// Label circle radius scales down if space is very tight (low pct readings)
+var labelR=Math.min(14, Math.floor(minThickness/2)-1);
+
+var bT, relTh, creTh;
+if(totalNorm===0){
+  bT=availableSpace/3;
+  relTh=availableSpace/3;
+  creTh=availableSpace/3;
+} else {
+  var extraSpace=Math.max(0, availableSpace-(minThickness*3));
+  bT=minThickness+extraSpace*(bNorm/totalNorm);
+  relTh=minThickness+extraSpace*(rNorm/totalNorm);
+  creTh=minThickness+extraSpace*(cNorm/totalNorm);
+}
+
+var bR=coreR+bT;
+var rR=bR+relTh;
+var cR=rR+creTh;
+
+svg.setAttribute('viewBox','0 0 '+svgW+' '+svgH);
+svg.setAttribute('height',svgH);
+svg.style.display='block';
+svg.style.margin='0 auto';
+
+function svgEl(tag,attrs){
+  var el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(var k in attrs) el.setAttribute(k,attrs[k]);
+  return el;
+}
+function svgTxt(x,y,text,attrs){
+  var el=svgEl('text',{x:x,y:y});
+  for(var k in attrs) el.setAttribute(k,attrs[k]);
+  el.textContent=text;
+  svg.appendChild(el);
+}
+
+var defs=svgEl('defs',{});
+var rg=svgEl('radialGradient',{id:'cg',cx:'40%',cy:'38%',r:'60%'});
+rg.appendChild(svgEl('stop',{offset:'0%','stop-color':'#3A7D44'}));
+rg.appendChild(svgEl('stop',{offset:'100%','stop-color':'#1A1A2E'}));
+defs.appendChild(rg);
+svg.appendChild(defs);
+
+// TERRITORY RINGS - drawn inside out
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:bR,
+  fill:SC[bState].fill,stroke:SC[bState].border,'stroke-width':'1.5'
+}));
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:rR,
+  fill:SC[rState].fill,stroke:SC[rState].border,'stroke-width':'1.5'
+}));
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:cR,
+  fill:SC[cState].fill,stroke:SC[cState].border,'stroke-width':'1.5'
+}));
+
+// CORE
+svg.appendChild(svgEl('circle',{cx:cx,cy:cy,r:coreR,fill:'url(#cg)'}));
+
+// OPERATING SURFACE
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:cy,r:outerR,
+  fill:'none',stroke:SC[overallState].solid,
+  'stroke-width':'3','stroke-dasharray':'8 4'
+}));
+
+// ADAPTED SELF LABEL
+var osMidR=(outerR+cR)/2;
+var osLabelY=cy-osMidR-35;
+var minLabelY=50;
+if(osLabelY<minLabelY){osLabelY=minLabelY;}
+svg.appendChild(svgEl('rect',{
+  x:cx-175,y:osLabelY-18,width:'350',height:'45',
+  rx:'4',fill:'#FFFFFF',opacity:'0.9'
+}));
+svgTxt(cx,osLabelY,'YOUR ADAPTED SELF - OPERATING SURFACE',{
+  'text-anchor':'middle','font-size':'12','font-weight':'700',
+  'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
+});
+svgTxt(cx,osLabelY+20,overallState.toUpperCase()+' with '+overallPct+'% resistance',{
+  'text-anchor':'middle','font-size':'12','font-weight':'600',
+  'letter-spacing':'0.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
+});
+
+// B/R/C LABELS — midR is the radial midpoint of each ring
+// With minimum ring thickness enforced, labels are always separated by at least 2×labelR
+var labelFontSize=labelR<12?'11':'13';
+var labelTextOffset=Math.round(labelR*0.38);
+[
+  {midR:(coreR+bR)/2,   letter:'B', state:bState},
+  {midR:(bR+rR)/2,      letter:'R', state:rState},
+  {midR:(rR+cR)/2,      letter:'C', state:cState}
+].forEach(function(d){
+  var lx=cx+d.midR, ly=cy;
+  svg.appendChild(svgEl('circle',{cx:lx,cy:ly,r:labelR,fill:'#FFFFFF',stroke:SC[d.state].solid,'stroke-width':'2'}));
+  svgTxt(lx,ly+labelTextOffset,d.letter,{
+    'text-anchor':'middle','font-size':labelFontSize,'font-weight':'700',
+    fill:SC[d.state].solid,'font-family':'DM Sans, sans-serif'
+  });
+});
+
+// VITRUVIAN FIGURE
+var figureHeight=133;
+var figColor='rgba(255,255,255,0.75)';
+var headR=figureHeight*0.13;
+var neckH=headR*0.4;
+var torsoH=figureHeight*0.45;
+var legH=figureHeight*0.3;
+var shoulderW=headR*2.2;
+var waistW=headR*3.6;
+var hipW=headR*1.8;
+var headCy=cy-torsoH-neckH-headR;
+var neckTop=cy-torsoH-neckH;
+var neckBottom=cy-torsoH;
+var waistY=cy-(torsoH*0.4);
+var hipY=cy;
+svg.appendChild(svgEl('circle',{
+  cx:cx,cy:headCy,r:headR,
+  fill:figColor,stroke:'rgba(255,255,255,0.95)','stroke-width':'1.5'
+}));
+svg.appendChild(svgEl('rect',{
+  x:cx-(headR*0.35),y:neckTop,width:headR*0.7,height:neckH,
+  fill:figColor,stroke:'rgba(255,255,255,0.95)','stroke-width':'1.5'
+}));
+var torsoPath=
+  'M '+(cx-shoulderW/2)+','+neckBottom+' '+
+  'L '+(cx+shoulderW/2)+','+neckBottom+' '+
+  'L '+(cx+waistW/2)+','+waistY+' '+
+  'L '+(cx+hipW/2)+','+hipY+' '+
+  'L '+(cx-hipW/2)+','+hipY+' '+
+  'L '+(cx-waistW/2)+','+waistY+' Z';
+svg.appendChild(svgEl('path',{
+  d:torsoPath,
+  fill:figColor,stroke:'rgba(255,255,255,0.95)','stroke-width':'1.5',
+  'stroke-linejoin':'round'
+}));
+svgTxt(cx,waistY+3,'COHERENT',{
+  'text-anchor':'middle','font-size':'9','font-weight':'700',
+  'letter-spacing':'1.4',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
+});
+svgTxt(cx,waistY+13,'CORE',{
+  'text-anchor':'middle','font-size':'9','font-weight':'700',
+  'letter-spacing':'1.4',fill:'rgba(0,0,0,0.75)','font-family':'DM Sans, sans-serif'
+});
+var armW=204;
+var shoulderY=neckBottom+(torsoH*0.1);
+var armThick=headR*0.35;
+svg.appendChild(svgEl('line',{
+  x1:cx-shoulderW/2,y1:shoulderY,x2:cx-armW/2,y2:shoulderY-headR*0.5,
+  stroke:figColor,'stroke-width':armThick,'stroke-linecap':'round'
+}));
+svg.appendChild(svgEl('line',{
+  x1:cx+shoulderW/2,y1:shoulderY,x2:cx+armW/2,y2:shoulderY-headR*0.5,
+  stroke:figColor,'stroke-width':armThick,'stroke-linecap':'round'
+}));
+var legThick=headR*0.4;
+var legSpread=headR*2;
+svg.appendChild(svgEl('line',{
+  x1:cx-hipW/2,y1:hipY,x2:cx-legSpread,y2:cy+legH,
+  stroke:figColor,'stroke-width':legThick,'stroke-linecap':'round'
+}));
+svg.appendChild(svgEl('line',{
+  x1:cx+hipW/2,y1:hipY,x2:cx+legSpread,y2:cy+legH,
+  stroke:figColor,'stroke-width':legThick,'stroke-linecap':'round'
+}));
+
+// STATE ZONE BOUNDARIES
+for(var i=0;i<stateOrder.length;i++){
+  var stateName=stateOrder[i];
+  var stateR=stateZoneRadii[stateName];
+  var stateColor=SC[stateName].solid;
+  svg.appendChild(svgEl('circle',{
+    cx:cx,cy:cy,r:stateR,fill:'none',stroke:stateColor,
+    'stroke-width':'1.2','stroke-dasharray':'5 4',
+    opacity:i===stateIndex?'0.6':'0.4'
+  }));
+  var labelX=cx-stateR+30;
+  var labelY=cy-10;
+  var g=svgEl('g',{transform:'translate('+labelX+','+labelY+') rotate(-90)'});
+  var textEl=svgEl('text',{
+    x:0,y:0,'text-anchor':'middle','font-size':'10','font-weight':'600',
+    'font-family':'DM Sans, sans-serif','letter-spacing':'1',
+    fill:stateColor,opacity:i===stateIndex?'0.8':'0.5'
+  });
+  textEl.textContent=stateName.toUpperCase();
+  g.appendChild(textEl);
+  svg.appendChild(g);
+}
+</script>
+</body>
+</html>
