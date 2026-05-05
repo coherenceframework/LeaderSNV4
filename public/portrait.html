@@ -156,18 +156,18 @@ var osLabelY=cy-osMidR-35;
 var minLabelY=50;
 if(osLabelY<minLabelY){osLabelY=minLabelY;}
 svg.appendChild(svgEl('rect',{
-  x:cx-175,y:osLabelY-18,width:'350',height:'45',
+  x:cx-175,y:osLabelY-38,width:'350',height:'65',
   rx:'4',fill:'#FFFFFF',opacity:'0.9'
 }));
 svgTxt(cx,osLabelY,'YOUR PRIMAL GAP',{
   'text-anchor':'middle','font-size':'14','font-weight':'700',
   'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
-  svgTxt(cx,osLabelY,'Between your Coherent Core and Adapated Self',{
+  svgTxt(cx,osLabelY+20,'Between your Coherent Core and Adapated Self',{
   'text-anchor':'middle','font-size':'12','font-weight':'600',
   'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
-svgTxt(cx,osLabelY+20,overallState.toUpperCase()+' with '+overallPct+'% resistance',{
+svgTxt(cx,osLabelY+35,overallState.toUpperCase()+' with '+overallPct+'% resistance',{
   'text-anchor':'middle','font-size':'12','font-weight':'600',
   'letter-spacing':'0.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
