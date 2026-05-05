@@ -1282,11 +1282,14 @@ function assembleReport(v) {
 
   // ─── DEFINING FLAG NOTE ───
   // Fires for any state when definingFlag is MULTI or PRESENT. Empty string otherwise.
+  // Placed at the top of the operating domains section (sec04) in the Writer template,
+  // after the static intro paragraph. Removed from page 4 in v8.
+  const definingClusterName = v.defining_cluster_name || "";
   let defining_flag_note = "";
   if (definingFlag === "MULTI") {
     defining_flag_note = wrap("<strong style=\u2019color:#A82828;\u2019>Note for practitioner review:</strong> Two or more domains in this reading carry a \u2018Defining my current reality\u2019 weight. When the instrument encounters this pattern, the aggregate resistance percentage becomes directional rather than precise \u2014 each Defining domain creates a perceptual condition that may have shaped how adjacent clusters were answered. The overall percentage reflects breadth. The cluster-level readings reflect depth. Where they differ, the cluster readings carry more diagnostic weight. A practitioner conversation is recommended before drawing structural conclusions from the aggregate alone.");
   } else if (definingFlag === "PRESENT") {
-    defining_flag_note = wrap("One domain in this reading carries a \u2018Defining my current reality\u2019 weight. Your overall resistance percentage reflects breadth across all eight domains. This cluster reflects depth. Where the two readings differ, trust the cluster \u2014 a domain that is defining your current reality is not the same kind of signal as one that is present but manageable.");
+    defining_flag_note = wrap(definingClusterName + " carries a \u2018Defining my current reality\u2019 weight in one of the clustered domains. This domain is not just registering friction \u2014 it is the lens through which you are responding to and making decisions across other areas of your leadership, potentially in detrimental ways you have not yet realised. Your overall resistance percentage is a measurement across all 3 clustered territories and eight operating domains. This cluster does not sit equally among them. It is critical to investigate how this may be affecting you broadly.");
   }
 
   // ─── TERRITORIES OPENING ───
