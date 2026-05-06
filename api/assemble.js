@@ -1,0 +1,1532 @@
+// ════════════════════════════════════════════════════════════════
+// LEADER COHERENCE SNAPSHOT — CONTENT ASSEMBLY ENGINE v9
+// Vercel Serverless Function (api/assemble.js)
+// v9 changes:
+//   - duration_subtype: new payload field from Zoho Form via Flow
+//       Values: FORMING | SETTLED | EMBEDDED (radio, single-select)
+//       Question: "Which of the following best describes your sense of how you have been operating?"
+//       NOTE: Scoring engine (cf_scoring_engine_v8) does NOT need updating.
+//             duration_subtype is not a scored dimension. It passes directly
+//             from Zoho Form response through Zoho Flow into webhook payload.
+//             Add duration_subtype to the Flow step that builds the POST body.
+//   - BLIND_SPOT_BODY: fixed per-state prose (core blind spot paragraphs)
+//   - BLIND_SPOT_VARIANTS: 15-cell matrix (5 states x 3 duration subtypes)
+//       Keys: COHERENT_FORMING, COHERENT_SETTLED, COHERENT_EMBEDDED,
+//             DRIVEN_FORMING, DRIVEN_SETTLED, DRIVEN_EMBEDDED,
+//             STRAINED_FORMING, STRAINED_SETTLED, STRAINED_EMBEDDED,
+//             DRIFTING_FORMING, DRIFTING_SETTLED, DRIFTING_EMBEDDED,
+//             FRACTURED_FORMING, FRACTURED_SETTLED, FRACTURED_EMBEDDED
+//   - buildBlindSpotPage(state, durationSubtype): returns body + variant HTML
+//       NOTE: Title, subtitle, and transition text are static in Writer template.
+//   - New merge field added to assembleReport() return:
+//       blind_spot_page  -- body prose + duration variant HTML
+//   - HCTI: add blind_spot_page slot to Writer template before territories page
+//   - COHERENT subtype routing (PORTRAIT_FRAME_SUBTYPE): still UNVERIFIED interim
+//       default. EXPANDING/SUSTAINING/ROLE_FIT routing requires the separate
+//       COHERENT subtype question (distinct from duration_subtype). Unchanged from v8.
+// v8 changes (carried forward — see v8 header for full log):
+//   - Zero-amplitude patch integrated
+//   - defining_flag, breadth_override, PORTRAIT_FRAME_SUBTYPE
+//   - SEC01/SEC10 COHERENT updates, COHERENT subtype routing (UNVERIFIED interim default)
+//   - Contractions removed throughout (69 total)
+// ════════════════════════════════════════════════════════════════
+
+// ─── HTML STYLE FRAGMENTS ───
+const ps = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:11px;'>";
+const pe = "</p>";
+const bld = "<strong style='color:#1A1A2E;'>";
+const be = "</strong>";
+function wrap(text) {
+  return ps + text + pe;
+}
+const stateStyle = {
+  'Coherent':  "color:#2A6B6A;font-weight:bold;",
+  'Driven':    "color:#4A6FA5;font-weight:bold;",
+  'Strained':  "color:#D4A843;font-weight:bold;",
+  'Drifting':  "color:#7B2D8E;font-weight:bold;",
+  'Fractured': "color:#A82828;font-weight:bold;",
+};
+function stSpan(state) {
+  return "<span style='" + (stateStyle[state] || "") + "'>" + state + "</span>";
+}
+function displayState(raw) {
+  const map = {
+    'COHERENT':'Coherent','DRIVEN':'Driven','STRAINED':'Strained',
+    'DRIFTING':'Drifting','FRACTURED':'Fractured','QUALIFIED':'Coherent'
+  };
+  return map[raw] || raw;
+}
+
+// ─── ZERO-AMPLITUDE THRESHOLD ───
+const ZERO_AMP_THRESHOLD = 6;
+
+const TERRITORY_SUBTITLES = {
+  "Being": {
+    "Coherent": "The signal from your Coherent Core is arriving and you are responding to it",
+    "Driven": "The signal is arriving but being overridden by the Adapted Self \u2014 performing too well to question the cost",
+    "Strained": "You know what is true \u2014 the cost of acting on it is what holds you",
+    "Drifting": "The internal reference point that should orient everything else has become unreliable",
+    "Fractured": "What you are operating from may no longer be connected to who you actually are",
+  },
+  "Relating": {
+    "Coherent": "Truth is moving freely between you and the people around you",
+    "Driven": "The signal is being edited before it reaches the surface \u2014 and no one around you knows",
+    "Strained": "You know who needs to hear what \u2014 the cost of saying it is what holds you",
+    "Drifting": "You may no longer be certain what the people around you actually think or need",
+    "Fractured": "What moves between you and others is no longer carrying truth",
+  },
+  "Creating": {
+    "Coherent": "What you intend and what you produce are aligned",
+    "Driven": "The output is strong but the connection between the work and who you are is maintained by force",
+    "Strained": "The gap between what you set out to build and what actually gets produced has widened enough to register",
+    "Drifting": "The link between what you are building and the signal that should guide it has become unreliable",
+    "Fractured": "What you are producing in the world is no longer connected to who you actually are",
+  },
+};
+
+// ── v8: COHERENT subtype \u2014 primal gap extensions ──────────────────────────────
+const PORTRAIT_FRAME_SUBTYPE = {
+  "EXPANDING": "A gap this size, held at this reading, in someone who is actively encountering more demanding territory, reads differently from the same gap in a different condition. The coherence here is not absence of friction \u2014 it is friction being metabolised faster than it accumulates. The primal gap is active: the distance between your Coherent Core and your operating surface is not a static measurement. It is a directional one. You are currently moving toward, not holding still.",
+  "SUSTAINING": "A gap this size, in a sustaining coherence, carries a structural note the instrument is designed to name. The primal gap is real and it is low \u2014 but the mechanism that keeps it low is partly about what the system is no longer presenting for measurement. The Coherent Core is intact. The operating surface is well-maintained. The question the gap cannot answer at this reading is how much of the low measurement reflects genuine alignment and how much reflects the narrowing of the signal channel over time.",
+  "ROLE_FIT": "A gap this size, in a role-fit coherence, is the instrument's most precise kind of blind spot. The distance between your Coherent Core and your operating surface is genuinely low \u2014 everything about how you function in this role confirms that. The gap the instrument cannot measure is the distance between this role and the role that would actually ask for your full Coherent Core. That gap is not structural resistance. It is unlocalised potential. The primal gap reading is accurate within its scope. Its scope may be the constraint.",
+  "UNVERIFIED": "A gap this size, at this reading, sits at the boundary of what the instrument can determine. The number is real. What it cannot confirm is whether the low resistance reflects expanding development, stable maintenance, correct-container alignment, or normalised conditions that no longer register as friction. The primal gap remains the most important single signal in this reading \u2014 and it requires more than this instrument can generate on its own to account for fully.",
+};
+
+// ════════════════════════════════════════════════════════════════
+// SECTION 01: OPENING FRAME
+// ════════════════════════════════════════════════════════════════
+const SEC01 = {
+  "FRACTURED": `{{leader_name}}, this is your Leader Coherence Snapshot, taken {{snapshot_date}}. Your system reads as Fractured \u2014 carrying comprehensive structural load across most operational domains, with a significant felt distance between where you are operating and where you know you are capable of operating. This is not a judgement. It is a reading of current conditions \u2014 conditions that are identifiable, structural, and responsive to precise intervention. What follows names the pattern with the specificity it requires.`,
+  "STRAINED": `{{leader_name}}, this is your Leader Coherence Snapshot, taken {{snapshot_date}}. Your system reads as Strained \u2014 carrying distributed load across multiple domains, with a clear awareness that current conditions do not reflect the leadership you know you are capable of. You are not in denial about the friction. The diagnostic question is not whether it exists \u2014 you already know it does \u2014 but where it originates and what it is structurally costing you.`,
+  "DRIFTING": `{{leader_name}}, this is your Leader Coherence Snapshot, taken {{snapshot_date}}. Your system reads as Drifting \u2014 carrying a diffuse, felt-level load that has not concentrated into structural crisis. The friction you are experiencing is present but difficult to locate with precision. This pattern often describes a leader between chapters \u2014 the one that is ending and the one that has not yet begun.`,
+  "DRIVEN": `{{leader_name}}, this is your Leader Coherence Snapshot, taken {{snapshot_date}}. Your system reads as Driven \u2014 performing well by external measures while carrying structural load that has not yet registered at the felt level. This is a reading that warrants careful attention. The distance between your felt alignment and your system\u2019s actual load is the most important signal in this report.`,
+  "COHERENT": `{{leader_name}}, this is your Leader Coherence Snapshot, taken {{snapshot_date}}. Your system reads as Coherent. Across all eight operational domains, the structural friction the diagnostic measures is minimal \u2014 the signal from your Coherent Core is reaching your operating surface with little resistance. This is the reading every leader who takes this diagnostic is working toward, and it is worth naming clearly: this is a genuine result. What follows gives you the structural frame to understand what this means \u2014 including what the instrument cannot see from here, and how to read the changes when they come.`,
+  "QUALIFIED": `{{leader_name}}, this is your Leader Coherence Snapshot, taken {{snapshot_date}}. Your system produces the cleanest possible reading across all operational domains. This report addresses what that means \u2014 and what it may not mean \u2014 with the same precision it would bring to any other reading.`,
+};
+
+const SEC01_ZERO_AMP = `{{leader_name}}, this is your Leader Coherence Snapshot, taken {{snapshot_date}}. Your system produces the cleanest possible reading across all eight operational domains \u2014 zero amplitude in every cluster, no resistance channel activated through any register. The Coherence Framework maps this to its Coherent state. It does not treat this reading as equivalent to a Coherent reading built from identifiable signal. A zero-amplitude result has structural meaning that is distinct from a result where coherence is confirmed by what the instrument found and verified against recognisable friction. This report names what that means \u2014 and what it may not mean \u2014 with the same precision it would bring to any other reading.`;
+
+// ════════════════════════════════════════════════════════════════
+// GAP SPECTRUM READING
+// ════════════════════════════════════════════════════════════════
+const GAP_SPECTRUM_INTRO = `The five operating states \u2014 Coherent, Driven, Strained, Drifting, and Fractured \u2014 are not personality types. They are not permanent categories. They are readings of how you are currently operating, and they are designed to change. A leader who reads as Strained today may read as Driven in three months and Coherent in six. The state is a signal of current conditions, not a definition of who you are.`;
+
+const GAP_SPECTRUM_STATE = {
+  "COHERENT": `A Coherent reading does not mean the absence of friction. It means the friction that exists is being metabolised \u2014 absorbed by the system without accumulating as structural load. The signal from your Coherent Core is reaching your operating surface with minimal delay. What you know and what you do are close enough that the gap between them is not generating measurable cost. This is the driven-dissipative balance \u2014 the state where resistance is present but structurally involved in maintaining coherence rather than eroding it.`
+  + pe + ps
+  + `This reading requires a particular kind of honesty from the diagnostic. Your system produces minimal friction across all operational domains, and your felt alignment is at or near its maximum. In any system operating under real-world conditions, this is the rarest possible reading. It has two structurally opposite interpretations. The first is genuine coherence \u2014 the conditions of your leadership are aligned at a level that produces no detectable friction. The second is that the diagnostic has reached the boundary of what self-report can detect. Some operating conditions \u2014 particularly those that have become so thoroughly normalised that they no longer register as friction \u2014 are invisible to any instrument that relies on the leader\u2019s own recognition. This report names both possibilities with equal weight.`,
+  "DRIVEN": `A Driven state is the most structurally complex reading this diagnostic produces. Your felt alignment is high \u2014 you experience yourself as operating close to your centre of gravity. At the same time, your system is carrying significant structural load in domains that carry real consequence. This combination is the signature of a leader whose Adapted Self is performing at peak \u2014 externally rewarded, delivering results, while internally the distance from the Coherent Core is widening in ways that are not yet felt. Driven is not a compliment. It is a signal that the gap between who you are and how you are operating is at its widest precisely when it is least visible to you.`
+  + pe + ps
+  + `The structural danger of a Driven reading is that the external signals \u2014 performance, recognition, reward \u2014 actively reinforce the Adapted Self\u2019s operating mode. The better it performs, the less reason there is to examine the cost. The load accumulates in domains the leader is not attending to, often in the foundational and relational territories that sit upstream of visible output. The gap between Coherent Core and operating surface widens precisely because the operating surface is succeeding. This is the state where the cost is highest and the felt signal is weakest.`,
+  "STRAINED": `A Strained state means the load across your system has exceeded what the structure was designed to carry sustainably. You are holding \u2014 decisions are being made, output is being produced, relationships are being maintained \u2014 but the effort required to sustain this has quietly exceeded what the system can absorb without cost. The resistance the diagnostic found is not background noise. It is active friction drawing real energy across enough of your operational domains to create measurable drag between your Coherent Core and how you operate. The signal from your Coherent Core is arriving, but it is arriving late and filtered through layers of adaptation that are themselves consuming the energy they were designed to protect.`
+  + pe + ps
+  + `The structural signature of a Strained reading is that the leader knows something needs to change but the cost of changing it \u2014 in disruption, in discomfort, in the uncertainty of what comes next \u2014 feels larger than the cost of continuing. The system is being sustained by effort rather than by design. This is not yet a crisis. It is, however, the state in which crises quietly form. The domains the leader is not yet attending to are drawing from the capacity the system needs to hold what is in motion — and that cost has not yet been named.`,
+  "DRIFTING": `A Drifting state means structural decoherence is actively occurring across your system. The signal from your Coherent Core is breaking up before it reaches your operating surface. Direction may still be present \u2014 you may still be making decisions, delivering work, maintaining commitments \u2014 but the connection between those actions and the source that should be guiding them has become unreliable. The Adapted Self is no longer filtering the core signal. It is substituting for it. What you are operating from in key domains is not alignment but momentum \u2014 the residual force of prior decisions carrying you forward in the absence of current signal.`
+  + pe + ps
+  + `The structural signature of a Drifting reading is that the leader senses something is fundamentally off but cannot locate it in any single domain. The disorientation is systemic, not local. Individual problems can be named but they do not explain the felt experience. The friction is spread across enough territories at enough intensity that the system has lost its capacity to self-correct \u2014 the mechanism that would normally restore coherence is itself operating under load. This is not a state that resolves through self-diagnosis. The structural condition that produces a Drifting reading is the same condition that compromises the leader's capacity to act on it from inside the current system. That is the work the Deep Dive is designed to do — not an extension of this report.`,
+  "FRACTURED": `A Fractured state means your operating surface is substantially separated from your Coherent Core. The resistance is dense, high-intensity, and present across most territories. The signal from your Coherent Core may not be arriving at all \u2014 or if it is, the delay between signal and response has extended to the point where the signal is no longer actionable in the context that generated it. The Adapted Self has not merely filtered the core signal. It has effectively replaced it. What you are operating from is not your Coherent Core. It is a construction \u2014 assembled from necessity, from learned survival, from what has been rewarded \u2014 that may bear little resemblance to who you actually are.`
+  + pe + ps
+  + `This is not a judgement. It is a structural reading of a system under comprehensive load. The path from a Fractured state is not motivational. It does not begin with trying harder, thinking differently, or recommitting to goals. It begins with stopping. The system cannot be repaired from inside its own operating logic because that logic is itself the product of the fracture. What is required is an external read \u2014 a perspective that can see the structure the leader is standing inside but cannot see from within it. That is what the deeper layers of the Coherence Framework are designed to provide.`,
+  "QUALIFIED": `This reading requires a different kind of honesty from the diagnostic. Your system produces minimal friction across all operational domains, and your felt alignment is at or near its maximum. In any system operating under real-world conditions, this is the rarest possible reading. It has two structurally opposite interpretations. The first is genuine coherence \u2014 the conditions of your leadership are aligned at a level that produces no detectable friction. The second is that the diagnostic has reached the boundary of what self-report can detect. Some operating conditions \u2014 particularly those that have become so thoroughly normalised that they no longer register as friction \u2014 are invisible to any instrument that relies on the leader\u2019s own recognition. This report names both possibilities with equal weight.`,
+};
+
+function buildGapSpectrumZeroAmp() {
+  return ps
+    + `Zero amplitude across all eight operational domains means the instrument received no signal to triangulate. No friction in the observable register \u2014 nothing you identified as a visible pattern operating in your own behaviour. No friction in the felt register \u2014 nothing sensed below the surface of conscious awareness. No activation of the cost register \u2014 no drain connected to a source. Eight clusters, three channels, zero activation. The diagnostic has reached the outer boundary of what self-report can access \u2014 not because nothing exists beyond it, but because nothing was presented through the channels the instrument reads.`
+    + pe
+    + ps
+    + `There are two structurally distinct explanations for this. `
+    + bld + `The first is genuine coherence at its most complete` + be
+    + ` \u2014 a leader whose operating conditions are aligned to a degree that produces no identifiable friction through any channel. This is not impossible. It is rare. It tends to be temporary: a window between chapters, or the product of a significant and recently completed internal reorganisation. `
+    + bld + `The second is that the system has normalised its conditions to the point where friction no longer registers as friction.` + be
+    + ` Operating patterns that have been present long enough, and sustained at enough cost, become invisible to the mechanism that detects them \u2014 particularly when that mechanism is self-report. The instrument cannot determine which explanation is correct. It names both with equal structural weight.`
+    + pe
+    + ps
+    + `What the instrument can offer is this: genuine coherence at zero amplitude tends to be `
+    + bld + `specific` + be
+    + `. A leader in that state can articulate \u2014 precisely \u2014 what changed, what they did, what conditions were required to produce this reading. Normalisation, by contrast, tends to produce a reading that is total, undifferentiated, and difficult to account for. If your zero-amplitude result sits alongside a clear and honest understanding of what produced it, the first interpretation carries weight. If it sits alongside a felt sense that does not quite match the clean instrument reading \u2014 something that remains unexplained even after reflection \u2014 the second interpretation warrants serious examination. The sections that follow describe what coherence looks like in each territory. Read them against your actual experience. The distance between the two is the one signal this instrument cannot generate for you.`
+    + pe;
+}
+
+function buildGapSpectrumReading(state, diagPct, isZeroAmp) {
+  const ds = displayState(state);
+  let out = wrap("Your system reads at " + bld + diagPct + "%" + be + " resistance to your Coherent Core. The Coherence Framework names this a " + bld + ds + be + " state.");
+  out += wrap(GAP_SPECTRUM_INTRO);
+  if (isZeroAmp) {
+    out += buildGapSpectrumZeroAmp();
+  } else {
+    out += wrap(GAP_SPECTRUM_STATE[state] || GAP_SPECTRUM_STATE["COHERENT"]);
+  }
+  return out;
+}
+
+// ════════════════════════════════════════════════════════════════
+// GAP TERRITORY READINGS
+// ════════════════════════════════════════════════════════════════
+const GAP_BEING = {
+  "Coherent": `In your relationship with yourself \u2014 your internal integrity, the capacity to know your own truth \u2014 the signal is arriving and you are responding. The friction here is minimal. What you know about yourself and what you act on are close enough that the gap is not generating measurable cost. This is alignment between your felt truth and your enacted reality.`,
+  "Driven": `In your relationship with yourself \u2014 your internal integrity, your sense of what is true \u2014 you are functioning, but at a cost you may not yet be measuring. The signal from your Coherent Core is arriving but being overridden. The Adapted Self is performing too well for the signal to compete. You may not experience this as distance \u2014 it may feel like clarity, like discipline, like knowing what needs to be done. But the knowing that is driving you and the knowing that lives in your core may not be the same thing. Driven in Being can hold for years. It compounds silently beneath a surface that keeps delivering.`,
+  "Strained": `Your internal integrity is carrying real load. The relationship between you and your own truth \u2014 what you know, what you sense, what you are unwilling to look at directly \u2014 is under strain. The signal from your Coherent Core is arriving and you recognise it. But the cost of acting on it feels larger than the cost of continuing as you are. You have known things about yourself \u2014 about what needs to change, about what you are tolerating \u2014 that you have not yet translated into action. This is a structural condition in which the price of honesty has exceeded what the Adapted Self is willing to pay.`,
+  "Drifting": `Your internal integrity is losing structural coherence. The relationship between you and your own truth has become unreliable. The signal from your Coherent Core is breaking up \u2014 you sense something but cannot consistently distinguish it from noise or interference. This is not confusion about external circumstances. It is a loss of contact with the internal reference point that should orient everything else. When Being drifts, every other territory operates without a stable foundation. What you build and how you relate may still function \u2014 but they are functioning on ground that is shifting beneath them.`,
+  "Fractured": `Your internal integrity has separated from your operating reality. The signal from your Coherent Core \u2014 the part of you that knows who you are, what is true, what matters \u2014 may not be reaching your operating surface at all. What you are running on is not alignment. It is a constructed position \u2014 assembled from necessity, from what has been rewarded, from what has kept things moving \u2014 that may bear little resemblance to who you actually are. This is the territory where the gap is most consequential and most invisible. The Adapted Self does not experience this as fracture. It experiences it as normal. Recognition typically arrives through the body, through relationships, or through collapse significant enough to break the operating logic the Adapted Self has built.`,
+};
+
+const GAP_RELATING = {
+  "Coherent": `In the field between you and others \u2014 the people, systems, and conditions you operate within \u2014 truth is moving freely. What you sense in a conversation, you can name. What others need to tell you, they do. The relational field is not frictionless \u2014 but the friction that exists is being processed in the moment rather than accumulating as unspoken weight. Feedback reaches you. Disagreement is possible without cost. The gap between what is known and what can be said is small enough that the signal from your Coherent Core passes through without significant distortion.`,
+  "Driven": `In the field between you and others, things are moving \u2014 but they are being managed on the way through. The people around you are receiving a version of you that is functional and responsive, but it costs energy to maintain that version. What you are not saying may be more significant than what you are. The signal from your Coherent Core is arriving in the relational space but the Adapted Self is editing it before it reaches the surface \u2014 deciding what is safe to share, what would create disruption, what is better held. This is not deception. It is management. And it is so effective that the people around you may not know they are receiving a filtered signal.`,
+  "Strained": `The field between you and others is under real load. There are conversations you are aware of not having. There is feedback you are not receiving \u2014 not because people are withholding it, but because the conditions you have created or inherited do not make it safe enough to arrive. The signal from your Coherent Core is reaching the relational space, and you recognise what needs to happen \u2014 but the cost of acting on it in relationship feels larger than the cost of continuing. You know who needs to hear what. You know what needs to be said. The gap is not in recognition. It is in the structural willingness to let truth move at the speed the situation requires.`,
+  "Drifting": `The field between you and others has become unreliable. Truth is not moving freely \u2014 and you may no longer be certain what the people around you actually think, feel, or need. The signal from your Coherent Core is breaking up before it reaches the relational surface. What you express may not match what you sense. What others express may not match what they mean. The gap between what is known and what can be said has widened to the point where the relational field is generating its own noise \u2014 misreadings, assumptions, protective positioning \u2014 that compounds the original interference. When Relating drifts, isolation increases even in the presence of people.`,
+  "Fractured": `The field between you and others has structurally separated from the signal your core is transmitting. The relationships you are operating within \u2014 professional, personal, or both \u2014 are no longer carrying truth. What moves between you and others is managed, performed, or entirely disconnected from what is actually happening beneath the surface. This is not a failure of social skill. It is a structural collapse of the conditions required for honest contact. The Adapted Self has built a relational architecture that functions \u2014 meetings happen, decisions are made, communication flows \u2014 but what flows through it is not the signal from your Coherent Core. It is a substitute. The cost of this fracture is rarely visible in the relationships themselves. It is visible in the leader \u2014 in the exhaustion of maintaining a relational reality that does not match the felt truth.`,
+};
+
+const GAP_CREATING = {
+  "Coherent": `In your relationship with what you are building in the world \u2014 the work you produce, the structures you create, the legacy you are assembling \u2014 the signal from your Coherent Core is arriving intact. What you intend and what you produce are aligned. The changes you have attempted are holding. The gap between your vision and your output is small enough that the work itself feels like an honest expression of who you are, not a performance maintained by effort. This is the territory where coherence becomes visible to others \u2014 not through what you say, but through what you build.`,
+  "Driven": `In your relationship with what you are building in the world, effort is producing \u2014 but the connection between what you produce and who you actually are is being maintained by force rather than by alignment. The output is strong. It may be externally recognised, even rewarded. But the signal from your Coherent Core that should be guiding what you build is being overridden by the Adapted Self's version of what needs to happen. You may not experience this as disconnection \u2014 it may feel like focus, like execution, like getting things done. But there is a difference between building from alignment and building from momentum. Driven in Creating can produce impressive results for a long time. What it cannot produce is work that sustains the person making it.`,
+  "Strained": `Your relationship with what you are building is carrying real load. The gap between what you intend and what actually gets produced has widened enough to register. You can feel it \u2014 the work is not landing the way it should, the structures are not holding the way they were designed to, the changes you attempt do not stick the way they need to. The signal from your Coherent Core is arriving in this territory but by the time it reaches the work, it has been filtered through enough resistance that what emerges is a compromised version of what you set out to build. You recognise the compromise. But the cost of rebuilding feels larger than the cost of continuing to produce from the current arrangement.`,
+  "Drifting": `Your relationship with what you are building has lost its structural connection to who you are. The work continues \u2014 output is being produced, commitments are being met, things are being built \u2014 but the link between that activity and the signal from your Coherent Core has become unreliable. You may find yourself unable to explain why the work matters in terms that feel true. You may notice that what you are building no longer reflects what you set out to create \u2014 but you cannot point to the moment it diverged. When Creating drifts, the leader becomes a producer rather than a creator. The difference is not visible in the output. It is visible in the relationship between the person and what they are making.`,
+  "Fractured": `Your relationship with what you are building has separated from your Coherent Core entirely. What you are producing in the world \u2014 the structures, the work, the legacy \u2014 is no longer connected to the signal that should be guiding it. The Adapted Self is building, but it is building from its own logic \u2014 from market pressure, from obligation, from the momentum of prior commitments \u2014 not from alignment with who you actually are. The output may still function. It may even succeed. But it will not sustain you. The fracture in Creating is often the last to be felt and the first to be visible to others. The people around you may see the disconnection before you do \u2014 in the quality of what is being produced, in the decisions being made, in the gap between what you say the work is for and what it actually delivers.`,
+};
+
+// ════════════════════════════════════════════════════════════════
+// SECTION 04: CLUSTER PROFILE
+// ════════════════════════════════════════════════════════════════
+const clusterMeta = {
+  "01": { name: "OPENNESS" },
+  "02": { name: "STRUCTURE" },
+  "03": { name: "DIRECTION" },
+  "04": { name: "VITALITY" },
+  "05": { name: "TRANSITION" },
+  "06": { name: "EXPOSURE" },
+  "07": { name: "CLARITY" },
+  "08": { name: "INTEGRATION" },
+};
+const stateColors = {
+  "Coherent": "#3A7D44",
+  "Driven": "#4A6FA5",
+  "Strained": "#D4A843",
+  "Drifting": "#7B2D8E",
+  "Fractured": "#A82828"
+};
+const SEC04_STATE = {
+  "01_Coherent": {
+    headline: "Your system is open to new information. Decisions are being shaped by what the situation is asking for, not filtered through what you already know.",
+    body: "This is what coherence in this domain feels like \u2014 new signal arrives and you respond to it without defending the current frame. The energy that would otherwise go into maintaining your existing position is available for the work itself.",
+    question: "What is sustaining this openness \u2014 and would you notice the early signs of it closing?"
+  },
+  "01_Driven": {
+    headline: "You experience yourself as open \u2014 receptive, adaptive, willing to take in new information. The diagnostic question is whether you are genuinely receiving what is new, or efficiently processing it through a frame you have not examined.",
+    body: "Driven in this domain often feels like clarity. Decisions are fast, positions are confident, information is absorbed quickly. But speed of processing is not the same as openness to what the information is actually saying. A leader operating from coherence here does not just process new information \u2014 they allow it to change the frame.",
+    question: "Are you receiving what is new \u2014 or defending what you already know?"
+  },
+  "01_Strained": {
+    headline: "You know you are filtering. New information is arriving and you are aware that your response to it is shaped more by what you are protecting than by what the situation requires.",
+    body: "The resistance is not hidden from you. You can see or feel the cost of holding the current frame against what is trying to change it. A leader operating from coherence here lets new information reshape the frame. The energy you are spending to maintain yours is energy that could be going into the work.",
+    question: "What are you protecting that is no longer worth the cost of defending it?"
+  },
+  "01_Drifting": {
+    headline: "Your capacity to take in new information has become unreliable. You may not be able to distinguish between genuine signal and noise.",
+    body: "The frame through which you receive new information has loosened. This is not resistance \u2014 it is loss of the reference point that tells you what is worth letting in. A leader operating from coherence here has a stable frame that bends when needed. What you are experiencing is a frame that has lost its shape.",
+    question: "What would it take to rebuild the reference point that tells you what is worth receiving?"
+  },
+  "01_Fractured": {
+    headline: "New information is no longer reaching your operating surface in a usable form. The system has closed \u2014 not as a conscious choice, but as a structural consequence of the load it is carrying.",
+    body: "It is a system that has consumed its capacity to receive new signal. A leader operating from coherence here is open because the system has capacity. Yours does not, and restoring that capacity is not a matter of willingness \u2014 it is a matter of reducing the load to a level where reception becomes possible again.",
+    question: "This domain does not resolve by trying to be more open. It resolves by addressing the load that closed the system."
+  },
+  "02_Coherent": {
+    headline: "The way you hold your leadership fits. The structure supports the work rather than consuming it.",
+    body: "This is what coherence in this domain feels like \u2014 the design matches the conditions, and the energy flows outward into the work rather than upward into maintaining the arrangement. This reading is the reference point against which future shifts in this domain will be measured.",
+    question: "What is sustaining this alignment \u2014 and would you recognise the early signal if it began to shift?"
+  },
+  "02_Driven": {
+    headline: "The way you hold your leadership feels right \u2014 and it may be. The diagnostic question is whether the structure still matches the conditions, or whether it is performing well enough that you have not needed to check.",
+    body: "A leader operating from coherence in this domain does not maintain the structure through effort. The structure maintains itself. The difference is invisible from inside Driven \u2014 but it is the difference between leading and managing your own leadership.",
+    question: "Is the structure serving you, or are you sustaining it?"
+  },
+  "02_Strained": {
+    headline: "The way you hold your leadership is no longer matching what the conditions require \u2014 and you know it.",
+    body: "The misfit is not hidden from you. You sense the structure you built has been outgrown, but the cost of redesigning it feels larger than the cost of continuing. That calculation is the strain. A leader operating from coherence here does not carry this weight \u2014 the structure fits, and the energy you are spending to sustain a misaligned design is simply not being consumed.",
+    question: "You already know this needs to change. What is the cost of another quarter without changing it?"
+  },
+  "02_Drifting": {
+    headline: "You are holding your leadership in a way that no longer connects to a clear reason \u2014 and you may not be able to tell whether the structure is right or wrong because the reference point has become unreliable.",
+    body: "The signal that would tell you whether the design fits has broken up. You may still be running things competently, but the link between how you hold your role and why you hold it that way has loosened. A leader operating from coherence here knows why the structure exists and can feel when it stops fitting. That signal is what has faded.",
+    question: "If you redesigned how you hold your leadership from scratch today \u2014 would it look like what you currently have?"
+  },
+  "02_Fractured": {
+    headline: "The way you hold your leadership has separated from who you actually are. The structure is running, but it is running on its own logic \u2014 not yours.",
+    body: "What you are maintaining is not a design that serves your leadership. It is an arrangement that persists because dismantling it feels more dangerous than continuing. A leader operating from coherence here experiences the structure as an extension of themselves. What you are experiencing is the opposite \u2014 a structure that has replaced the signal it was built to carry.",
+    question: "This domain does not resolve through optimisation. It requires rebuilding from the foundation."
+  },
+  "03_Coherent": {
+    headline: "Your choices are clear. Competing demands exist but they are being navigated through genuine prioritisation, not deferred through avoidance.",
+    body: "This is what coherence in this domain feels like \u2014 the honest answer is available and you are giving it, even when it creates short-term discomfort. The energy that would otherwise go into holding incompatible commitments is available for execution.",
+    question: "What is making clear choice possible right now \u2014 and would you recognise the conditions that make it harder?"
+  },
+  "03_Driven": {
+    headline: "You experience yourself as decisive \u2014 moving fast, managing multiple commitments, keeping things in motion. The diagnostic question is whether you are choosing clearly, or moving fast enough that the deferred choice has not caught up with you yet.",
+    body: "Driven in this domain often feels like productivity. But pace is not the same as direction. A leader operating from coherence here moves with less friction because competing commitments have been resolved rather than held simultaneously.",
+    question: "Are you choosing \u2014 or moving fast enough to avoid choosing?"
+  },
+  "03_Strained": {
+    headline: "There is a choice you know needs to be made \u2014 and you are aware that you are deferring it. The cost of the deferral is real and you can feel it.",
+    body: "You know the honest answer. You know it would create disruption. The strain is in the gap between knowing and acting. A leader operating from coherence here has made the choice \u2014 and the energy you are spending to hold the contradiction is simply not being consumed.",
+    question: "You already know the honest answer. What is preventing you from giving it?"
+  },
+  "03_Drifting": {
+    headline: "The ability to distinguish between competing demands has become unreliable. You may not be certain which commitments are still aligned and which are residual.",
+    body: "Direction has become diffuse. You are still moving, but the basis for choosing one path over another has loosened. A leader operating from coherence here chooses from a clear reference point. That reference point is what has faded.",
+    question: "If you stopped everything and rebuilt your commitments from scratch \u2014 which ones would you choose again?"
+  },
+  "03_Fractured": {
+    headline: "Choice has been replaced by reaction. What is driving your decisions is not alignment \u2014 it is whichever demand has the most immediate consequence.",
+    body: "The capacity to step back and choose from a coherent position has been consumed by the load. A leader operating from coherence here makes decisions from centre. What you are experiencing is decisions being made by circumstances.",
+    question: "This domain does not resolve by making better choices. It resolves by rebuilding the conditions that make genuine choice possible."
+  },
+  "04_Coherent": {
+    headline: "Your energy equation is balanced. More is coming back from the work than is going out to sustain it.",
+    body: "This is what coherence in this domain feels like \u2014 the connection between what you spend your days doing and what genuinely matters to you is intact. The work fuels the person doing it. This is not about workload \u2014 it is about alignment between effort and meaning.",
+    question: "What is sustaining this connection \u2014 and would you notice the early signal if it began to thin?"
+  },
+  "04_Driven": {
+    headline: "Your energy feels sustainable \u2014 and it may be. The diagnostic question is whether you are running on genuine connection to the work, or on discipline and momentum that have not yet shown their cost.",
+    body: "Driven in this domain often feels like stamina. You deliver, you recover, you deliver again. But there is a difference between energy that comes from alignment and energy that comes from habit. A leader operating from coherence here does not sustain their pace through discipline \u2014 they sustain it because the work itself replenishes what it consumes.",
+    question: "Is your energy coming from the work \u2014 or from the discipline you are applying to get through it?"
+  },
+  "04_Strained": {
+    headline: "The energy equation has tipped \u2014 and you know it. More is going out than is coming back, and the gap between effort and meaning has widened enough to register.",
+    body: "You are sustaining your pace through will rather than alignment. A leader operating from coherence here does not carry this cost \u2014 the work returns what it takes. What you are experiencing is the structural condition in which depletion becomes self-reinforcing: the less the work replenishes, the more discipline is required, and the more discipline is required, the less the work can replenish.",
+    question: "What would need to change for the work to give energy back instead of consuming it?"
+  },
+  "04_Drifting": {
+    headline: "The connection between your energy and your work has become unreliable. You may not be able to tell whether the depletion is coming from the volume, the content, or the loss of purpose underneath both.",
+    body: "The source of the drain has become diffuse. A leader operating from coherence here knows what fuels them and what depletes them with precision. That precision is what has faded.",
+    question: "If you removed everything from your week that depletes without replenishing \u2014 would you know what to keep?"
+  },
+  "04_Fractured": {
+    headline: "Your energy system has separated from the work. What you are running on is not connection or meaning \u2014 it is the residual force of commitments made before the disconnection occurred.",
+    body: "A leader operating from coherence here is sustained by the work. What you are experiencing is the opposite \u2014 the work is consuming you and there is nothing in the current arrangement that is putting energy back. This does not resolve through rest. It resolves through reconnection to the source \u2014 and that source may not be found inside the current structure.",
+    question: "This domain requires honest assessment of whether the work itself \u2014 not the pace of it \u2014 is still the right work."
+  },
+  "05_Coherent": {
+    headline: "Nothing is being held past its time. Endings that needed to happen have happened, or are actively in progress.",
+    body: "This is what coherence in this domain feels like \u2014 the capacity to release what is finished without replacing it with something before the next thing is clear. The energy that goes into sustaining expired arrangements is not being consumed.",
+    question: "What made it possible to let go \u2014 and would you recognise the signal that something new has outstayed its relevance?"
+  },
+  "05_Driven": {
+    headline: "Everything feels current \u2014 and it may be. The diagnostic question is whether you have genuinely completed the transitions that need completing, or whether the pace of your operating life has made it unnecessary to confront what should have ended.",
+    body: "Driven in this domain is the state where things persist not because you have decided to keep them, but because nothing has forced the question. A leader operating from coherence here has actively examined what stays and what goes. The absence of that examination is what Driven looks like in this domain.",
+    question: "Is everything you are carrying still current \u2014 or is something persisting because you have not been forced to let it go?"
+  },
+  "05_Strained": {
+    headline: "Something should have ended by now \u2014 and you know it. The cost of the holding pattern is real and felt.",
+    body: "The transition is overdue. You can sense what is being held past its time, but the cost of letting go \u2014 the void, the disruption, the uncertainty \u2014 feels larger than the cost of continuing. A leader operating from coherence here has crossed the threshold. The energy you are spending in the in-between is the strain.",
+    question: "What is the cost of another quarter in the holding pattern?"
+  },
+  "05_Drifting": {
+    headline: "Something is ending and you know it in your body before you know it in your plans \u2014 but you cannot name what it is or what comes next.",
+    body: "The transition has no object. The felt sense of a chapter closing is real, but it has not attached to anything specific enough to act on. A leader operating from coherence here can name what is ending and has begun to move. What you are carrying is the weight of a threshold you can feel but cannot yet cross.",
+    question: "What would need to become clear before you could begin the transition?"
+  },
+  "05_Fractured": {
+    headline: "Multiple things have been held past their time for so long that the holding pattern itself has become the structure. What should have ended is now what you are operating from.",
+    body: "The expired arrangements are no longer items to release \u2014 they are the architecture. A leader operating from coherence here operates from structures that are current. What you are experiencing is a life built on foundations that were meant to be temporary.",
+    question: "This domain does not resolve by releasing one thing. It requires examining which of the structures you are standing on were meant to be permanent \u2014 and which were meant to have been replaced by now."
+  },
+  "06_Coherent": {
+    headline: "No structural dependencies or vulnerabilities were detected that carry disproportionate power over your decisions.",
+    body: "This is what coherence in this domain feels like \u2014 your position is stable, your direction is not being dictated by a single dependency, and the ground you are standing on supports the weight you are placing on it.",
+    question: "What is sustaining this stability \u2014 and would you recognise the signal if a new dependency began to form?"
+  },
+  "06_Driven": {
+    headline: "Your position feels stable \u2014 and it may be. The diagnostic question is whether your foundations are genuinely secure, or whether the pace of performance has made it unnecessary to look at what you are standing on.",
+    body: "Driven in this domain is the state where dependencies and structural vulnerabilities persist unexamined \u2014 not because they are hidden, but because everything is working well enough that looking underneath feels unnecessary. A leader operating from coherence here has examined the foundations. The absence of that examination is the risk.",
+    question: "Is your position genuinely stable \u2014 or has the pace of your performance made it unnecessary to check?"
+  },
+  "06_Strained": {
+    headline: "You know there is a structural vulnerability in your position \u2014 and the cost of navigating around it is real.",
+    body: "The dependency or fragility is not hidden. You are managing it, working around it, sustaining your position despite it. A leader operating from coherence here does not carry this weight \u2014 their foundations support them rather than constraining them. The energy you are spending to navigate the constraint is the strain.",
+    question: "What would need to change at the structural level for the constraint to dissolve rather than be managed?"
+  },
+  "06_Drifting": {
+    headline: "The ground underneath your position has become uncertain \u2014 and you may not be able to tell whether the instability is in the foundations or in your perception of them.",
+    body: "You sense vulnerability but cannot locate its source. A leader operating from coherence here knows what they are standing on. That knowledge is what has become unreliable.",
+    question: "What would it take to get an honest read on the stability of your current foundations?"
+  },
+  "06_Fractured": {
+    headline: "Your position is structurally trapped. The foundations are not holding, the constraints are real, and the direction you are moving in is dictated by what you are locked into rather than what you are choosing.",
+    body: "This is a crisis-level reading. A leader operating from coherence here is free to choose their direction. What you are experiencing is the absence of that freedom \u2014 sustained by force of will rather than by any conviction about where the movement leads.",
+    question: "This domain does not resolve through effort. It requires intervention at the level where the foundations are set."
+  },
+  "07_Coherent": {
+    headline: "Your picture of reality is current. The assumptions you are operating from have been tested against present conditions.",
+    body: "This is what coherence in this domain feels like \u2014 your map matches the territory. The energy that would otherwise go into managing uncertainty or defending outdated positions is available for the work.",
+    question: "What is keeping your map current \u2014 and would you notice the moment it began to drift from the territory?"
+  },
+  "07_Driven": {
+    headline: "You experience your picture as clear \u2014 and it may be. The diagnostic question is whether your assumptions have been tested against current conditions, or whether your confidence in the picture is itself the thing that has not been tested.",
+    body: "Driven in this domain is the most consequential. A leader who is certain their map is accurate has no reason to update it. A leader operating from coherence here holds their picture of reality as provisional \u2014 accurate until tested, not accurate until proven wrong. The difference is invisible from inside Driven, but it determines whether you are navigating from a current map or a confident one.",
+    question: "Is your picture of reality current \u2014 or is your confidence in it the thing that needs examining?"
+  },
+  "07_Strained": {
+    headline: "Your picture of reality is incomplete \u2014 and you know it. The cost of operating on an unverified map is real.",
+    body: "You are aware that assumptions are stale or untested. A leader operating from coherence here has done the work of finding out what is true. The energy you are spending to manage uncertainty is the strain.",
+    question: "What would it cost to find out what is actually true \u2014 and is that cost larger or smaller than what you are spending to avoid finding out?"
+  },
+  "07_Drifting": {
+    headline: "Your picture of reality has become unreliable \u2014 and you may not be able to tell which parts are current and which are residual.",
+    body: "The map and the territory have diverged, but the divergence is diffuse rather than specific. A leader operating from coherence here knows where the distortions are. What you are experiencing is a loss of confidence in the picture without knowing where it is wrong.",
+    question: "What would a fresh, honest read of your actual situation reveal \u2014 and are you willing to find out?"
+  },
+  "07_Fractured": {
+    headline: "The picture of reality you are operating from may bear little resemblance to what is actually happening. The map has separated from the territory.",
+    body: "This is not a failure of intelligence. It is a structural consequence of operating under comprehensive load \u2014 the system has consumed its capacity to update. A leader operating from coherence here sees clearly because the system has capacity. Yours does not.",
+    question: "This domain requires external perspective \u2014 someone who can see the territory you are standing in but cannot see from inside it."
+  },
+  "08_Coherent": {
+    headline: "Changes you have made are holding. New patterns have become embedded in how you operate rather than reverting when attention moves elsewhere.",
+    body: "This is what coherence in this domain feels like \u2014 the ground holds what you plant in it. The energy that would go into re-initiating changes that did not stick is not being consumed.",
+    question: "What conditions made integration possible \u2014 and would you recognise the signal if a new change was failing to hold?"
+  },
+  "08_Driven": {
+    headline: "Your changes feel embedded \u2014 and they may be. The diagnostic question is whether the new patterns have genuinely taken root, or whether your sustained attention is what is keeping them in place.",
+    body: "Driven in this domain is the state where changes persist because the leader is still actively maintaining them \u2014 not because they have become structural. A leader operating from coherence here can move their attention elsewhere and the change holds. The test of integration is not whether the change is present while you are watching \u2014 it is whether it is present when you stop.",
+    question: "Are your changes holding because they have taken root \u2014 or because you have not stopped watching them yet?"
+  },
+  "08_Strained": {
+    headline: "Changes you have made are not holding \u2014 and you know it. The cycle of initiating, reverting, and re-initiating is consuming real energy.",
+    body: "The non-integration is visible. A leader operating from coherence here plants changes in ground that holds them. The strain is in the circularity \u2014 repeating the same shift because the conditions required for permanence are not yet in place.",
+    question: "What conditions would need to exist for the change to hold without your sustained effort?"
+  },
+  "08_Drifting": {
+    headline: "You are no longer certain which changes held and which did not \u2014 the line between your old patterns and the new ones you intended has blurred.",
+    body: "The non-integration has become diffuse. A leader operating from coherence here can clearly distinguish between what changed and what reverted. That clarity is what has faded.",
+    question: "If you assessed your operating patterns against your intentions from six months ago \u2014 how many of the intended changes would you actually find?"
+  },
+  "08_Fractured": {
+    headline: "The capacity for change to hold has been structurally compromised. Changes do not fail because they are wrong \u2014 they fail because the system cannot currently sustain anything new.",
+    body: "This is not a failure of commitment. It is a system operating at a level of load where integration is structurally impossible. A leader operating from coherence here has capacity for new patterns to take root. Your system does not \u2014 and restoring that capacity is the precondition for any change to hold.",
+    question: "This domain does not resolve by trying harder. It resolves by reducing the load to a level where the system can absorb something new."
+  },
+};
+
+const SEC04_COMBO = {
+  "01_A": "You can see the filtering \u2014 decisions shaped by what you already know rather than what is arriving. It has not registered as a problem because the filtering is producing good results.",
+  "01_B": "Something is resisting what is trying to enter \u2014 a new direction, a shift \u2014 but you cannot point to where it shows up in your decisions. The resistance is felt, not visible.",
+  "01_C": "Energy is being consumed defending the current frame, but you have not connected the cost to a specific pattern or felt it directly. The drain is real. The source is below the surface.",
+  "01_AB": "The filtering is visible and the resistance is felt. What has not arrived is the cost \u2014 which is why this does not feel urgent.",
+  "01_AC": "The filtering is visible and the cost is real. But the felt experience of what you are resisting has not landed \u2014 you are managing this analytically.",
+  "01_BC": "You feel the resistance and you are paying for it \u2014 but you cannot see where it is showing up in your decisions. A filtering process you cannot see but can feel and are paying for is one operating below your current line of sight.",
+  "01_ABC": "The full pattern is present. You can see the filtering, feel the resistance, and measure the cost. The question is not awareness \u2014 it is whether you will let what is trying to enter actually change the frame.",
+  "02_A": "You can see that more energy is going into managing the structure than into the work itself \u2014 but it has not registered as a problem.",
+  "02_B": "You sense something in this domain but cannot point to where it shows up. The misfit exists in the felt register only.",
+  "02_C": "The energy cost of maintaining the current arrangement is real, though you have not connected it to a specific cause.",
+  "02_AB": "You can see the overhead and you sense the misfit. Both signals are present. What has not arrived is the cost.",
+  "02_AC": "The overhead is visible and the energy cost is real. But the deeper question of whether the structure fits has not become a felt experience.",
+  "02_BC": "You feel something is off and it is costing you energy \u2014 but you cannot name the specific structural problem. The cost of a problem you cannot identify cannot be addressed through effort \u2014 only through diagnosis.",
+  "02_ABC": "You can see the overhead, feel the misfit, and measure the cost. Nothing is hidden here. The question is whether you will redesign the structure or continue operating inside one you can fully see has been outgrown.",
+  "03_A": "You can see that momentum is substituting for direction \u2014 activity is high but steering is unclear.",
+  "03_B": "You know there is a specific choice you are deferring \u2014 one where the honest answer would create discomfort.",
+  "03_C": "Energy is being consumed holding incompatible commitments in place, but you have not identified the specific choice or connected to the felt experience of carrying it.",
+  "03_AB": "The unsteered momentum is visible and the deferred choice is felt. The cost has not been counted.",
+  "03_AC": "The pattern is visible and the cost is clear, but the specific deferred decision has not surfaced as a felt experience.",
+  "03_BC": "You feel the deferred choice and you are paying for it, but the pattern is not visible in your behaviour yet.",
+  "03_ABC": "Full visibility. You can see, feel, and measure the cost of the deferred choice. What remains is the decision itself.",
+  "04_A": "The effort required to sustain output has quietly increased \u2014 you can see it in the hours and recovery time. It has not registered as a disconnection from the work.",
+  "04_B": "A growing distance between what you spend your days doing and what you believe actually matters. The gap is felt, not structural.",
+  "04_C": "The energy equation has inverted \u2014 more going out than coming back \u2014 but you have not connected this to a specific pattern or felt sense.",
+  "04_AB": "The increasing effort and the distance from meaning are both present. The cost has not been counted.",
+  "04_AC": "The trend is visible and the drain is real, but the deeper question of whether the work still means what it once meant has not become felt.",
+  "04_BC": "You feel the disconnection and you are paying for it, but from the outside the evidence has not appeared. This is where the risk of continuing without intervention is highest.",
+  "04_ABC": "Full visibility. The effort is increasing, the connection to purpose is thinning, and you know it. The question is what it would take to reconnect the daily reality to the thing that made it worth doing.",
+  "05_A": "You can name something that should have ended by now. It has not registered as costing you.",
+  "05_B": "You feel a broader shift \u2014 a chapter closing \u2014 but you have not named it or begun the transition.",
+  "05_C": "The energy cost of sustaining something past its time is real, but you cannot see what comes next, so you maintain the status quo.",
+  "05_AB": "The specific and the diffuse are both present \u2014 a nameable item and a deeper felt shift. The cost has not been counted.",
+  "05_AC": "You can name what should have ended and you know the cost \u2014 but the embodied willingness to let go has not arrived.",
+  "05_BC": "You feel the ending and you are paying for the suspended state \u2014 but you cannot name what needs to change. This is the most consequential combination here.",
+  "05_ABC": "Full visibility. You can see it, feel it, and measure the cost of the holding pattern. What remains is crossing the threshold.",
+  "06_A": "You can identify a specific dependency that has disproportionate power. It has not registered as a vulnerability.",
+  "06_B": "The ground feels less stable than it appears from the outside. You cannot point to why.",
+  "06_C": "Energy is going into forward motion driven by the absence of an alternative rather than the presence of clarity.",
+  "06_AB": "The dependency is visible and the instability is felt. The combined cost has not been counted.",
+  "06_AC": "The dependency is visible and the cost is real, but the felt vulnerability has not registered.",
+  "06_BC": "You feel the instability and you are paying for it, but you cannot name what is generating it. This combination carries the most weight in this domain.",
+  "06_ABC": "Full visibility. The dependency, the vulnerability, and the cost are all present. What is needed is not more awareness \u2014 it is structural intervention at the foundation.",
+  "07_A": "You can see that decisions are based on untested assumptions. It has not registered as a risk.",
+  "07_B": "Something about how you see your situation feels partial or provisional \u2014 but you cannot point to the specific distortion.",
+  "07_C": "Energy is being spent managing anxiety about what might be true rather than finding out what is.",
+  "07_AB": "The untested assumptions are visible and the incompleteness is felt. The cost has not been counted.",
+  "07_AC": "The assumptions are visible and the anxiety cost is real, but the deeper sense that the frame might need updating has not landed.",
+  "07_BC": "You sense the incompleteness and you are paying for it, but you cannot identify the specific distortions. The corrections you are making may themselves be based on the flawed map.",
+  "07_ABC": "Full visibility. You can identify the distortions, sense the incompleteness, and measure the cost. The question is whether you will find out what is actually true \u2014 even if it challenges your current picture.",
+  "08_A": "You can point to specific changes that reverted once the urgency passed.",
+  "08_B": "You feel that the changes never truly took hold \u2014 a quiet sense that what you intended to become has not yet become.",
+  "08_C": "The energy cost of re-initiating the same changes is the clearest signal. The circularity is the drain.",
+  "08_AB": "The reversions are visible and the non-integration is felt. The cost of the cycle has not been counted.",
+  "08_AC": "The reversions are visible and the re-initiation cost is real, but the deeper sense that something foundational was missing has not landed.",
+  "08_BC": "You feel the non-integration and you are paying for it, but you cannot point to where the changes failed. This suggests the conditions for integration \u2014 not the changes themselves \u2014 may be the missing element.",
+  "08_ABC": "Full visibility. The reversions, the non-integration, and the circular cost are all present. This is the capstone of the entire diagnostic \u2014 because everything else holds or does not based on whether change can become permanent in your system.",
+};
+
+function clusterState(score) {
+  const s = parseInt(score) || 0;
+  if (s <= 1) return "Coherent";
+  if (s === 2) return "Driven";
+  if (s <= 4) return "Strained";
+  if (s <= 6) return "Drifting";
+  return "Fractured";
+}
+
+function buildSec04(combos, clusterScores) {
+  const output = {};
+  for (const cn of ["01","02","03","04","05","06","07","08"]) {
+    const combo = combos[cn];
+    const score = clusterScores[cn];
+    const cState = clusterState(score);
+    const stateKey = cn + "_" + cState;
+    const reading = SEC04_STATE[stateKey];
+    if (!reading) continue;
+    const stateColor = stateColors[cState] || "#1A1A2E";
+    output[`sec04_${cn}_state`] = `<span style='color:${stateColor};font-weight:bold;'>${cState.toUpperCase()}</span>`;
+    let html = "";
+    html += `<div style='page-break-inside:avoid;'>`;
+    html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:${stateColor};font-weight:bold;line-height:1;margin-top:0;margin-bottom:8px;'>${reading.headline}</p>`;
+    html += `<p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-bottom:10px;'>${reading.body}`;
+    if (combo && combo !== "NONE" && combo !== "BLANK" && combo !== "D") {
+      const comboKey = cn + "_" + combo;
+      const comboText = SEC04_COMBO[comboKey];
+      if (comboText) {
+        html += ` ${comboText}`;
+      }
+    }
+    html += `</p>`;
+    html += `<p style='font-family:Inter,sans-serif;font-size:11pt;color:#2E2E2C;font-style:italic;line-height:1.2;margin-bottom:0px;'>${reading.question}</p>`;
+    html += `</div>`;
+    if (cn === "03" || cn === "06") {
+      html += `<p style='page-break-after:always;margin:0;padding:0;line-height:0;font-size:0;'>&nbsp;</p>`;
+    }
+    output[`sec04_${cn}`] = html;
+  }
+  return output;
+}
+
+// ════════════════════════════════════════════════════════════════
+// SECTION 05: THE PATTERN
+// ════════════════════════════════════════════════════════════════
+const SEC05_TERRITORIES = [
+  {
+    name: "Being",
+    opener: "In Being \u2014 your relationship with yourself \u2014",
+    meaning: "your internal integrity",
+    meaningPhrase: "who you are beneath the operating surface",
+    clusters: ["01", "02", "04"],
+  },
+  {
+    name: "Relating",
+    opener: "In Relating \u2014 the field between you and others \u2014",
+    meaning: "how truth moves between you and the people around you",
+    meaningPhrase: "how you connect with the people and systems around you",
+    clusters: ["03", "05", "06"],
+  },
+  {
+    name: "Creating",
+    opener: "In Creating \u2014 your relationship with what you are building \u2014",
+    meaning: "the connection between who you are and what you produce",
+    meaningPhrase: "what you are building in the world",
+    clusters: ["07", "08"],
+  },
+];
+
+const SEC05_CLUSTER_NAMES = {
+  "01": "OPENNESS",
+  "02": "STRUCTURE",
+  "03": "DIRECTION",
+  "04": "VITALITY",
+  "05": "TRANSITION",
+  "06": "EXPOSURE",
+  "07": "CLARITY",
+  "08": "INTEGRATION",
+};
+
+function extractRegisters(combo, score) {
+  const s = parseInt(score) || 0;
+  const c = (combo || "").toUpperCase().trim();
+  if (c === "D") {
+    if (s <= 1) return { registers: [], path: "clean" };
+    return { registers: [], path: "unchannelled" };
+  }
+  const regs = [];
+  if (c.indexOf("A") !== -1) regs.push("observable");
+  if (c.indexOf("B") !== -1) regs.push("felt");
+  if (c.indexOf("C") !== -1) regs.push("cost");
+  return { registers: regs, path: "active" };
+}
+
+function sec05ListNames(clusterIds) {
+  const names = clusterIds.map(function(id) { return SEC05_CLUSTER_NAMES[id]; });
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return names[0] + " and " + names[1];
+  return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
+}
+
+function analyseTerritory(territory, combos, clusterScores) {
+  const obs = [];
+  const felt = [];
+  const cost = [];
+  const clean = [];
+  const unchannelled = [];
+  for (var i = 0; i < territory.clusters.length; i++) {
+    var cn = territory.clusters[i];
+    var ext = extractRegisters(combos[cn], clusterScores[cn]);
+    if (ext.path === "clean") {
+      clean.push(cn);
+    } else if (ext.path === "unchannelled") {
+      unchannelled.push(cn);
+    } else {
+      if (ext.registers.indexOf("observable") !== -1) obs.push(cn);
+      if (ext.registers.indexOf("felt") !== -1) felt.push(cn);
+      if (ext.registers.indexOf("cost") !== -1) cost.push(cn);
+    }
+  }
+  var activeCount = territory.clusters.length - clean.length - unchannelled.length;
+  var activeRegisters = [];
+  if (obs.length > 0) activeRegisters.push("observable");
+  if (felt.length > 0) activeRegisters.push("felt");
+  if (cost.length > 0) activeRegisters.push("cost");
+  var sig = activeRegisters.slice().sort().join("+") || (unchannelled.length > 0 ? "unchannelled" : "clean");
+  return { obs: obs, felt: felt, cost: cost, clean: clean, unchannelled: unchannelled, activeCount: activeCount, activeRegisters: activeRegisters, sig: sig, territory: territory };
+}
+
+function buildSingleTerritoryPara(a) {
+  var t = a.territory;
+  var para = t.opener + " ";
+  if (a.clean.length === t.clusters.length) {
+    para += "the diagnostic detected no friction through the observable, felt, or cost registers. "
+      + "The coherence quality readings confirm the signal is arriving and being metabolised. "
+      + "This territory is not contributing to your current load.";
+    return para;
+  }
+  if (a.activeCount === 0 && a.unchannelled.length > 0) {
+    para += "you reported no friction through any of the three channels.";
+    if (a.clean.length > 0) {
+      para += " " + sec05ListNames(a.clean) + (a.clean.length === 1 ? " reads" : " read") + " Coherent.";
+    }
+    para += " But the coherence quality reading in " + sec05ListNames(a.unchannelled)
+      + " suggests the signal is not fully settled. "
+      + "The instrument reads friction in this territory that you have not yet located through any register. "
+      + "That does not mean it is not there. It means it has not yet surfaced into a form your conscious awareness can access.";
+    return para;
+  }
+  if (a.activeRegisters.length === 1) {
+    var reg = a.activeRegisters[0];
+    var regClusters = reg === "observable" ? a.obs : reg === "felt" ? a.felt : a.cost;
+    if (reg === "observable") {
+      para += "the friction is visible to you. "
+        + sec05ListNames(regClusters) + (regClusters.length === 1 ? " carries" : " carry")
+        + " signal you recognise in your own behaviour \u2014 "
+        + "you can see the pattern operating, even if you have not yet acted on it. "
+        + "Recognition is the precondition for structural change. It is not the same thing as structural change.";
+    } else if (reg === "felt") {
+      para += "the friction registers below the surface. "
+        + sec05ListNames(regClusters) + (regClusters.length === 1 ? " carries" : " carry")
+        + " signal you sense but have not yet fully articulated. "
+        + "Something about " + t.meaning
+        + " is present in the system ahead of your ability to name it. "
+        + "That signal is not imprecise. It is early.";
+    } else {
+      para += "the friction registers primarily through what it costs you. "
+        + sec05ListNames(regClusters) + (regClusters.length === 1 ? " is" : " are")
+        + " drawing energy \u2014 the drain is real even where its source has not become fully visible or fully felt. "
+        + "When the cost register is the only active channel, the friction has bypassed your conscious awareness entirely "
+        + "and is showing up in the energy equation.";
+    }
+  } else if (a.activeRegisters.length === 2) {
+    if (a.activeRegisters.indexOf("observable") !== -1 && a.activeRegisters.indexOf("felt") !== -1) {
+      para += "the friction splits between what you can see and what you can feel. ";
+      var obsOnly = a.obs.filter(function(cn) { return a.felt.indexOf(cn) === -1; });
+      var feltOnly = a.felt.filter(function(cn) { return a.obs.indexOf(cn) === -1; });
+      var both = a.obs.filter(function(cn) { return a.felt.indexOf(cn) !== -1; });
+      if (both.length > 0) {
+        para += sec05ListNames(both) + (both.length === 1 ? " carries" : " carry")
+          + " signal in both registers \u2014 visible and felt simultaneously. ";
+      }
+      if (obsOnly.length > 0) {
+        para += sec05ListNames(obsOnly) + (obsOnly.length === 1 ? " carries" : " carry")
+          + " signal you recognise in your own behaviour. ";
+      }
+      if (feltOnly.length > 0) {
+        para += sec05ListNames(feltOnly) + (feltOnly.length === 1 ? " carries" : " carry")
+          + " signal you sense but cannot yet articulate. ";
+      }
+      para += "The gap between recognising and sensing tells you where your awareness of "
+        + t.meaning + " is sharpest and where it is still forming.";
+    } else if (a.activeRegisters.indexOf("observable") !== -1 && a.activeRegisters.indexOf("cost") !== -1) {
+      para += "the friction splits between what you can see and what it is costing you. ";
+      var obsOnly2 = a.obs.filter(function(cn) { return a.cost.indexOf(cn) === -1; });
+      var costOnly2 = a.cost.filter(function(cn) { return a.obs.indexOf(cn) === -1; });
+      var both2 = a.obs.filter(function(cn) { return a.cost.indexOf(cn) !== -1; });
+      if (both2.length > 0) {
+        para += sec05ListNames(both2) + (both2.length === 1 ? " carries" : " carry")
+          + " signal that is both visible and costing you energy. ";
+      }
+      if (obsOnly2.length > 0) {
+        para += sec05ListNames(obsOnly2) + (obsOnly2.length === 1 ? " carries" : " carry")
+          + " signal you recognise in your own behaviour. ";
+      }
+      if (costOnly2.length > 0) {
+        para += sec05ListNames(costOnly2) + (costOnly2.length === 1 ? " registers" : " register")
+          + " primarily through drain. ";
+      }
+      para += "The felt channel between those two has not yet activated \u2014 "
+        + "you are seeing some of the friction and paying for the rest, "
+        + "but what you are not yet allowing yourself to feel about " + t.meaning + " sits in the gap.";
+    } else {
+      para += "the friction registers through what you feel and what it costs you. ";
+      var feltOnly3 = a.felt.filter(function(cn) { return a.cost.indexOf(cn) === -1; });
+      var costOnly3 = a.cost.filter(function(cn) { return a.felt.indexOf(cn) === -1; });
+      var both3 = a.felt.filter(function(cn) { return a.cost.indexOf(cn) !== -1; });
+      if (both3.length > 0) {
+        para += sec05ListNames(both3) + (both3.length === 1 ? " carries" : " carry")
+          + " signal you both sense and are paying for. ";
+      }
+      if (feltOnly3.length > 0) {
+        para += sec05ListNames(feltOnly3) + (feltOnly3.length === 1 ? " carries" : " carry")
+          + " signal you sense but have not yet named. ";
+      }
+      if (costOnly3.length > 0) {
+        para += sec05ListNames(costOnly3) + (costOnly3.length === 1 ? " registers" : " register")
+          + " through drain alone. ";
+      }
+      para += "What has not yet arrived in this territory is the self-recognised pattern \u2014 "
+        + "the friction you can see operating in your own behaviour and act on directly. "
+        + "The friction in " + t.meaning + " has not yet become something you recognise as a pattern in how you are operating.";
+    }
+  } else {
+    para += "the friction is registering through every available channel. ";
+    var obsOnly4 = a.obs.filter(function(cn) { return a.felt.indexOf(cn) === -1 && a.cost.indexOf(cn) === -1; });
+    var feltOnly4 = a.felt.filter(function(cn) { return a.obs.indexOf(cn) === -1 && a.cost.indexOf(cn) === -1; });
+    var costOnly4 = a.cost.filter(function(cn) { return a.obs.indexOf(cn) === -1 && a.felt.indexOf(cn) === -1; });
+    var multiReg = a.territory.clusters.filter(function(cn) {
+      var count = 0;
+      if (a.obs.indexOf(cn) !== -1) count++;
+      if (a.felt.indexOf(cn) !== -1) count++;
+      if (a.cost.indexOf(cn) !== -1) count++;
+      return count >= 2;
+    });
+    var parts = [];
+    if (obsOnly4.length > 0) parts.push(sec05ListNames(obsOnly4) + (obsOnly4.length === 1 ? " carries" : " carry") + " signal you recognise in your own behaviour");
+    if (feltOnly4.length > 0) parts.push(sec05ListNames(feltOnly4) + (feltOnly4.length === 1 ? " carries" : " carry") + " signal you feel");
+    if (costOnly4.length > 0) parts.push(sec05ListNames(costOnly4) + (costOnly4.length === 1 ? " registers" : " register") + " through cost");
+    if (multiReg.length > 0) parts.push(sec05ListNames(multiReg) + (multiReg.length === 1 ? " registers" : " register") + " across multiple channels simultaneously");
+    if (parts.length > 0) {
+      para += parts.join(". ") + ". ";
+    }
+    para += "Nothing in this territory is hidden from the instrument. "
+      + "The question is not awareness \u2014 it is what you do with what the full pattern is showing you about "
+      + t.meaning + ".";
+  }
+  if (a.clean.length > 0 && a.activeCount > 0) {
+    var activeClusters = a.territory.clusters.filter(function(cn) {
+      return a.clean.indexOf(cn) === -1 && a.unchannelled.indexOf(cn) === -1;
+    });
+    if (a.clean.length === 1) {
+      para += " " + SEC05_CLUSTER_NAMES[a.clean[0]]
+        + " reads Coherent \u2014 the load in this territory is not uniform. "
+        + "There is ground holding where other domains are not.";
+    } else {
+      para += " " + sec05ListNames(a.clean) + " both read Coherent. "
+        + "The friction in this territory concentrates in "
+        + (activeClusters.length === 1
+          ? SEC05_CLUSTER_NAMES[activeClusters[0]] + " alone"
+          : sec05ListNames(activeClusters))
+        + ".";
+    }
+  }
+  if (a.unchannelled.length > 0 && a.activeCount > 0) {
+    para += " " + SEC05_CLUSTER_NAMES[a.unchannelled[0]]
+      + " carries friction the instrument detects but you did not locate through any of the three channels. "
+      + "That signal warrants attention precisely because it has no register \u2014 "
+      + "it is present in the system but invisible to the mechanism you are using to read yourself.";
+  }
+  return para;
+}
+
+// ════════════════════════════════════════════════════════════════
+// PIECE 1: THE REGISTER MAP
+// ════════════════════════════════════════════════════════════════
+function buildPiece1(analyses, isZeroAmp) {
+  var i, a, t;
+
+  if (isZeroAmp) {
+    return wrap(
+      "Across all three territories \u2014 Being, Relating, and Creating \u2014 "
+      + "no friction was located through any of the three channels. "
+      + "The observable, felt, and cost registers each returned empty. "
+      + "Every domain reads Coherent at zero amplitude. "
+      + "The Register Map that normally identifies where friction is entering, "
+      + "how it is being processed, and where it concentrates "
+      + "cannot be run against a dataset with no activations. "
+      + "What the absence of activation tells you is not the same as "
+      + "what the presence of activation would tell you. "
+      + "It tells you that the instrument reached the boundary of what "
+      + "your self-report produced \u2014 and that the work of determining "
+      + "what sits on the other side of that boundary "
+      + "requires a different kind of examination."
+    );
+  }
+
+  var allDPath = analyses.every(function(a) { return a.activeCount === 0; });
+  var unchannelledTerritories = analyses.filter(function(a) { return a.unchannelled.length > 0; });
+
+  if (allDPath && unchannelledTerritories.length >= 2) {
+    var out = "";
+    var allUnchannelled = [];
+    var allClean = [];
+    for (i = 0; i < analyses.length; i++) {
+      a = analyses[i];
+      for (var j = 0; j < a.unchannelled.length; j++) allUnchannelled.push(a.unchannelled[j]);
+      for (var k = 0; k < a.clean.length; k++) allClean.push(a.clean[k]);
+    }
+    out += wrap(
+      "Across all three territories, you reported no friction through any of the three channels. "
+      + "But the coherence quality readings are not uniformly settled. "
+      + "The instrument reads friction in " + allUnchannelled.length
+      + " of your eight domains that you did not locate through any register \u2014 "
+      + "not because it is absent, but because it has not yet surfaced into a form "
+      + "your conscious awareness can access through self-report."
+    );
+    if (allClean.length > 0) {
+      out += wrap(
+        sec05ListNames(allClean) + (allClean.length === 1 ? " reads" : " read")
+        + " Coherent with settled quality \u2014 "
+        + (allClean.length === 1 ? "this domain is" : "these domains are")
+        + " genuinely holding. "
+        + sec05ListNames(allUnchannelled) + (allUnchannelled.length === 1 ? " carries" : " carry")
+        + " the unsettled signal. "
+        + "The distribution across territories tells you this is not localised to one part of your leadership \u2014 "
+        + "it is a systemic condition operating below the threshold of the mechanism you are using to read yourself."
+      );
+    } else {
+      out += wrap(
+        "Every domain carries unsettled signal. "
+        + "This is not a reading of load in the conventional sense. "
+        + "It is a reading of a system where friction is present everywhere "
+        + "but has not yet found a channel through which you can recognise, feel, or measure it."
+      );
+    }
+    for (i = 0; i < analyses.length; i++) {
+      a = analyses[i]; t = a.territory;
+      if (a.unchannelled.length > 0) {
+        var line = "In " + t.name + ", " + sec05ListNames(a.unchannelled)
+          + (a.unchannelled.length === 1 ? " carries" : " carry") + " the unsettled signal.";
+        if (a.clean.length > 0) {
+          line += " " + sec05ListNames(a.clean) + (a.clean.length === 1 ? " reads" : " read") + " Coherent.";
+        }
+        out += wrap(line);
+      } else {
+        out += wrap(t.name + " reads Coherent across all its domains.");
+      }
+    }
+    return out;
+  }
+
+  var activeTerritories = analyses.filter(function(a) { return a.activeCount > 0; });
+  var sigs = activeTerritories.map(function(a) { return a.sig; });
+  var allSameSig = activeTerritories.length > 1 && sigs.every(function(s) { return s === sigs[0]; });
+
+  if (allSameSig && activeTerritories.length >= 2) {
+    var sig = sigs[0];
+    var regParts = sig.split("+");
+    var out2 = "";
+    var terrNames = activeTerritories.map(function(a) { return a.territory.name; });
+    var terrList = terrNames.length === 2
+      ? terrNames[0] + " and " + terrNames[1]
+      : terrNames.slice(0, -1).join(", ") + ", and " + terrNames[terrNames.length - 1];
+    out2 += wrap(
+      "Across " + terrList
+      + ", the friction registers through the same channels. "
+      + "This is not a coincidence of the data. It is a pattern \u2014 "
+      + "your system is processing friction in "
+      + (regParts.length === 1 ? "a single register" : regParts.length === 2 ? "two registers" : "all three registers")
+      + " regardless of which territory it appears in. "
+      + "That consistency tells you something about how you relate to friction itself, "
+      + "not just what the friction is about."
+    );
+    if (regParts.indexOf("felt") !== -1 && regParts.indexOf("cost") !== -1 && regParts.indexOf("observable") === -1) {
+      out2 += wrap("The felt and cost registers are active. The observable register is not. You sense the friction and you are paying for it \u2014 but the self-recognised pattern \u2014 the friction you can see operating in your own behaviour \u2014 has not yet surfaced. This is a system-wide condition: the friction across your leadership exists below the line of behavioural recognition.");
+    } else if (regParts.indexOf("observable") !== -1 && regParts.indexOf("felt") !== -1 && regParts.indexOf("cost") === -1) {
+      out2 += wrap("The observable and felt registers are active. The cost register has not yet surfaced. You see some of the friction and sense the rest \u2014 but the energy toll has not registered, or has not been connected to its source. The cost may be present. It may not be visible because it has not been counted.");
+    } else if (regParts.indexOf("observable") !== -1 && regParts.indexOf("cost") !== -1 && regParts.indexOf("felt") === -1) {
+      out2 += wrap("The observable and cost registers are active. The felt register is largely silent. You can see the friction and you are paying for it \u2014 but the felt channel between seeing and paying has not activated. You know and you are depleted, but you may not be allowing yourself to feel what sits between the two.");
+    } else if (regParts.length === 1 && regParts[0] === "observable") {
+      out2 += wrap("Only the observable register is active. Across your territories, you recognise the friction in your own behaviour. You are not yet feeling its weight or paying for it in ways you have connected to its source. The question is whether the absence of felt and cost signals means the friction is manageable \u2014 or whether those registers have not yet caught up with what you have already recognised.");
+    } else if (regParts.length === 1 && regParts[0] === "felt") {
+      out2 += wrap("Only the felt register is active. Across your territories, you sense the friction before you can name it. Neither the observable evidence nor the energy cost has surfaced. Your system is signalling ahead of both your conscious awareness and your energy equation. That signal deserves serious attention \u2014 it is the earliest warning your system produces.");
+    } else if (regParts.length === 1 && regParts[0] === "cost") {
+      out2 += wrap("Only the cost register is active. Across your territories, the drain is the signal. You are not seeing the friction and you are not feeling it \u2014 you are paying for it. When cost is the only register across the system, the friction has bypassed both your conscious awareness and your felt sense. Something is consuming energy at a level that neither your analytical mind nor your instinct has been able to locate.");
+    } else {
+      out2 += wrap("All three registers are active across your territories. You recognise the friction in your behaviour, feel it beneath the surface, and measure what it costs. The pattern is not one of blindness. It is one of comprehensive load \u2014 every channel your system has for processing friction is engaged.");
+    }
+    for (i = 0; i < analyses.length; i++) {
+      a = analyses[i]; t = a.territory;
+      if (a.activeCount === 0 && a.clean.length === t.clusters.length) {
+        out2 += wrap(t.name + " reads Coherent across all its domains \u2014 this territory is not contributing to the pattern.");
+      } else if (a.activeCount === 0 && a.unchannelled.length > 0) {
+        out2 += wrap("In " + t.name + ", " + sec05ListNames(a.unchannelled) + (a.unchannelled.length === 1 ? " carries" : " carry") + " friction the instrument detects but you did not locate through any register." + (a.clean.length > 0 ? " " + sec05ListNames(a.clean) + (a.clean.length === 1 ? " reads" : " read") + " Coherent." : ""));
+      } else if (a.activeCount > 0) {
+        var actClusters = t.clusters.filter(function(cn) { return a.clean.indexOf(cn) === -1 && a.unchannelled.indexOf(cn) === -1; });
+        var ln = "In " + t.name + ", " + sec05ListNames(actClusters) + (actClusters.length === 1 ? " carries" : " carry") + " the load \u2014 " + t.meaning + " is processing the friction through " + (a.activeRegisters.length === 1 ? "the " + a.activeRegisters[0] + " register" : a.activeRegisters.length === 2 ? "both the " + a.activeRegisters[0] + " and " + a.activeRegisters[1] + " registers" : "all three registers") + ".";
+        if (a.clean.length > 0) ln += " " + sec05ListNames(a.clean) + (a.clean.length === 1 ? " reads" : " read") + " Coherent.";
+        if (a.unchannelled.length > 0) ln += " " + SEC05_CLUSTER_NAMES[a.unchannelled[0]] + " carries unchannelled friction.";
+        out2 += wrap(ln);
+      }
+    }
+    return out2;
+  } else {
+    var out3 = "";
+    for (i = 0; i < analyses.length; i++) {
+      out3 += wrap(buildSingleTerritoryPara(analyses[i]));
+    }
+    return out3;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// PIECE 2: THE CONCENTRATION READING
+// ════════════════════════════════════════════════════════════════
+function buildPiece2(analyses, isZeroAmp) {
+  var obsCount = 0, feltCount = 0, costCount = 0;
+  var obsTerritories = {}, feltTerritories = {}, costTerritories = {};
+  var totalActive = 0, totalUnchannelled = 0;
+  var i, a;
+  for (i = 0; i < analyses.length; i++) {
+    a = analyses[i];
+    for (var j = 0; j < a.obs.length; j++) { obsCount++; obsTerritories[a.territory.name] = true; }
+    for (var k = 0; k < a.felt.length; k++) { feltCount++; feltTerritories[a.territory.name] = true; }
+    for (var m = 0; m < a.cost.length; m++) { costCount++; costTerritories[a.territory.name] = true; }
+    totalActive += a.activeCount;
+    totalUnchannelled += a.unchannelled.length;
+  }
+  var objKeys = function(obj) { var arr = []; for (var k in obj) { if (obj.hasOwnProperty(k)) arr.push(k); } return arr; };
+  var terrListStr = function(obj) { var arr = objKeys(obj); if (arr.length === 1) return arr[0]; if (arr.length === 2) return arr[0] + " and " + arr[1]; return arr.slice(0,-1).join(", ") + ", and " + arr[arr.length-1]; };
+  var terrSize = function(obj) { return objKeys(obj).length; };
+
+  if (isZeroAmp) {
+    return wrap(
+      "No register was activated across your system. "
+      + "The concentration analysis \u2014 which normally identifies which channels carry the most load, "
+      + "which territories dominate, and where the friction is densest \u2014 "
+      + "has no distribution to report. "
+      + "The absence of register activation is itself a data point. "
+      + "A system that presents no observable evidence of friction, "
+      + "no felt signal, and no cost activation simultaneously "
+      + "is either carrying nothing or carrying something too thoroughly normalised "
+      + "to be detected through self-report. "
+      + "That distinction is the one the instrument cannot make. "
+      + "It is also the one with the most structural consequence."
+    );
+  }
+
+  if (totalActive === 0 && totalUnchannelled === 0) {
+    return wrap(
+      "Across your system, no domain activated a friction register. "
+      + "The coherence quality readings confirm the signal is settled in every cluster. "
+      + "This is not a pattern of concentrated load \u2014 it is the absence of pattern. "
+      + "The diagnostic weight here lies not in what was found, "
+      + "but in the conditions that produced this state "
+      + "and whether you would recognise the early signal if they began to shift."
+    );
+  }
+
+  if (totalActive <= 2) {
+    var text = "Across your system, the friction that activates a register is limited to " + totalActive + " of your eight operational domains.";
+    if (totalUnchannelled > 0) {
+      text += " The instrument also detects unsettled signal in " + totalUnchannelled + (totalUnchannelled === 1 ? " domain" : " domains") + " where you reported no friction through any channel. That combination \u2014 limited register activation alongside unchannelled friction \u2014 suggests a system that is largely coherent but not entirely settled. The pattern here is not about load. It is about what may be forming at the edges of a coherent state.";
+    } else {
+      text += " The remainder read Coherent with settled quality readings. The pattern here is not about dominance \u2014 it is about location. The friction that is present has a specific address, and the coherence around it is what gives that address its diagnostic weight.";
+    }
+    return wrap(text);
+  }
+
+  var counts = [["observable", obsCount], ["felt", feltCount], ["cost", costCount]];
+  counts.sort(function(a, b) { return b[1] - a[1]; });
+  var top = counts[0], second = counts[1], third = counts[2];
+  var singleDominant = top[1] > second[1];
+  var coDominant = top[1] === second[1] && top[1] > third[1];
+  var terrSetFor = function(reg) { if (reg === "observable") return obsTerritories; if (reg === "felt") return feltTerritories; return costTerritories; };
+
+  if (singleDominant) {
+    var reg = top[0];
+    var tSet = terrSetFor(reg);
+    var isConc = terrSize(tSet) === 1;
+    var tName = isConc ? objKeys(tSet)[0] : null;
+    if (isConc) {
+      var tMeaning = "";
+      for (i = 0; i < SEC05_TERRITORIES.length; i++) { if (SEC05_TERRITORIES[i].name === tName) tMeaning = SEC05_TERRITORIES[i].meaningPhrase; }
+      if (reg === "observable") {
+        return wrap("Across your system, the observable register dominates \u2014 and it concentrates in " + tName + ". The friction you have recognised in your own behaviour lives primarily in " + tMeaning + ". This concentration tells you where your conscious awareness of your own conditions is most active. It also tells you, by implication, where it is least active \u2014 the territories that are either reading clean or carrying friction through channels you have not yet accessed.");
+      } else if (reg === "felt") {
+        return wrap("Across your system, the felt register dominates \u2014 and it concentrates in " + tName + ". The friction you sense but cannot yet name lives primarily in " + tMeaning + ". The concentration suggests the unnamed signal has a specific locus. It is not diffuse. It is telling you something about " + tMeaning + " that has not yet become visible \u2014 and the specificity of that location is itself information.");
+      } else {
+        return wrap("Across your system, the cost register dominates \u2014 and it concentrates in " + tName + ". The drain lives primarily in " + tMeaning + ". The concentration means the source of the depletion has an address. It is not systemic. It is structural, it is locatable, and it is responsive to intervention at the level where " + tMeaning + " is set.");
+      }
+    } else {
+      if (reg === "observable") {
+        return wrap("Across your system, the observable register dominates \u2014 distributed across " + terrListStr(tSet) + ". You can see the friction across multiple territories. The breadth of that visibility is itself a reading: you are not blind to your conditions. The structural question is whether that clarity has become its own holding pattern \u2014 seeing clearly enough to describe the problem, not clearly enough to dismantle it.");
+      } else if (reg === "felt") {
+        return wrap("Across your system, the felt register dominates \u2014 running through " + terrListStr(feltTerritories) + ". The friction you sense but cannot name is not localised to one territory. When the felt register is this broadly distributed, it is not signalling about any single domain. It is signalling about the operating conditions themselves \u2014 something systemic that your whole self is registering ahead of your ability to articulate it.");
+      } else {
+        return wrap("Across your system, the cost register dominates \u2014 running through " + terrListStr(costTerritories) + ". The drain is not coming from one territory. It is distributed. When cost dominates at this breadth without the observable or felt registers keeping pace, the depletion is structural and the source is not yet located. This is the pattern where naming the specific origin of the drain has the highest immediate impact on the energy equation.");
+      }
+    }
+  }
+
+  if (coDominant) {
+    var r1 = top[0], r2 = second[0];
+    var t1 = terrSetFor(r1), t2 = terrSetFor(r2);
+    var distSentence = "";
+    if (terrSize(t1) === 1 && terrSize(t2) === 1) {
+      var tn1 = objKeys(t1)[0], tn2 = objKeys(t2)[0];
+      if (tn1 === tn2) { distSentence = "Both registers concentrate in " + tn1 + " \u2014 the friction in that territory is being processed through two channels simultaneously."; }
+      else { distSentence = "The " + r1 + " register concentrates in " + tn1 + " while the " + r2 + " register concentrates in " + tn2 + " \u2014 the two channels are operating in different parts of your leadership."; }
+    } else {
+      distSentence = "The " + r1 + " register appears in " + terrListStr(t1) + ". The " + r2 + " register appears in " + terrListStr(t2) + ".";
+    }
+    var pair = [r1, r2].sort().join("+");
+    if (pair === "felt+observable") {
+      return wrap("Across your system, two registers share the load \u2014 the observable and the felt. In some domains you recognise the friction in your own behaviour. In others it is sensed but not yet named. " + distSentence + " Your awareness is operating at two different depths. Where you can see, clarity is available. Where you can only feel, something is signalling that has not yet found its evidence.");
+    }
+    if (pair === "cost+observable") {
+      return wrap("Across your system, two registers share the load \u2014 the observable and the cost. In some domains you recognise the friction in your behaviour. In others it shows up only through the energy it consumes. " + distSentence + " The register that is largely absent is the felt channel \u2014 the one that carries what you sense but cannot name. That absence suggests the friction you cannot see is bypassing your felt awareness and arriving directly as drain.");
+    }
+    return wrap("Across your system, two registers share the load \u2014 the felt and the cost. In some domains the friction is sensed. In others it registers through the energy it consumes. " + distSentence + " What is largely absent from your pattern is the observable register \u2014 the channel that carries friction you have recognised in your own behaviour and can act on directly. The friction in your system has not yet become something you see operating in how you lead. You are carrying it in the registers that sit below behavioural recognition.");
+  }
+
+  return wrap("Across your system, no single register dominates. The friction distributes across what you can see, what you feel, and what it costs you without concentrating in any one channel. This is a leader processing their current reality through every available register simultaneously. The diagnostic weight is not in the dominance \u2014 it is in the territory-level distribution: which registers are active in which parts of your leadership, and what the gaps between them reveal about the friction you are closest to resolving and the friction that has not yet become available to you.");
+}
+
+// ════════════════════════════════════════════════════════════════
+// PIECE 3: THE DIAGNOSTIC QUESTION
+// ════════════════════════════════════════════════════════════════
+function buildPiece3(analyses, isZeroAmp) {
+  if (isZeroAmp) {
+    return wrap(
+      "The question this reading raises is prior to the questions the instrument normally asks. "
+      + "The normal questions are about location, concentration, and cost \u2014 "
+      + "where the friction is, how it is being processed, what it is taking from you. "
+      + "This reading has no friction to locate. "
+      + "The prior question is: what is your relationship with friction itself? "
+      + "A leader who presents zero activation across all eight operational domains and three registers "
+      + "is either in a state of genuine structural alignment \u2014 "
+      + "or in a state where the mechanism for detecting friction has gone quiet. "
+      + "The distance between those two possibilities is not visible from inside either one. "
+      + "It becomes visible through the quality of honest examination \u2014 "
+      + "specifically, through whether you can account for this reading "
+      + "or whether it simply arrived without an explanation that satisfies you."
+    );
+  }
+
+  var obsCount = 0, feltCount = 0, costCount = 0, totalActive = 0, totalUnchannelled = 0;
+  for (var i = 0; i < analyses.length; i++) {
+    var a = analyses[i];
+    obsCount += a.obs.length; feltCount += a.felt.length; costCount += a.cost.length;
+    totalActive += a.activeCount; totalUnchannelled += a.unchannelled.length;
+  }
+  if (totalActive <= 2) {
+    if (totalUnchannelled > 0) {
+      return wrap("The coherence your system is reading is real. The unsettled signal the instrument detects alongside it is also real. The question this pattern raises is not whether your current state holds \u2014 but whether the signal that has not yet found a register is the early edge of a shift that your conscious awareness has not yet caught up with.");
+    }
+    return wrap("The coherence your system is reading is real and the quality of it is settled. The question this pattern raises is not about friction \u2014 it is about what sustains this state. Coherence under real-world conditions is maintained, not permanent. Would you recognise the early signal if the conditions that sustain it began to shift?");
+  }
+  var counts = [["observable", obsCount], ["felt", feltCount], ["cost", costCount]];
+  counts.sort(function(a, b) { return b[1] - a[1]; });
+  var top = counts[0], second = counts[1];
+  var singleDominant = top[1] > second[1];
+  var coDominant = top[1] === second[1] && top[1] > counts[2][1];
+  if (singleDominant) {
+    if (top[0] === "observable") return wrap("You see your friction. The question this pattern raises is not about awareness. It is about the distance between seeing and acting \u2014 whether the clarity you have is generating structural change, or whether it has become a way of managing what you are not yet willing to dismantle.");
+    if (top[0] === "felt") return wrap("Your system is signalling ahead of your conscious understanding. The question this pattern raises is: what would need to change in the conditions of your leadership for the signal you are carrying to become something you can name, locate, and act on \u2014 and what is the cost of continuing to carry it in a form that cannot yet be addressed?");
+    return wrap("The drain is the loudest signal in your system. The question this pattern raises is: what is the cost protecting you from confronting? When the energy equation is this clearly inverted and neither the observable nor the felt register has caught up, the depletion is not the problem. It is the symptom of a problem that has not yet surfaced into a form you can see or feel.");
+  }
+  if (coDominant) {
+    var pair = [top[0], second[0]].sort().join("+");
+    if (pair === "felt+observable") return wrap("You are seeing some of your friction and sensing the rest. The question this pattern raises is: what separates the domains where you have clarity from the domains where you have only instinct \u2014 and is that separation telling you something about where your system is ready for structural change and where it is not?");
+    if (pair === "cost+observable") return wrap("You can see some of the friction and you are paying for the rest. The question this pattern raises is: what are you not allowing yourself to feel about the conditions you can already name and the cost you are already carrying? The felt register\u2019s absence from this pattern is not silence. It is information.");
+    return wrap("You feel the friction and you are paying for it. The question this pattern raises is: what would make the friction visible \u2014 and are you willing to find out, knowing that what becomes visible also becomes something that can no longer be carried quietly?");
+  }
+  return wrap("Your friction is distributed across every register your system has available. The question this pattern raises is not about any single channel. It is about the operating conditions themselves: whether the breadth of the friction is a temporary accumulation under specific pressures, or whether it reflects a structural arrangement that is generating load faster than your system can metabolise it.");
+}
+
+// ════════════════════════════════════════════════════════════════
+// SEC05 MAIN BUILD FUNCTION
+// ════════════════════════════════════════════════════════════════
+function buildSec05(combos, clusterScores, isZeroAmp) {
+  var analyses = SEC05_TERRITORIES.map(function(t) { return analyseTerritory(t, combos, clusterScores); });
+  return buildPiece1(analyses, isZeroAmp) + buildPiece2(analyses, isZeroAmp) + buildPiece3(analyses, isZeroAmp);
+}
+
+// ════════════════════════════════════════════════════════════════
+// SECTION 06: FRAMEWORK
+// ════════════════════════════════════════════════════════════════
+const SEC06_CONNECTION = {
+  "A_DOMINANT": `Your selections suggest your attention currently lives in the upper half of this map \u2014 the Shared Reality and Inquiry quadrants. You are operating from conscious, known territory. The structural question is what sits below: the Felt Truth that your system is carrying but you have not yet given voice to, and the Blind Spot that is, by definition, invisible from the vantage point you currently occupy.`,
+  "B_DOMINANT": `Your selections suggest your attention currently lives in the Felt Truth quadrant. You are sensing what is happening in your system before it becomes visible or provable. The structural question is what would need to change for that felt truth to cross the line into the Shared Reality \u2014 into the conscious, known territory where it can be named, examined, and acted on.`,
+  "C_DOMINANT": `Your selections suggest your attention is registering the cost of your current conditions without being fully connected to either the observable cause or the felt experience underneath. The structural question is what the cost is protecting you from confronting \u2014 what truth, named or unnamed, would become visible if the energy currently spent maintaining the status quo were released.`,
+  "MIXED": `Your selections are distributed across the map. Some domains sit in the Shared Reality \u2014 visible, conscious, available for action. Others sit in the Felt Truth \u2014 sensed but not yet named. Others register only through their cost, suggesting material that is being actively maintained below the surface. The pattern across these territories is itself the diagnostic \u2014 the gaps between what you see, what you feel, and what is costing you energy are where the unexamined material sits.`,
+};
+
+// ════════════════════════════════════════════════════════════════
+// SECTION 09: TEXT FIELD REFLECTION
+// ════════════════════════════════════════════════════════════════
+const SEC09_CONTEXT = `The diagnostic reads this alongside the structural pattern it has identified. What you chose to name \u2014 and what you chose not to \u2014 both carry weight. The relationship between your words and the instrument\u2019s reading is itself a signal. If they align, the diagnostic has confirmed what you already know. If they diverge, the space between what you named and what the Snapshot surfaced may be the most important territory in this report.`;
+
+// ════════════════════════════════════════════════════════════════
+// SECTION 10: THE OPEN LOOP
+// ════════════════════════════════════════════════════════════════
+const SEC10 = {
+  "FRACTURED": `This reading has named the breadth and depth of the load your system is carrying. What it cannot name is which conditions are primary and which are downstream consequences. That distinction changes everything about where intervention begins.`,
+  "STRAINED": `This reading has confirmed what you already sense \u2014 the load is real, the friction is structural, and effort alone is not resolving it. What it cannot tell you is whether the source of the friction is at the level you think it is, or one level deeper.`,
+  "DRIFTING": `This reading has named a condition that is easier to feel than to see. What it cannot tell you is what reconnection looks like for you specifically \u2014 whether the signal you have lost is one of direction, of purpose, or of something more foundational that sits underneath both.`,
+  "DRIVEN": `This reading has surfaced a gap between your felt alignment and your structural reality. What it cannot tell you is what that gap is costing \u2014 not in energy, which you may not yet feel, but in the capacity that is being quietly consumed to maintain the current arrangement.`,
+  "COHERENT": `This reading confirms your current alignment. What it cannot tell you is how durable that alignment is under changing conditions \u2014 or whether you would recognise the early signals of a shift before the shift had already taken hold. There is a second category this instrument cannot reach: conditions that have become so thoroughly normalised that they no longer register as friction at the moment of measurement. Not because they do not exist, but because the mechanism that notices them \u2014 your own recognition \u2014 has adapted to their presence. This is not a caveat about the quality of this reading. It is an honest boundary of any instrument that relies on self-report to generate its signal. A Coherent reading that genuinely sits above that boundary is one of the rarest outcomes this diagnostic produces. If you want to know which kind of Coherent this is, that question requires a different level of inquiry \u2014 one that reads below what self-report can surface on its own. A practitioner conversation is where that inquiry begins.`,
+  "QUALIFIED": `This reading has named two possibilities with equal weight. What it cannot do is determine which one is true. That distinction requires a different kind of inquiry \u2014 one that reads below the surface of what self-report can detect.`,
+};
+
+const SEC10_ZERO_AMP = `This reading has named two possibilities and cannot determine which one is correct. That is not a limitation specific to this instrument \u2014 it is a structural property of any diagnostic that depends on self-report to generate its signal. What can be said is this: a zero-amplitude result that sits alongside a clear, accountable explanation for why this state was produced is a different reading from one that sits alongside uncertainty. If the first is true, the relevant question is what sustains this alignment and whether you would recognise the early signal of a shift. If the second is closer to the truth, the honest recognition of that \u2014 however uncomfortable \u2014 is itself the beginning of access. The deeper layers of the Coherence Framework are designed to read at a level that does not require your self-report to produce the signal.`;
+const SEC10_DRIVEN_BLIND = `The distance between what you feel and what the instrument measured is the primary finding in this report. At this level of divergence, the absence of a felt signal is not evidence that the load is absent \u2014 it is evidence that the Adapted Self has become sufficiently capable of carrying it that the signal no longer reaches the surface. What you are sustaining and what you are feeling are not the same thing. The question this reading cannot answer: what would have to change for the cost of the current arrangement to become visible to you before it becomes visible to everyone else.`;
+
+// ════════════════════════════════════════════════════════════════
+// PAGE 5: THIS STATE'S BLIND SPOT
+// 15-variant matrix: 5 states x 3 duration subtypes (FORMING/SETTLED/EMBEDDED)
+// FRACTURED uses different title/subtitle — "What This Reading Cannot Do"
+// ════════════════════════════════════════════════════════════════
+
+// Fixed body prose per state — identical across all three duration subtypes.
+// Variant content (What this looks like + Bring to your practitioner) is in BLIND_SPOT_VARIANTS.
+const BLIND_SPOT_BODY = {
+  'COHERENT':
+    ps + "A COHERENT classification reflects a pattern of integrated functioning across the eight domains. The instrument detected consistent signals of direction, stable presence, coherent narrative, and engaged relationships. That pattern is real — and in most cases, it is what it appears to be." + pe
+    + ps + "The instrument cannot, however, distinguish between genuine integration and highly developed performance. Some leaders have learned, over time, to present coherence with great precision — consistent narrative, managed relationships, stable external behaviour — while the interior experience is something different. This is not deception. It is a sophisticated adaptation that the instrument measures as signal." + pe,
+
+  'DRIVEN':
+    ps + "A DRIVEN classification reflects a specific pattern: strong directional signal, high exposure, but incomplete integration across the system. The instrument detected the pattern. What it cannot determine is whether you reported it as pattern — or as identity." + pe
+    + ps + "DRIVEN is the state most likely to be confirmed by the person who holds it most strongly. High drive is, for many leaders, not just a way of functioning — it is who they understand themselves to be. When signals in the Direction and Exposure domains are endorsed with high confidence, the instrument cannot distinguish between “this pattern is active in me” and “I identify with this pattern as part of my self-concept.” The scoring looks identical." + pe,
+
+  'STRAINED':
+    ps + "A STRAINED classification reflects a system under pressure — direction present but contested, integration compromised, friction visible across domains. The instrument has detected where the strain is concentrated — which domains are under pressure and where the system is working hardest. What it cannot assess is how much more the system can absorb before the configuration shifts." + pe
+    + ps + "STRAINED is not a stable state. It is a system in motion — and the direction of that motion is not visible from a single classification. A leader moving through STRAINED toward resolution looks identical, in the scoring, to one moving deeper toward DRIFTING. The friction is the same. The trajectory is not. And the distance between this state and the next is not fixed — it is a function of what continues to be demanded of the system, and of whether the pressure is being met as a temporary condition to manage through, or as information about configuration that requires a different kind of response." + pe,
+
+  'DRIFTING':
+    ps + "A DRIFTING classification reflects a pattern of low-activation signals across multiple domains — reduced directional clarity, withdrawn engagement, attenuated presence. The instrument detected that pattern. What it cannot confirm is whether the reading has captured the full extent of what is present." + pe
+    + ps + "DRIFTING is the state most likely to be under-read by the person holding it. The dissociation that characterises this state tends to present as calm, as perspective, as considered distance. It does not always feel like drift from the inside. The instrument relies on self-report, and in DRIFTING, self-report is often the last signal to register the severity." + pe,
+
+  'FRACTURED':
+    ps + "This report contains an accurate classification. What it cannot do is determine what needs to happen next — or provide it." + pe
+    + ps + "A FRACTURED classification indicates significant fragmentation across the coherence system. The instrument has detected this pattern reliably. But FRACTURED presents in two distinct ways, and the report you are holding cannot determine which is present — that distinction belongs to the practitioner conversation, not to the instrument." + pe,
+
+  'QUALIFIED':
+    ps + "A COHERENT classification reflects a pattern of integrated functioning across the eight domains. The instrument detected consistent signals of direction, stable presence, coherent narrative, and engaged relationships. That pattern is real — and in most cases, it is what it appears to be." + pe
+    + ps + "The instrument cannot, however, distinguish between genuine integration and highly developed performance. Some leaders have learned, over time, to present coherence with great precision — consistent narrative, managed relationships, stable external behaviour — while the interior experience is something different. This is not deception. It is a sophisticated adaptation that the instrument measures as signal." + pe,
+};
+
+// 15-variant matrix: keyed by STATE_SUBTYPE
+// Each value is the variable ending: scenario + practitioner note
+const BLIND_SPOT_VARIANTS = {
+
+  // ── COHERENT ──────────────────────────────────────────────────
+  'COHERENT_FORMING':
+    ps + bld + "What this looks like:" + be + " This classification arrived at a moment of transition. You identified something as recently shifted — not yet settled. In that window, the instrument is reading a pattern that may itself be in formation. Some leaders develop a coherent presentation precisely when the interior experience becomes uncertain — the external organisation of self becomes more deliberate just as the internal experience becomes less stable. If the portrait felt partly familiar and partly constructed, that is not unusual at this stage. The distance between the two is worth naming before it closes." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " The question is not whether this reading is accurate — it may be — but whether the coherence it is detecting is the coherence that was there before the shift, or the coherence that has assembled itself in response to it. That distinction matters for what you build next." + pe,
+
+  'COHERENT_SETTLED':
+    ps + bld + "What this looks like:" + be + " This has been your pattern for some time — settled, not in flux. In that stability, there is something worth examining. Sustained performance of coherence becomes increasingly difficult to distinguish from coherence itself. The longer the pattern holds, the more complete the adaptation becomes, and the less perceptible the gap between interior experience and outward presentation. If you read this portrait and felt straightforward recognition — if it landed cleanly, as simply true — that ease is itself worth sitting with. Genuine integration and highly developed performance can feel identical from the inside at this stage. That is what makes this particular blind spot so durable." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " Ask yourself not whether this reading is accurate, but when you last felt the difference between who you are performing and who you are experiencing. If you cannot identify that moment readily, bring that to the conversation." + pe,
+
+  'COHERENT_EMBEDDED':
+    ps + bld + "What this looks like:" + be + " You selected “this is simply how I operate” — and for many COHERENT leaders, that is precisely true. The pattern is real, the integration is genuine, and the classification holds. But EMBEDDED is also the condition under which the performance-as-self pattern is most complete. When a coherent presentation has been the operating mode long enough to become baseline, the gap between performance and interior experience is no longer perceptible — not because it is not there, but because it has been closed off long enough to become illegible. If you read this portrait and felt nothing except recognition — no distance, no question, no moment of pause — that completeness is worth naming. Not as an accusation. As a data point." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " The instrument cannot see beneath a presentation that has become the self. That does not mean your practitioner cannot. The conversation is where that inquiry becomes possible — and at this duration, it is the only place it can happen." + pe,
+
+  // ── DRIVEN ────────────────────────────────────────────────────
+  'DRIVEN_FORMING':
+    ps + bld + "What this looks like:" + be + " You identified this as a recent shift — something has changed, and the drive this instrument is reading may be part of that change. Some leaders move into a DRIVEN configuration in response to transition: when direction feels uncertain, intensified output becomes the organising strategy. If the drive you reported feels heightened compared to how you have previously operated, that context matters. The question at this stage is not whether the drive is real — it is — but whether you are driving toward something or away from something. At FORMING, that distinction is often still visible. The instrument cannot make it. You may be closer to it than you think." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " What shifted before the drive intensified? That question will tell you more about this classification than the classification itself." + pe,
+
+  'DRIVEN_SETTLED':
+    ps + bld + "What this looks like:" + be + " This has been your pattern for some time. The drive is established, the direction is consistent, the identity around high-activation functioning is settled. In that settledness, the distinction between pattern and identity deepens. The longer high drive has been the operating mode, the more completely it becomes the self-concept — and the less accessible the question of whether it was chosen or absorbed. If you moved through this instrument with confidence, recognising yourself readily in the high-activation signals, that fluency is worth pausing on. Not because it is wrong. Because fluent self-recognition is exactly what this blind spot produces." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " The question is not whether the drive is there. It is whether you can see anything that it might be organising around — or away from. That is the conversation the SETTLED DRIVEN classification needs to have." + pe,
+
+  'DRIVEN_EMBEDDED':
+    ps + bld + "What this looks like:" + be + " You selected “this is simply how I operate” — and the instrument is reading a pattern of high-activation drive that feels like the baseline. This is the condition under which the contamination between pattern and identity is most complete. When drive has been the operating mode long enough to become simply how things are, the instrument cannot distinguish between the state and the self-concept — and neither, often, can the person holding it. If you have never seriously questioned whether the drive is a way of functioning or a way of organising around something that would require a different kind of attention — that question is not a criticism. It is the exact territory this blind spot points toward." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " The EMBEDDED DRIVEN classification is the one where the instrument is most likely to be confirming an identity rather than reading a state. That does not mean the classification is wrong. It means the practitioner conversation needs to go somewhere the instrument cannot reach." + pe,
+
+  // ── STRAINED ──────────────────────────────────────────────────
+  'STRAINED_FORMING':
+    ps + bld + "What this looks like:" + be + " You identified this as a recent shift — something has changed, and the strain arrived with it. This is the most legible version of STRAINED: the person can still feel the difference between now and before. The pressure has not yet become the baseline, and the source is often still visible. That gap is where this classification has the most leverage. If you can identify what changed before the strain appeared — a role shift, a relationship, a decision, a loss of something that had been organising the system — that information is more diagnostically useful than anything the instrument can detect on its own." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " What was different before this? Name it as specifically as you can. The answer tells you more about whether this is a temporary pressure or a structural signal than any classification can." + pe,
+
+  'STRAINED_SETTLED':
+    ps + bld + "What this looks like:" + be + " This has been your pattern for some time — not a new pressure, but a settled one. In that settledness, something important begins to happen: the strain stops registering as strain and starts registering as the conditions of the role. You may have found yourself describing the pressure as “just how it is at this level” or “what the work requires.” That framing is worth examining. It is not necessarily wrong — but it is the first stage of recalibration, and recalibration is what makes STRAINED harder to see from the inside as it deepens." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " The question is not whether the pressure is real — it is — but whether you have begun to stop noticing it. If the answer is yes, that is the most important thing to bring into the conversation." + pe,
+
+  'STRAINED_EMBEDDED':
+    ps + bld + "What this looks like:" + be + " You selected “this is simply how I operate” — and the instrument is reading strain as the baseline configuration of your leadership. This is the highest-urgency variant of STRAINED. When pressure has been the operating condition long enough to become how things simply are, the system has recalibrated around it. The friction is no longer friction — it is the texture of the work. If your first response to this classification was “yes, but this is just what leadership feels like” — that response is not a counterargument. It is the confirmation. The normalisation of strain is itself the most significant signal this classification produces." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " The question this reading cannot answer is whether the strain lifts when the situation changes — or whether it has become structural enough to follow you. That is not a question for the instrument. It is the conversation that must happen before any other decision is made." + pe,
+
+  // ── DRIFTING ──────────────────────────────────────────────────
+  'DRIFTING_FORMING':
+    ps + bld + "What this looks like:" + be + " You identified this as a recent shift — something has changed, and the withdrawal this instrument is reading arrived with it. This is the most accessible version of DRIFTING: the person can often still identify the moment when engagement began to attenuate, when direction became less clear, when presence started to recede. That memory is useful. If you can name what preceded this shift — a decision, a disappointment, a loss of something that had been organising your energy — that information is the entry point. The drift is recent enough that the gap between before and now is still perceptible. That is a condition worth using." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " What was present before this that is not present now? Bring whatever answer you have, even if it is partial. That is where the conversation begins." + pe,
+
+  'DRIFTING_SETTLED':
+    ps + bld + "What this looks like:" + be + " This has been your pattern for some time — a settled withdrawal, an established distance. The calm that often accompanies DRIFTING tends to consolidate over time. What began as attenuated engagement gradually becomes a stable presentation: considered, measured, slightly removed. From the inside, it may no longer feel like drift at all — it may simply feel like how you have learned to hold things. If this reading felt accurate but unremarkable — if the classification landed without any particular weight — that evenness is worth noting. The instrument is not measuring how the pattern feels. It is measuring how the system is configured. At SETTLED, those two things can be very far apart." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " The question is not whether this reading is accurate. The question is whether you can still feel what it would be like to be more present than this. If that question feels distant or abstract, bring that to the conversation." + pe,
+
+  'DRIFTING_EMBEDDED':
+    ps + bld + "What this looks like:" + be + " You selected “this is simply how I operate” — and the instrument is reading a pattern of low-activation withdrawal that has become the baseline configuration. This is the most serious variant of DRIFTING. When the drift has been the operating mode long enough to become simply how things are, the self-report becomes the least reliable signal in the system. The dissociation that characterises this state does not present as distress at this depth. It presents as equanimity. As distance that reads as perspective. As a kind of stillness that can appear entirely functional while the underlying configuration continues to attenuate. The absence of felt urgency is not evidence that urgency is absent. It is a feature of this state at this duration." + pe
+    + ps + bld + "Bring to your practitioner:" + be + " This reading cannot confirm how serious this is. What it can confirm is that the instrument detected it — and that at this duration, detection matters more than the person holding the pattern is likely to feel. That is the precise reason the practitioner conversation is not optional here." + pe,
+
+  // ── FRACTURED ─────────────────────────────────────────────────
+  // FRACTURED uses "What this means" + "The one thing this reading requires" instead of
+  // the standard "What this looks like" + "Bring to your practitioner" labels.
+  'FRACTURED_FORMING':
+    ps + bld + "What this means:" + be + " You identified this as a recent shift — something has changed, and the fracture this instrument is reading arrived with it. This is the variant of FRACTURED where the experience is most visible and most legible: the fragmentation is recognisable, the disorientation is active, and the gap between how things were and how they are now has not yet been absorbed into a new presentation. That visibility matters. The system has not yet adapted around the fracture. What you are experiencing is what is happening — and that directness, while difficult, is the condition under which intervention is most effective and most clear." + pe
+    + ps + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + pe
+    + ps + bld + "The one thing this reading requires:" + be + " A conversation with your practitioner as soon as possible. Not after you have had time to process this. The acuity of this moment is not a liability. It is a resource." + pe,
+
+  'FRACTURED_SETTLED':
+    ps + bld + "What this means:" + be + " You identified this as a settled pattern — something that has been present for some time. At this duration, FRACTURED tends to produce a mixed presentation: elements of visible fragmentation alongside the beginnings of adaptation to it. The person may have developed partial strategies for functioning around the fracture — ways of organising through it, containing it, presenting despite it — without the underlying configuration having resolved. That partial adaptation is not recovery. It is the system learning to operate in the presence of fragmentation rather than through resolution of it. The gap between presentation and classification may be widening." + pe
+    + ps + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + pe
+    + ps + bld + "The one thing this reading requires:" + be + " A conversation with your practitioner before any decision, action, or interpretation is treated as settled. The duration of this pattern makes that conversation more important, not less." + pe,
+
+  'FRACTURED_EMBEDDED':
+    ps + bld + "What this means:" + be + " You selected “this is simply how I operate” — and at this duration, FRACTURED produces its most complex presentation. When fragmentation has been the operating mode long enough to become the baseline, the system builds an accommodation around it. The presentation becomes flat, stable, unremarkable. The distress that characterises acute FRACTURED is absent — not because the fragmentation has resolved, but because it has been absorbed into how things simply are. This is the dissociative variant, and it is the one where the gap between how a person presents and what the instrument is detecting is widest. The absence of felt urgency here is not a sign that urgency is misplaced. It is a characteristic feature of fragmentation at this depth." + pe
+    + ps + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + pe
+    + ps + bld + "The one thing this reading requires:" + be + " A conversation with your practitioner before any decision, action, or interpretation is treated as settled. That is not a precaution. It is the design. And at this duration, it is not a suggestion." + pe,
+};
+
+// ─── BUILD FUNCTION ───────────────────────────────────────────
+// NOTE: Title, subtitle, and transition text are all handled statically
+// in the Zoho Writer template. blind_spot_page returns body + variant only.
+
+function buildBlindSpotPage(state, durationSubtype) {
+  const rawState = (state || 'COHERENT').toUpperCase();
+  const sub = (durationSubtype || 'EMBEDDED').toUpperCase();
+
+  const body = BLIND_SPOT_BODY[rawState] || '';
+  const variantKey = rawState + '_' + sub;
+  // Fallback: if subtype not found, use EMBEDDED variant
+  const variant = BLIND_SPOT_VARIANTS[variantKey] || BLIND_SPOT_VARIANTS[rawState + '_EMBEDDED'] || '';
+
+  return body + variant;
+}
+
+// ════════════════════════════════════════════════════════════════
+// ASSEMBLY FUNCTION
+// ════════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════════
+// TERRITORIES OPENING — generateTerritoriesOpening()
+// Analytical paragraph at the top of page 5 (territories page).
+// Replaces territories_preamble. Merge field: territories_opening.
+//
+// Branches:
+//   1. isZeroAmp          → zero-resistance ambiguity paragraph
+//   2. COHERENT, all territories COHERENT (high coherence band)
+//                         → clean-reading paragraph, gap-type qualified
+//   3. COHERENT + at least one territory at a non-Coherent state
+//                         → territory-texture paragraph
+//   4-7. DRIVEN / STRAINED / DRIFTING / FRACTURED
+//                         → state-keyed paragraph, primary territory named
+// ════════════════════════════════════════════════════════════════
+function generateTerritoriesOpening(state, gap, diagPct, feltPct, bState, rState, cState, isZeroAmp, definingFlag, breadthOverride) {
+  const delta = Math.abs(diagPct - feltPct);
+
+  // ── Gap type qualifier (short connector phrase) ──
+  const gapQualifier = {
+    "CONSISTENT_LOW":        "felt and measured in agreement — both at low resistance",
+    "CONSISTENT_HIGH":       "felt and measured in agreement — both elevated",
+    "CONTRADICTION_DRIVEN":  "you are sensing less friction than the instrument is measuring",
+    "CONTRADICTION_INTERNAL":"you are sensing more friction than the instrument is measuring"
+  }[gap] || "";
+
+  // ── Defining flag suffix ──
+  const flagNote = definingFlag === "MULTI"
+    ? " Two domains carry a defining weight — a practitioner conversation is particularly important here."
+    : definingFlag === "PRESENT"
+    ? " One domain carries a defining weight — noted in the detail below."
+    : "";
+
+  // ── Breadth override note ──
+  const breadthNote = (breadthOverride && breadthOverride !== "NONE")
+    ? " The overall state was also shaped by breadth — distributed friction across territories compounds in ways the territory detail below makes visible."
+    : "";
+
+  // ── CTA variants ──
+  const ctaStandard  = "A practitioner conversation will help you determine whether that is sustainable or a signal worth attending to.";
+  const ctaDifficult = "A practitioner conversation is the right next step — to understand what is driving this and where to begin.";
+  const ctaZeroAmp   = "A practitioner conversation is the essential next step here, not optional context.";
+  const ctaHighBand  = "A practitioner conversation will help you understand what is sustaining this and whether there are patterns worth examining below the threshold.";
+
+  // ── Branch 1: Zero amplitude ──
+  if (isZeroAmp) {
+    return wrap(
+      "The instrument detected no structural resistance \u2014 every territory returned clean. " +
+      "That is either a genuine signal of full operational coherence, or the diagnostic needs a deeper pass " +
+      "to locate patterns operating below the detection threshold. " +
+      ctaZeroAmp
+    );
+  }
+
+  // ── Branch 2: COHERENT, all territories COHERENT (high coherence band) ──
+  if (state === "COHERENT" && bState === "Coherent" && rState === "Coherent" && cState === "Coherent") {
+    return wrap(
+      "The instrument is reading very low structural resistance across all territories \u2014 " +
+      gapQualifier + ". " +
+      "At this level, territory differentiation falls within the diagnostic margin." +
+      flagNote + breadthNote + " " +
+      ctaHighBand
+    );
+  }
+
+  // ── Branch 3: COHERENT with at least one territory at a non-Coherent state ──
+  if (state === "COHERENT") {
+    // Identify the primary non-Coherent territory (Being > Relating > Creating priority)
+    let drivingTerritory = null;
+    let drivingState = null;
+    if (bState !== "Coherent") { drivingTerritory = "Being";    drivingState = bState; }
+    else if (rState !== "Coherent") { drivingTerritory = "Relating"; drivingState = rState; }
+    else if (cState !== "Coherent") { drivingTerritory = "Creating"; drivingState = cState; }
+
+    const TERRITORY_MEANINGS = {
+      "Being":    "how you orient yourself as a leader",
+      "Relating": "how you move between yourself and others",
+      "Creating": "how you convert intent into output"
+    };
+    const STATE_SIGNATURES = {
+      "Driven":    "high output relative to inner alignment",
+      "Strained":  "awareness of friction held without release",
+      "Drifting":  "loss of internal reference point",
+      "Fractured": "significant disconnection from operating surface"
+    };
+
+    const territoryMeaning = TERRITORY_MEANINGS[drivingTerritory] || "";
+    const stateSignature   = STATE_SIGNATURES[drivingState] || drivingState;
+    const deltaClause      = delta > 0
+      ? " Felt and measured sit " + delta + "% apart \u2014 " + gapQualifier + "."
+      : " " + gapQualifier.charAt(0).toUpperCase() + gapQualifier.slice(1) + ".";
+
+    return wrap(
+      "That coherent reading has a particular texture: " +
+      drivingTerritory + " \u2014 " + territoryMeaning + " \u2014 is carrying a " + drivingState + " signature: " +
+      stateSignature + "." +
+      deltaClause +
+      flagNote + breadthNote + " " +
+      ctaStandard
+    );
+  }
+
+  // ── Branches 4-7: Non-COHERENT states ──
+  // Identify the most loaded territory by state severity
+  const stateSeverity = { "Coherent": 0, "Driven": 1, "Strained": 2, "Drifting": 3, "Fractured": 4 };
+  const territories = [
+    { name: "Being",    state: bState },
+    { name: "Relating", state: rState },
+    { name: "Creating", state: cState }
+  ].sort((a, b) => (stateSeverity[b.state] || 0) - (stateSeverity[a.state] || 0));
+  const primary = territories[0];
+
+  const STATE_INTROS = {
+    "DRIVEN":    "This system is performing \u2014 the output is visible. What the instrument is measuring is the structural load that performance is running on.",
+    "STRAINED":  "The friction in this reading is distributed and felt. What follows details where it is carrying the most weight.",
+    "DRIFTING":  "The load here is diffuse \u2014 harder to locate than concentrated friction. What follows identifies where the drift is registering most clearly.",
+    "FRACTURED": "The pattern across this reading is one of comprehensive structural load. What follows details where the system is carrying it most heavily."
+  };
+  const TERRITORY_MEANINGS_NC = {
+    "Being":    "how you orient yourself as a leader",
+    "Relating": "how you move between yourself and others",
+    "Creating": "how you convert intent into output"
+  };
+
+  const stateIntro  = STATE_INTROS[state] || "";
+  const deltaClause = delta > 0
+    ? " Felt and measured sit " + delta + "% apart \u2014 " + gapQualifier + "."
+    : "";
+
+  return wrap(
+    stateIntro + " " +
+    "The centre of gravity in this reading is " + primary.name + " \u2014 " +
+    TERRITORY_MEANINGS_NC[primary.name] + " \u2014 which reads as " + primary.state + "." +
+    deltaClause +
+    flagNote + breadthNote + " " +
+    ctaDifficult
+  );
+}
+
+function assembleReport(v) {
+  const state = v.coherence_state;
+  const gap = v.gap_type;
+  const dom = v.pattern_dominance;
+  const name = v.leader_name;
+  const date = v.snapshot_date;
+  const bState = displayState(v.being_state || 'COHERENT');
+  const rState = displayState(v.relating_state || 'COHERENT');
+  const cState = displayState(v.creating_state || 'COHERENT');
+  const diagPct = parseInt(v.overall_pct || '0');
+  const feltPct = parseInt(v.felt_gap_pct || '0');
+
+  // ─── ZERO-AMPLITUDE DETECTION ───
+  const isZeroAmp = parseInt(v.zero_amplitude_clusters || 0) >= ZERO_AMP_THRESHOLD && state === "COHERENT";
+  const divMag = v.divergence_magnitude || "SMALL";
+  const isSignificantContradiction = divMag === "SIGNIFICANT";
+
+  // ─── v9 FIELDS ───
+  const durationSubtype = v.duration_subtype || 'EMBEDDED';
+
+  // ─── v8 FIELDS ───
+  const definingFlag = v.defining_flag || "NONE";
+  const breadthOverride = v.breadth_override || "NONE";
+  
+  const beingStateStyled = "<span style='" + (stateStyle[bState] || "") + "'>" + bState.toUpperCase() + "</span>";
+  const relatingStateStyled = "<span style='" + (stateStyle[rState] || "") + "'>" + rState.toUpperCase() + "</span>";
+  const creatingStateStyled = "<span style='" + (stateStyle[cState] || "") + "'>" + cState.toUpperCase() + "</span>";
+
+  const combos = {
+    "01": v.c01_combo, "02": v.c02_combo, "03": v.c03_combo, "04": v.c04_combo,
+    "05": v.c05_combo, "06": v.c06_combo, "07": v.c07_combo, "08": v.c08_combo,
+  };
+
+  // ─── OPENING FRAME ───
+  // v7: opening_frame removed from Writer template p4. Retained in output as empty string
+  // to avoid Flow mapping errors. SEC01 content preserved for potential future use.
+  const opening_frame = "";
+
+  // ─── GAP SPECTRUM READING ───
+  const gap_spectrum_reading = buildGapSpectrumReading(state, diagPct, isZeroAmp);
+
+  // ─── COHERENT QUALIFIER ───
+  // Subtype prose \u2014 COHERENT only.
+  // coherentSubtype: UNVERIFIED is the universal interim default until v2 Phase 1b
+  // (full routing \u2014 EXPANDING / SUSTAINING / ROLE_FIT \u2014 requires secondary question block)
+  let coherent_qualifier = "";
+  if (state === "COHERENT") {
+    const coherentSubtype = "UNVERIFIED";
+    // UNVERIFIED returns empty — gap_spectrum_reading covers the COHERENT ambiguity
+    // narrative. coherent_qualifier fires only for named subtypes (EXPANDING /
+    // SUSTAINING / ROLE_FIT) once v2 Phase 1b subtype routing is implemented.
+    if (coherentSubtype !== "UNVERIFIED" && PORTRAIT_FRAME_SUBTYPE[coherentSubtype]) {
+      coherent_qualifier = wrap(PORTRAIT_FRAME_SUBTYPE[coherentSubtype]);
+    }
+  }
+
+  // ─── DEFINING FLAG NOTE ───
+  // Fires for any state when definingFlag is MULTI or PRESENT. Empty string otherwise.
+  // Placed at the top of the operating domains section (sec04) in the Writer template,
+  // after the static intro paragraph. Removed from page 4 in v8.
+  const definingClusterName = v.defining_cluster_name || "";
+  const definingClusterCountWords = {"1":"one","2":"two","3":"three","4":"four","5":"five","6":"six","7":"seven","8":"eight"};
+  const definingClusterCount = definingClusterCountWords[String(v.defining_clusters)] || v.defining_clusters || "";
+  let defining_flag_note = "";
+  if (definingFlag === "MULTI") {
+    defining_flag_note = wrap("<span style='font-weight:700;'>" + definingClusterName + "</span> carry a \u2018Defining my current reality\u2019 weight across " + definingClusterCount + " of the clustered domains. These domains are not just registering friction \u2014 they are the lens through which you are responding to and making decisions across other areas of your leadership, potentially in detrimental ways you have not yet realised. Your overall resistance percentage is a measurement across all 3 clustered territories and eight operating domains. These clusters do not sit equally among them. It is critical to investigate how this may be affecting you broadly.");
+  } else if (definingFlag === "PRESENT") {
+    defining_flag_note = wrap("<span style='font-weight:700;'>" + definingClusterName + "</span> carries a \u2018Defining my current reality\u2019 weight in one of the clustered domains. This domain is not just registering friction \u2014 it is the lens through which you are responding to and making decisions across other areas of your leadership, potentially in detrimental ways you have not yet realised. Your overall resistance percentage is a measurement across all 3 clustered territories and eight operating domains. This cluster does not sit equally among them. It is critical to investigate how this may be affecting you broadly.");
+  }
+
+  // ─── TERRITORIES OPENING ───
+  // v7: replaces territories_preamble. Analytical paragraph at the top of p5.
+  // Breadth-override context folded into paragraph where applicable.
+  const territories_opening = generateTerritoriesOpening(
+    state, gap, diagPct, feltPct, bState, rState, cState,
+    isZeroAmp, definingFlag, breadthOverride
+  );
+
+  // ─── TERRITORY READINGS ───
+  const beingSubtitle = TERRITORY_SUBTITLES["Being"][bState];
+  const relatingSubtitle = TERRITORY_SUBTITLES["Relating"][rState];
+  const creatingSubtitle = TERRITORY_SUBTITLES["Creating"][cState];
+  const beingSubtitleColor = stateStyle[bState] || "color:#1A1A2E;font-weight:bold;";
+  const relatingSubtitleColor = stateStyle[rState] || "color:#1A1A2E;font-weight:bold;";
+  const creatingSubtitleColor = stateStyle[cState] || "color:#1A1A2E;font-weight:bold;";
+  const gap_being_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + beingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + beingSubtitle + "</p><p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-top:0;margin-bottom:11px;'>" + GAP_BEING[bState] + "</p>";
+  const gap_relating_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + relatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + relatingSubtitle + "</p><p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-top:0;margin-bottom:11px;'>" + GAP_RELATING[rState] + "</p>";
+  const gap_creating_reading = "<p style='font-family:Inter,sans-serif;font-size:11pt;" + creatingSubtitleColor + "font-style:italic;margin-top:0;margin-bottom:4px;'>" + creatingSubtitle + "</p><p style='font-family:Inter,sans-serif;font-size:10pt;color:#2E2E2C;line-height:1.2;margin-top:0;margin-bottom:11px;'>" + GAP_CREATING[cState] + "</p>";
+
+  // ─── SEC 04: CLUSTER PROFILE ───
+  const clusterScores = {
+    "01": v.c01_score, "02": v.c02_score, "03": v.c03_score, "04": v.c04_score,
+    "05": v.c05_score, "06": v.c06_score, "07": v.c07_score, "08": v.c08_score,
+  };
+  const sec04Output = buildSec04(combos, clusterScores);
+
+  // ─── SEC 05: THE PATTERN ───
+  const sec05_html = buildSec05(combos, clusterScores, isZeroAmp);
+
+  // ─── CLOSING FRAME ───
+  let closing_frame;
+  if (isZeroAmp) {
+    closing_frame = wrap(SEC10_ZERO_AMP);
+  } else if (isSignificantContradiction && gap === "CONTRADICTION_DRIVEN") {
+    closing_frame = wrap(SEC10_DRIVEN_BLIND);
+  } else {
+    closing_frame = wrap(SEC10[state] || "");
+  }
+
+  // ─── v9: BLIND SPOT PAGE ───
+  const blind_spot_page = buildBlindSpotPage(state, durationSubtype);
+
+  // ─── RETURN ALL MERGE FIELDS ───
+  return {
+    blind_spot_page: blind_spot_page,
+    opening_frame: opening_frame,
+    gap_spectrum_reading: gap_spectrum_reading,
+    coherent_qualifier: coherent_qualifier,
+    defining_flag_note: defining_flag_note,
+    territories_opening: territories_opening,
+    gap_being_reading: gap_being_reading,
+    gap_relating_reading: gap_relating_reading,
+    gap_creating_reading: gap_creating_reading,
+    sec04_01_state: sec04Output.sec04_01_state,
+    sec04_01: sec04Output.sec04_01,
+    sec04_02_state: sec04Output.sec04_02_state,
+    sec04_02: sec04Output.sec04_02,
+    sec04_03_state: sec04Output.sec04_03_state,
+    sec04_03: sec04Output.sec04_03,
+    sec04_04_state: sec04Output.sec04_04_state,
+    sec04_04: sec04Output.sec04_04,
+    sec04_05_state: sec04Output.sec04_05_state,
+    sec04_05: sec04Output.sec04_05,
+    sec04_06_state: sec04Output.sec04_06_state,
+    sec04_06: sec04Output.sec04_06,
+    sec04_07_state: sec04Output.sec04_07_state,
+    sec04_07: sec04Output.sec04_07,
+    sec04_08_state: sec04Output.sec04_08_state,
+    sec04_08: sec04Output.sec04_08,
+    being_state_name: beingStateStyled,
+    relating_state_name: relatingStateStyled,
+    creating_state_name: creatingStateStyled,
+    sec05_html: sec05_html,
+    closing_frame: closing_frame,
+  };
+}
+
+// ════════════════════════════════════════════════════════════════
+// VERCEL SERVERLESS HANDLER
+// ════════════════════════════════════════════════════════════════
+module.exports = async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
+  try {
+    const v = req.body;
+    if (!v.coherence_state || !v.gap_type || !v.pattern_dominance) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const result = assembleReport(v);
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
