@@ -1138,6 +1138,17 @@ const BLIND_SPOT_BODY = {
 const frameS = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#5A5A6E;font-style:italic;border-left:3px solid #D4A843;padding-left:12px;margin-bottom:16px;line-height:1.2;'>";
 const frameFracturedS = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#5A5A6E;font-style:italic;border-left:3px solid #A82828;padding-left:12px;margin-bottom:16px;line-height:1.2;'>";
 
+// ─── BLIND SPOT PAGE LAYOUT ELEMENTS ─────────────────────────
+const bsClassificationLabel = "<p style='font-family:Inter,sans-serif;font-size:8pt;font-weight:700;letter-spacing:2px;color:#9A8E7E;text-transform:uppercase;margin-bottom:10px;margin-top:0;'>THE CLASSIFICATION</p>";
+const bsHR = "<hr style='border:none;border-top:1px solid #E8E4DD;margin:24px 0;'>";
+const bsVariantWrapOpen  = "<div style='background:#FDFAF5;border:1px solid #E8E0CC;border-radius:4px;padding:20px 22px;margin-bottom:24px;'>";
+const bsVariantWrapClose = "</div>";
+const bsClosingWrapOpen  = "<div style='border-left:2px solid #1B3B3A;padding:12px 18px;'>";
+const bsClosingWrapClose = "</div>";
+const bsClosingLabel = "<p style='font-family:Inter,sans-serif;font-size:8pt;font-weight:700;letter-spacing:2px;color:#9A8E7E;text-transform:uppercase;margin-bottom:8px;'>WHAT FOLLOWS</p>";
+const bsClosingBody  = ps + bld + "What follows is where the classification is grounded" + be + " — three territories, each clustering the specific operating domains where the instrument detected signal. Read each territory as a contributing layer, not as a standalone verdict. The report concludes with a Pattern reading that draws the full picture together into its combined meaning. The interpretation of what that means belongs to the conversation that follows." + pe;
+const BLIND_SPOT_WHAT_FOLLOWS = bsClosingWrapOpen + bsClosingLabel + bsClosingBody + bsClosingWrapClose;
+
 const BLIND_SPOT_FRAME = {
   'COHERENT':
     frameS + "What follows is not a verdict on your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as COHERENT. What it cannot determine — and what this reading is designed to surface rather than confirm — is which kind of coherence this is, and what it asks of you next. That question belongs to the practitioner conversation, not to this page." + "</p>",
@@ -1216,21 +1227,36 @@ const BLIND_SPOT_VARIANTS = {
 };
 
 // ─── BUILD FUNCTION ───────────────────────────────────────────
-// NOTE: Title, subtitle, and transition text are all handled statically
-// in the Zoho Writer template. blind_spot_page returns body + variant only.
+// NOTE: Title, subtitle, and transition text are handled statically
+// in the Zoho Writer template. blind_spot_page returns all body HTML.
+// Page order:
+//   1. frame       — state-specific practitioner opener (gold left border)
+//   2. section label "THE CLASSIFICATION"
+//   3. body        — state prose (2 paragraphs)
+//   4. HR separator
+//   5. variant block — amber card with subtype label + scenario paragraph
+//   6. closing block — dark teal left border + "WHAT FOLLOWS" paragraph
 
 function buildBlindSpotPage(state, durationSubtype) {
-  // Page order: frame (practitioner opener) → body (state prose) → variant (scenario)
   const rawState = (state || 'COHERENT').toUpperCase();
   const sub = (durationSubtype || 'EMBEDDED').toUpperCase();
 
-  const frame   = BLIND_SPOT_FRAME[rawState]  || BLIND_SPOT_FRAME['COHERENT'];
-  const body    = BLIND_SPOT_BODY[rawState]   || '';
-  const variantKey = rawState + '_' + sub;
-  // Fallback: if subtype not found, use EMBEDDED variant
-  const variant = BLIND_SPOT_VARIANTS[variantKey] || BLIND_SPOT_VARIANTS[rawState + '_EMBEDDED'] || '';
+  // 1. Frame-setter
+  const frame = BLIND_SPOT_FRAME[rawState] || BLIND_SPOT_FRAME['COHERENT'];
 
-  return frame + body + variant;
+  // 2+3. Section label + body
+  const body = bsClassificationLabel + (BLIND_SPOT_BODY[rawState] || '');
+
+  // 4+5. HR + variant block with amber card and subtype label
+  const subDisplay = {'FORMING':'Forming','SETTLED':'Settled','EMBEDDED':'Embedded'}[sub] || sub;
+  const variantHeading = rawState === 'FRACTURED' ? 'WHAT THIS MEANS' : 'WHAT THIS LOOKS LIKE';
+  const variantLabelEl = "<p style='font-family:Inter,sans-serif;font-size:8pt;font-weight:700;letter-spacing:2px;color:#9A6800;text-transform:uppercase;margin-bottom:10px;'>" + variantHeading + ' — ' + subDisplay + "</p>";
+  const variantKey = rawState + '_' + sub;
+  const variantContent = BLIND_SPOT_VARIANTS[variantKey] || BLIND_SPOT_VARIANTS[rawState + '_EMBEDDED'] || '';
+  const variantBlock = bsHR + bsVariantWrapOpen + variantLabelEl + variantContent + bsVariantWrapClose;
+
+  // 6. Closing block
+  return frame + body + variantBlock + BLIND_SPOT_WHAT_FOLLOWS;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1516,29 +1542,3 @@ function assembleReport(v) {
     sec04_08: sec04Output.sec04_08,
     being_state_name: beingStateStyled,
     relating_state_name: relatingStateStyled,
-    creating_state_name: creatingStateStyled,
-    sec05_html: sec05_html,
-    closing_frame: closing_frame,
-  };
-}
-
-// ════════════════════════════════════════════════════════════════
-// VERCEL SERVERLESS HANDLER
-// ════════════════════════════════════════════════════════════════
-module.exports = async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
-  try {
-    const v = req.body;
-    if (!v.coherence_state || !v.gap_type || !v.pattern_dominance) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-    const result = assembleReport(v);
-    return res.status(200).json(result);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
