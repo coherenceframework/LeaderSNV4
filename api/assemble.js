@@ -1103,7 +1103,7 @@ const SEC10_DRIVEN_BLIND = `The distance between what you feel and what the inst
 // ════════════════════════════════════════════════════════════════
 
 // Fixed body prose per state — identical across all three duration subtypes.
-// Variant content (What this looks like + Bring to your practitioner) is in BLIND_SPOT_VARIANTS.
+// Variant content (What this looks like / What this means) is in BLIND_SPOT_VARIANTS.
 const BLIND_SPOT_BODY = {
   'COHERENT':
     ps + "A COHERENT classification reflects a pattern of integrated functioning across the eight domains. The instrument detected consistent signals of direction, stable presence, coherent narrative, and engaged relationships. That pattern is real — and in most cases, it is what it appears to be." + pe
@@ -1130,78 +1130,84 @@ const BLIND_SPOT_BODY = {
     + ps + "The instrument cannot, however, distinguish between genuine integration and highly developed performance. Some leaders have learned, over time, to present coherence with great precision — consistent narrative, managed relationships, stable external behaviour — while the interior experience is something different. This is not deception. It is a sophisticated adaptation that the instrument measures as signal." + pe,
 };
 
+// Frame-setter per state — appears at the TOP of the blind spot page, before body prose
+// and scenario. Reframes what follows as preparation for the practitioner conversation,
+// not a conclusion to draw alone. Replaces the "Bring to your practitioner" closing
+// paragraphs that previously ended each variant cell.
+const BLIND_SPOT_FRAME = {
+  'COHERENT':
+    ps + "What follows is not a verdict on your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as COHERENT. What it cannot determine — and what this reading is designed to surface rather than confirm — is which kind of coherence this is, and what it asks of you next. That question belongs to the practitioner conversation, not to this page." + pe,
+  'DRIVEN':
+    ps + "What follows is not a verdict on how you lead. It is context for the conversation this reading is designed to begin. The instrument has classified your operating pattern as DRIVEN. Whether that pattern is actively chosen, unconsciously maintained, or beginning to extract a cost you have not yet named is not something this reading can determine. That is the conversation." + pe,
+  'STRAINED':
+    ps + "What follows is not a conclusion about your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as STRAINED. What it cannot determine — and what this reading is designed to surface rather than resolve — is whether what you are carrying is a temporary configuration under pressure, or a structural pattern. That question belongs to your practitioner, not to this page." + pe,
+  'DRIFTING':
+    ps + "What follows is not an assessment of what you have lost. It is the context your practitioner needs to begin the conversation this reading is designed to open. The instrument has classified your operating pattern as DRIFTING. What it cannot determine is how far the drift extends, or what it would take to recover the signal. That is not a question this report can answer. It is the work of the conversation that follows." + pe,
+  'FRACTURED':
+    ps + "Before you read further: this reading is not the intervention. It is the indication that one is needed. What follows is context for the conversation your practitioner must lead — not a roadmap you are expected to navigate alone." + pe
+    + ps + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + pe,
+  'QUALIFIED':
+    ps + "What follows is not a verdict on your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as COHERENT. What it cannot determine — and what this reading is designed to surface rather than confirm — is which kind of coherence this is, and what it asks of you next. That question belongs to the practitioner conversation, not to this page." + pe,
+};
+
 // 15-variant matrix: keyed by STATE_SUBTYPE
-// Each value is the variable ending: scenario + practitioner note
+// Each value is the scenario paragraph only.
+// "Bring to your practitioner" paragraphs moved to BLIND_SPOT_FRAME (top of page).
 const BLIND_SPOT_VARIANTS = {
 
   // ── COHERENT ──────────────────────────────────────────────────
   'COHERENT_FORMING':
     ps + bld + "What this looks like:" + be + " This classification arrived at a moment of transition. You identified something as recently shifted — not yet settled. In that window, the instrument is reading a pattern that may itself be in formation. Some leaders develop a coherent presentation precisely when the interior experience becomes uncertain — the external organisation of self becomes more deliberate just as the internal experience becomes less stable. If the portrait felt partly familiar and partly constructed, that is not unusual at this stage. The distance between the two is worth naming before it closes." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " The question is not whether this reading is accurate — it may be — but whether the coherence it is detecting is the coherence that was there before the shift, or the coherence that has assembled itself in response to it. That distinction matters for what you build next." + pe,
 
   'COHERENT_SETTLED':
     ps + bld + "What this looks like:" + be + " This has been your pattern for some time — settled, not in flux. In that stability, there is something worth examining. Sustained performance of coherence becomes increasingly difficult to distinguish from coherence itself. The longer the pattern holds, the more complete the adaptation becomes, and the less perceptible the gap between interior experience and outward presentation. If you read this portrait and felt straightforward recognition — if it landed cleanly, as simply true — that ease is itself worth sitting with. Genuine integration and highly developed performance can feel identical from the inside at this stage. That is what makes this particular blind spot so durable." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " Ask yourself not whether this reading is accurate, but when you last felt the difference between who you are performing and who you are experiencing. If you cannot identify that moment readily, bring that to the conversation." + pe,
 
   'COHERENT_EMBEDDED':
     ps + bld + "What this looks like:" + be + " You selected “this is simply how I operate” — and for many COHERENT leaders, that is precisely true. The pattern is real, the integration is genuine, and the classification holds. But EMBEDDED is also the condition under which the performance-as-self pattern is most complete. When a coherent presentation has been the operating mode long enough to become baseline, the gap between performance and interior experience is no longer perceptible — not because it is not there, but because it has been closed off long enough to become illegible. If you read this portrait and felt nothing except recognition — no distance, no question, no moment of pause — that completeness is worth naming. Not as an accusation. As a data point." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " The instrument cannot see beneath a presentation that has become the self. That does not mean your practitioner cannot. The conversation is where that inquiry becomes possible — and at this duration, it is the only place it can happen." + pe,
 
   // ── DRIVEN ────────────────────────────────────────────────────
   'DRIVEN_FORMING':
     ps + bld + "What this looks like:" + be + " You identified this as a recent shift — something has changed, and the drive this instrument is reading may be part of that change. Some leaders move into a DRIVEN configuration in response to transition: when direction feels uncertain, intensified output becomes the organising strategy. If the drive you reported feels heightened compared to how you have previously operated, that context matters. The question at this stage is not whether the drive is real — it is — but whether you are driving toward something or away from something. At FORMING, that distinction is often still visible. The instrument cannot make it. You may be closer to it than you think." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " What shifted before the drive intensified? That question will tell you more about this classification than the classification itself." + pe,
 
   'DRIVEN_SETTLED':
     ps + bld + "What this looks like:" + be + " This has been your pattern for some time. The drive is established, the direction is consistent, the identity around high-activation functioning is settled. In that settledness, the distinction between pattern and identity deepens. The longer high drive has been the operating mode, the more completely it becomes the self-concept — and the less accessible the question of whether it was chosen or absorbed. If you moved through this instrument with confidence, recognising yourself readily in the high-activation signals, that fluency is worth pausing on. Not because it is wrong. Because fluent self-recognition is exactly what this blind spot produces." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " The question is not whether the drive is there. It is whether you can see anything that it might be organising around — or away from. That is the conversation the SETTLED DRIVEN classification needs to have." + pe,
 
   'DRIVEN_EMBEDDED':
     ps + bld + "What this looks like:" + be + " You selected “this is simply how I operate” — and the instrument is reading a pattern of high-activation drive that feels like the baseline. This is the condition under which the contamination between pattern and identity is most complete. When drive has been the operating mode long enough to become simply how things are, the instrument cannot distinguish between the state and the self-concept — and neither, often, can the person holding it. If you have never seriously questioned whether the drive is a way of functioning or a way of organising around something that would require a different kind of attention — that question is not a criticism. It is the exact territory this blind spot points toward." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " The EMBEDDED DRIVEN classification is the one where the instrument is most likely to be confirming an identity rather than reading a state. That does not mean the classification is wrong. It means the practitioner conversation needs to go somewhere the instrument cannot reach." + pe,
 
   // ── STRAINED ──────────────────────────────────────────────────
   'STRAINED_FORMING':
     ps + bld + "What this looks like:" + be + " You identified this as a recent shift — something has changed, and the strain arrived with it. This is the most legible version of STRAINED: the person can still feel the difference between now and before. The pressure has not yet become the baseline, and the source is often still visible. That gap is where this classification has the most leverage. If you can identify what changed before the strain appeared — a role shift, a relationship, a decision, a loss of something that had been organising the system — that information is more diagnostically useful than anything the instrument can detect on its own." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " What was different before this? Name it as specifically as you can. The answer tells you more about whether this is a temporary pressure or a structural signal than any classification can." + pe,
 
   'STRAINED_SETTLED':
     ps + bld + "What this looks like:" + be + " This has been your pattern for some time — not a new pressure, but a settled one. In that settledness, something important begins to happen: the strain stops registering as strain and starts registering as the conditions of the role. You may have found yourself describing the pressure as “just how it is at this level” or “what the work requires.” That framing is worth examining. It is not necessarily wrong — but it is the first stage of recalibration, and recalibration is what makes STRAINED harder to see from the inside as it deepens." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " The question is not whether the pressure is real — it is — but whether you have begun to stop noticing it. If the answer is yes, that is the most important thing to bring into the conversation." + pe,
 
   'STRAINED_EMBEDDED':
     ps + bld + "What this looks like:" + be + " You selected “this is simply how I operate” — and the instrument is reading strain as the baseline configuration of your leadership. This is the highest-urgency variant of STRAINED. When pressure has been the operating condition long enough to become how things simply are, the system has recalibrated around it. The friction is no longer friction — it is the texture of the work. If your first response to this classification was “yes, but this is just what leadership feels like” — that response is not a counterargument. It is the confirmation. The normalisation of strain is itself the most significant signal this classification produces." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " The question this reading cannot answer is whether the strain lifts when the situation changes — or whether it has become structural enough to follow you. That is not a question for the instrument. It is the conversation that must happen before any other decision is made." + pe,
 
   // ── DRIFTING ──────────────────────────────────────────────────
   'DRIFTING_FORMING':
     ps + bld + "What this looks like:" + be + " You identified this as a recent shift — something has changed, and the withdrawal this instrument is reading arrived with it. This is the most accessible version of DRIFTING: the person can often still identify the moment when engagement began to attenuate, when direction became less clear, when presence started to recede. That memory is useful. If you can name what preceded this shift — a decision, a disappointment, a loss of something that had been organising your energy — that information is the entry point. The drift is recent enough that the gap between before and now is still perceptible. That is a condition worth using." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " What was present before this that is not present now? Bring whatever answer you have, even if it is partial. That is where the conversation begins." + pe,
 
   'DRIFTING_SETTLED':
     ps + bld + "What this looks like:" + be + " This has been your pattern for some time — a settled withdrawal, an established distance. The calm that often accompanies DRIFTING tends to consolidate over time. What began as attenuated engagement gradually becomes a stable presentation: considered, measured, slightly removed. From the inside, it may no longer feel like drift at all — it may simply feel like how you have learned to hold things. If this reading felt accurate but unremarkable — if the classification landed without any particular weight — that evenness is worth noting. The instrument is not measuring how the pattern feels. It is measuring how the system is configured. At SETTLED, those two things can be very far apart." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " The question is not whether this reading is accurate. The question is whether you can still feel what it would be like to be more present than this. If that question feels distant or abstract, bring that to the conversation." + pe,
 
   'DRIFTING_EMBEDDED':
     ps + bld + "What this looks like:" + be + " You selected “this is simply how I operate” — and the instrument is reading a pattern of low-activation withdrawal that has become the baseline configuration. This is the most serious variant of DRIFTING. When the drift has been the operating mode long enough to become simply how things are, the self-report becomes the least reliable signal in the system. The dissociation that characterises this state does not present as distress at this depth. It presents as equanimity. As distance that reads as perspective. As a kind of stillness that can appear entirely functional while the underlying configuration continues to attenuate. The absence of felt urgency is not evidence that urgency is absent. It is a feature of this state at this duration." + pe
-    + ps + bld + "Bring to your practitioner:" + be + " This reading cannot confirm how serious this is. What it can confirm is that the instrument detected it — and that at this duration, detection matters more than the person holding the pattern is likely to feel. That is the precise reason the practitioner conversation is not optional here." + pe,
 
   // ── FRACTURED ─────────────────────────────────────────────────
   // FRACTURED uses "What this means" + "The one thing this reading requires" instead of
   // the standard "What this looks like" + "Bring to your practitioner" labels.
   'FRACTURED_FORMING':
     ps + bld + "What this means:" + be + " You identified this as a recent shift — something has changed, and the fracture this instrument is reading arrived with it. This is the variant of FRACTURED where the experience is most visible and most legible: the fragmentation is recognisable, the disorientation is active, and the gap between how things were and how they are now has not yet been absorbed into a new presentation. That visibility matters. The system has not yet adapted around the fracture. What you are experiencing is what is happening — and that directness, while difficult, is the condition under which intervention is most effective and most clear." + pe
-    + ps + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + pe
     + ps + bld + "The one thing this reading requires:" + be + " A conversation with your practitioner as soon as possible. Not after you have had time to process this. The acuity of this moment is not a liability. It is a resource." + pe,
 
   'FRACTURED_SETTLED':
     ps + bld + "What this means:" + be + " You identified this as a settled pattern — something that has been present for some time. At this duration, FRACTURED tends to produce a mixed presentation: elements of visible fragmentation alongside the beginnings of adaptation to it. The person may have developed partial strategies for functioning around the fracture — ways of organising through it, containing it, presenting despite it — without the underlying configuration having resolved. That partial adaptation is not recovery. It is the system learning to operate in the presence of fragmentation rather than through resolution of it. The gap between presentation and classification may be widening." + pe
-    + ps + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + pe
     + ps + bld + "The one thing this reading requires:" + be + " A conversation with your practitioner before any decision, action, or interpretation is treated as settled. The duration of this pattern makes that conversation more important, not less." + pe,
 
   'FRACTURED_EMBEDDED':
     ps + bld + "What this means:" + be + " You selected “this is simply how I operate” — and at this duration, FRACTURED produces its most complex presentation. When fragmentation has been the operating mode long enough to become the baseline, the system builds an accommodation around it. The presentation becomes flat, stable, unremarkable. The distress that characterises acute FRACTURED is absent — not because the fragmentation has resolved, but because it has been absorbed into how things simply are. This is the dissociative variant, and it is the one where the gap between how a person presents and what the instrument is detecting is widest. The absence of felt urgency here is not a sign that urgency is misplaced. It is a characteristic feature of fragmentation at this depth." + pe
-    + ps + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + pe
     + ps + bld + "The one thing this reading requires:" + be + " A conversation with your practitioner before any decision, action, or interpretation is treated as settled. That is not a precaution. It is the design. And at this duration, it is not a suggestion." + pe,
 };
 
@@ -1210,15 +1216,17 @@ const BLIND_SPOT_VARIANTS = {
 // in the Zoho Writer template. blind_spot_page returns body + variant only.
 
 function buildBlindSpotPage(state, durationSubtype) {
+  // Page order: frame (practitioner opener) → body (state prose) → variant (scenario)
   const rawState = (state || 'COHERENT').toUpperCase();
   const sub = (durationSubtype || 'EMBEDDED').toUpperCase();
 
-  const body = BLIND_SPOT_BODY[rawState] || '';
+  const frame   = BLIND_SPOT_FRAME[rawState]  || BLIND_SPOT_FRAME['COHERENT'];
+  const body    = BLIND_SPOT_BODY[rawState]   || '';
   const variantKey = rawState + '_' + sub;
   // Fallback: if subtype not found, use EMBEDDED variant
   const variant = BLIND_SPOT_VARIANTS[variantKey] || BLIND_SPOT_VARIANTS[rawState + '_EMBEDDED'] || '';
 
-  return body + variant;
+  return frame + body + variant;
 }
 
 // ════════════════════════════════════════════════════════════════
