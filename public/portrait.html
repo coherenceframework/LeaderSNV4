@@ -163,14 +163,15 @@ svgTxt(cx,osLabelY,'YOUR PRIMAL GAP',{
   'text-anchor':'middle','font-size':'14','font-weight':'700',
   'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
-  svgTxt(cx,osLabelY+17,'Between your Coherent Core and Adapated Self',{
-  'text-anchor':'middle','font-size':'12','font-weight':'600',
-  'letter-spacing':'1.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
-});
-svgTxt(cx,osLabelY+35,overallState.toUpperCase()+' with '+overallPct+'% resistance',{
+  svgTxt(cx,osLabelY+35,'CLASSIFIED STATE', overallState.toUpperCase()+'/'+overallPct+'% resistance to your Coherent Core',{
   'text-anchor':'middle','font-size':'12','font-weight':'700',
   'letter-spacing':'0.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
 });
+  svgTxt(cx,osLabelY+35,'+overallPct+'% resistance to your Coherent Core',{
+  'text-anchor':'middle','font-size':'12','font-weight':'700',
+  'letter-spacing':'0.5',fill:SC[overallState].solid,'font-family':'DM Sans, sans-serif'
+});
+
 
 // B/R/C LABELS — midR is the radial midpoint of each ring
 // With minimum ring thickness enforced, labels are always separated by at least 2×labelR
