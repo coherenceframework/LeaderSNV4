@@ -1134,20 +1134,24 @@ const BLIND_SPOT_BODY = {
 // and scenario. Reframes what follows as preparation for the practitioner conversation,
 // not a conclusion to draw alone. Replaces the "Bring to your practitioner" closing
 // paragraphs that previously ended each variant cell.
+// Styled with a left border to visually distinguish the frame from the body content.
+const frameS = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#5A5A6E;font-style:italic;border-left:3px solid #D4A843;padding-left:12px;margin-bottom:16px;line-height:1.2;'>";
+const frameFracturedS = "<p style='font-family:Inter,sans-serif;font-size:10pt;color:#5A5A6E;font-style:italic;border-left:3px solid #A82828;padding-left:12px;margin-bottom:16px;line-height:1.2;'>";
+
 const BLIND_SPOT_FRAME = {
   'COHERENT':
-    ps + "What follows is not a verdict on your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as COHERENT. What it cannot determine — and what this reading is designed to surface rather than confirm — is which kind of coherence this is, and what it asks of you next. That question belongs to the practitioner conversation, not to this page." + pe,
+    frameS + "What follows is not a verdict on your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as COHERENT. What it cannot determine — and what this reading is designed to surface rather than confirm — is which kind of coherence this is, and what it asks of you next. That question belongs to the practitioner conversation, not to this page." + "</p>",
   'DRIVEN':
-    ps + "What follows is not a verdict on how you lead. It is context for the conversation this reading is designed to begin. The instrument has classified your operating pattern as DRIVEN. Whether that pattern is actively chosen, unconsciously maintained, or beginning to extract a cost you have not yet named is not something this reading can determine. That is the conversation." + pe,
+    frameS + "What follows is not a verdict on how you lead. It is context for the conversation this reading is designed to begin. The instrument has classified your operating pattern as DRIVEN. Whether that pattern is actively chosen, unconsciously maintained, or beginning to extract a cost you have not yet named is not something this reading can determine. That is the conversation." + "</p>",
   'STRAINED':
-    ps + "What follows is not a conclusion about your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as STRAINED. What it cannot determine — and what this reading is designed to surface rather than resolve — is whether what you are carrying is a temporary configuration under pressure, or a structural pattern. That question belongs to your practitioner, not to this page." + pe,
+    frameS + "What follows is not a conclusion about your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as STRAINED. What it cannot determine — and what this reading is designed to surface rather than resolve — is whether what you are carrying is a temporary configuration under pressure, or a structural pattern. That question belongs to your practitioner, not to this page." + "</p>",
   'DRIFTING':
-    ps + "What follows is not an assessment of what you have lost. It is the context your practitioner needs to begin the conversation this reading is designed to open. The instrument has classified your operating pattern as DRIFTING. What it cannot determine is how far the drift extends, or what it would take to recover the signal. That is not a question this report can answer. It is the work of the conversation that follows." + pe,
+    frameS + "What follows is not an assessment of what you have lost. It is the context your practitioner needs to begin the conversation this reading is designed to open. The instrument has classified your operating pattern as DRIFTING. What it cannot determine is how far the drift extends, or what it would take to recover the signal. That is not a question this report can answer. It is the work of the conversation that follows." + "</p>",
   'FRACTURED':
-    ps + "Before you read further: this reading is not the intervention. It is the indication that one is needed. What follows is context for the conversation your practitioner must lead — not a roadmap you are expected to navigate alone." + pe
-    + ps + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + pe,
+    frameFracturedS + "Before you read further: this reading is not the intervention. It is the indication that one is needed. What follows is context for the conversation your practitioner must lead — not a roadmap you are expected to navigate alone." + "</p>"
+    + frameFracturedS + "This report was released to you following a practitioner review. That review was the first step, not the only one. What you are holding is a classification — not a roadmap, not a recovery plan, and not a conclusion." + "</p>",
   'QUALIFIED':
-    ps + "What follows is not a verdict on your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as COHERENT. What it cannot determine — and what this reading is designed to surface rather than confirm — is which kind of coherence this is, and what it asks of you next. That question belongs to the practitioner conversation, not to this page." + pe,
+    frameS + "What follows is not a verdict on your leadership. It is preparation for the conversation this reading is designed to open. The instrument has classified your operating state as COHERENT. What it cannot determine — and what this reading is designed to surface rather than confirm — is which kind of coherence this is, and what it asks of you next. That question belongs to the practitioner conversation, not to this page." + "</p>",
 };
 
 // 15-variant matrix: keyed by STATE_SUBTYPE
